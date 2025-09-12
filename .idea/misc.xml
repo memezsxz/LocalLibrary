@@ -1,0 +1,24 @@
+<project version="4">
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <type id="android" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id>Flutter</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>FlutterDependency</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectRootManager">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>
