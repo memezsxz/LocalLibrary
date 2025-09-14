@@ -88,11 +88,114 @@ class AppApiDataSource {
 
   /// Optional convenience for a "list stories" endpoint if present at /app/stories.
   /// Adjust the path if your server uses a different route.
-  Future<List<Story>> listStories() async {
-    final path = '/app/stories';
-    final res = await _safeGet(_uri(path));
+  Future<List<Story>> listStories({int limit = 18, int offset = 0}) async {
+    final path = '/stories';
+    final qp = <String, String>{'limit': '$limit', 'offset': '$offset'};
+    final res = await _safeGet(_uri(path).replace(queryParameters: qp));
     final body = _decodeBodyString(res);
     return storyListFromJson(body);
+  }
+
+  Future<List<int>> listCurrentlyReadingStories({
+    required DateTime since,
+    int limit = 6,
+    int offset = 0,
+  }) async {
+    const path = '/stories/currently_reading';
+
+    // base params
+    final qp = <String, String>{'limit': '$limit', 'offset': '$offset'};
+
+    // Only send timestamp if caller provided it.
+    // Ensure RFC3339 without milliseconds: 2006-01-02T15:04:05Z
+    final ts = since.toUtc().toIso8601String();
+    final rfc3339 = ts.contains('.')
+        ? ts.substring(0, ts.indexOf('.')) + 'Z'
+        : ts; // already ends with 'Z'
+    qp['timestamp'] = rfc3339;
+
+    final uri = _uri(path).replace(queryParameters: qp);
+    final res = await _safeGet(uri);
+    final body = _decodeBodyString(res);
+    final decoded = jsonDecode(body);
+
+    // Accept either [1,2,3] or { "story_ids": [1,2,3] }
+    final list = (decoded is List)
+        ? decoded
+        : (decoded is Map<String, dynamic> ? decoded['story_ids'] : null);
+
+    if (list is! List) {
+      throw Exception('Unexpected response for currently reading: $decoded');
+    }
+    return list.map<int>((e) => (e as num).toInt()).toList();
+  }
+
+  Future<List<int>> listRecentlyAddedStories({
+    required DateTime since,
+    int limit = 6,
+    int offset = 0,
+  }) async {
+    const path = '/stories/recently_added';
+
+    // base params
+    final qp = <String, String>{'limit': '$limit', 'offset': '$offset'};
+
+    // Only send timestamp if caller provided it.
+    // Ensure RFC3339 without milliseconds: 2006-01-02T15:04:05Z
+    final ts = since.toUtc().toIso8601String();
+    final rfc3339 = ts.contains('.')
+        ? ts.substring(0, ts.indexOf('.')) + 'Z'
+        : ts; // already ends with 'Z'
+    qp['timestamp'] = rfc3339;
+
+    final uri = _uri(path).replace(queryParameters: qp);
+    final res = await _safeGet(uri);
+    final body = _decodeBodyString(res);
+    final decoded = jsonDecode(body);
+
+    // Accept either [1,2,3] or { "story_ids": [1,2,3] }
+    final list = (decoded is List)
+        ? decoded
+        : (decoded is Map<String, dynamic> ? decoded['story_ids'] : null);
+
+    if (list is! List) {
+      throw Exception('Unexpected response for recently added: $decoded');
+    }
+    return list.map<int>((e) => (e as num).toInt()).toList();
+  }
+
+  Future<List<int>> listRecentlyFinishedStories({
+    required DateTime since,
+    int limit = 6,
+    int offset = 0,
+  }) async {
+    const path = '/stories/recently_finished';
+
+    // base params
+    final qp = <String, String>{'limit': '$limit', 'offset': '$offset'};
+
+    // Only send timestamp if caller provided it.
+    // Ensure RFC3339 without milliseconds: 2006-01-02T15:04:05Z
+    final ts = since.toUtc().toIso8601String();
+    final rfc3339 = ts.contains('.')
+        ? ts.substring(0, ts.indexOf('.')) + 'Z'
+        : ts; // already ends with 'Z'
+    qp['timestamp'] = rfc3339;
+
+    final uri = _uri(path).replace(queryParameters: qp);
+    final res = await _safeGet(uri);
+    final body = _decodeBodyString(res);
+    final decoded = jsonDecode(body);
+
+    // Accept either [1,2,3] or { "story_ids": [1,2,3] }
+    final list = (decoded is List)
+        ? decoded
+        : (decoded is Map<String, dynamic> ? decoded['story_ids'] : null);
+
+    if (list is! List) {
+      throw Exception('Unexpected response for currently finished: $decoded');
+    }
+    return list.map<int>((e) => (e as num).toInt()).toList();
   }
 
   Future<List<Paragraph>> fetchPartParagraphs({
@@ -434,7 +537,10 @@ class AppApiDataSource {
     if (limit != null) list['limit'] = '$limit';
     if (offset != null) list['offset'] = '$offset';
 
-    final uri = _uri('/app/stories/$storyId/paragraphs/$paragraphId/comments', list);
+    final uri = _uri(
+      '/app/stories/$storyId/paragraphs/$paragraphId/comments',
+      list,
+    );
     final res = await _safeGet(uri);
     final body = _decodeBodyString(res);
     final decoded = jsonDecode(body);

@@ -9,6 +9,7 @@ import '../../core/route/story_route.dart';
 import '../../core/theme/app_palette.dart';
 import '../bloc/part_bloc.dart';
 import '../bloc/story_bloc.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class PartInfoSidePanel extends StatelessWidget {
   const PartInfoSidePanel({super.key, required this.storyId});
@@ -19,7 +20,7 @@ class PartInfoSidePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<StoryBloc, StoryState>(
       buildWhen: (prev, next) =>
-      prev.bundleFor(storyId) != next.bundleFor(storyId) ||
+          prev.bundleFor(storyId) != next.bundleFor(storyId) ||
           prev.isLoading(storyId) != next.isLoading(storyId) ||
           prev.errorFor(storyId) != next.errorFor(storyId),
       builder: (context, state) {
@@ -64,7 +65,9 @@ class PartInfoSidePanel extends StatelessWidget {
                     children: [
                       GestureDetector(
                         child: Container(
-                          decoration:  BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(5))),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
                           clipBehavior: Clip.antiAliasWithSaveLayer,
                           child: LocalImage.relative(
                             storageRoot: "/Users/meme/Desktop/storage",
@@ -83,39 +86,59 @@ class PartInfoSidePanel extends StatelessWidget {
                           goToStory(context, storyId);
                         },
                       ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            b.story.title.trim(),
-                            style: Theme.of(context).textTheme.titleMedium,
-                            textAlign: TextAlign.start,
-                          ),
-                          Spacer(),
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: 'By ',
-                                  style: const TextStyle(color: Colors.black),
-                                ),
-                                TextSpan(
-                                  text: b.author.username,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      debugPrint(
-                                        'clicked ${b.author.username}',
-                                      );
-                                    },
-                                ),
-                              ],
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Title (shrinks down but keeps up to 2 lines)
+                            SizedBox(
+                              width: double.infinity,
+                              height: MediaQuery.of(context).size.height / 10,
+                              child: AutoSizeText(
+                                b.story.title.trim() ,
+                                style: Theme.of(context).textTheme.titleMedium,
+                                maxLines: 4,
+                                minFontSize: 10,
+                                // how small it’s allowed to g
+                                stepGranularity: 0.5,
+                                // smoother steps when shrinking
+                                overflow: TextOverflow.ellipsis,
+                                wrapWords: true,
+                                softWrap: true,
+                              ),
                             ),
-                          ),
-                        ],
+
+                            const SizedBox(height: 6),
+
+                            // Author line (single line, shrinks if tight)
+                            AutoSizeText.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'By ',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: b.author.username,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () => debugPrint(
+                                        'clicked ${b.author.username}',
+                                      ),
+                                  ),
+                                ],
+                              ),
+                              maxLines: 1,
+                              minFontSize: 10,
+                              overflow: TextOverflow.ellipsis,
+                              stepGranularity: 0.5,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

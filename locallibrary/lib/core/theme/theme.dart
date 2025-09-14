@@ -18,6 +18,7 @@ class AppTheme {
     lineHeight: LineHeight.rem(1.4),
     fontSize: FontSize.larger,
     color: Colors.black,
+    textDecorationColor: Colors.black
     // direction: p.direction.toTextDirection,
   );
 

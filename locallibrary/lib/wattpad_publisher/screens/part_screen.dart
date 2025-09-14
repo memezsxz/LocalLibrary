@@ -98,8 +98,9 @@ class _PartView extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppPalette.surfaceAlt,
                           image: DecorationImage(
+                            repeat: ImageRepeat.repeat,
                             image: AssetImage("assets/images/texture_5.png"),
-                            fit: BoxFit.fill,
+                            fit: BoxFit.none,
                             opacity: 0.1,
                           ),
                           boxShadow: [

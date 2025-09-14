@@ -6,7 +6,6 @@ import 'package:locallibrary/core/theme/app_palette.dart';
 import '../../core/exstentions/image.dart';
 import '../../dependency_ingection.dart';
 import '../datasource.dart';
-import '../models/models.dart' hide Image;
 import '../models/server_models.dart';
 import 'dashed_line.dart';
 
@@ -15,19 +14,38 @@ class DashboardShelves extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final since = DateTime.now().toUtc().subtract(const Duration(days: 7));
+
     return Padding(
       padding: const EdgeInsets.all(10).copyWith(top: 0),
       child: SingleChildScrollView(
         clipBehavior: Clip.none,
-
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Shelve(title: "Currently Reading"),
+            _ShelfSection(
+              title: "Currently Reading",
+              future: sl.get<AppApiDataSource>().listCurrentlyReadingStories(
+                since: since,
+                limit: 6,
+              ),
+            ),
             const SizedBox(height: 12),
-            Shelve(title: "Next"),
+            _ShelfSection(
+              title: "Next",
+              future: sl.get<AppApiDataSource>().listRecentlyAddedStories(
+                since: since,
+                limit: 6,
+              ),
+            ),
             const SizedBox(height: 12),
-            Shelve(title: "Finished"),
+            _ShelfSection(
+              title: "Finished",
+              future: sl.get<AppApiDataSource>().listRecentlyFinishedStories(
+                since: since,
+                limit: 6,
+              ),
+            ),
           ],
         ),
       ),
@@ -35,129 +53,138 @@ class DashboardShelves extends StatelessWidget {
   }
 }
 
-class Shelve extends StatelessWidget {
-  final String? title;
+class _ShelfSection extends StatelessWidget {
+  final String title;
+  final Future<List<int>> future;
 
-  Shelve({super.key, this.title})
-    : _future = sl<StoryRemoteDataSource>().fetchMinimal(storyId: 1);
-
-  final Future<BookMinimal> _future;
+  const _ShelfSection({required this.title, required this.future, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<BookMinimal>(
-      future: _future,
+    return FutureBuilder<List<int>>(
+      future: future,
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snap.hasError) {
-          print(snap.error);
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text('Failed to load: ${snap.error}'),
+          return SizedBox(
+            height: 160, // adjust to your Shelve's typical height
+            child: const Center(child: CircularProgressIndicator()),
           );
         }
-        final book = snap.data!;
-        return Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (title != null)
-              Padding(
-                padding: const EdgeInsets.all(8).copyWith(bottom: 20),
-                child: Text(
-                  title!,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(color: AppPalette.primary),
-                ),
-              ),
-            // Give the shadow room below the shelf *inside* the panel
-            Padding(
-              padding: const EdgeInsets.only(bottom: 28), // space for blur
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.bottomLeft,
-                children: [
-                  // 1) Base strip (visible "shelf")
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: InnerShadow(
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withOpacity(0.12),
-                          offset: const Offset(1, -1),
-                          blurRadius: 4,
-                        ),
-                      ],
-                      child: Container(
-                        height: 20,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xffFCF3E7),
-                              Color(0xffF4EADD),
-                              Color(0xffF1E6D8),
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                  ),
+        if (snap.hasError) {
+          // TODO: show a toast/snackbar if you want
+          return Shelve(title: title, storyIds: const []);
+        }
+        final ids = snap.data ?? const <int>[];
+        return Shelve(title: title, storyIds: ids);
+      },
+    );
+  }
+}
 
-                  // 2) OUTER shadow kept *inside* the panel (not overflowing)
-                  //    Make it slightly above bottom so its blur remains visible.
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 2,
+class Shelve extends StatelessWidget {
+  final String? title;
+  final List<int> storyIds;
+
+  const Shelve({super.key, this.title, required this.storyIds});
+
+  @override
+  Widget build(BuildContext context) {
+    print(storyIds);
+    final tileW = MediaQuery.of(context).size.width / 20;
+    final tileH = tileW * 1.75;
+
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (title != null)
+          Padding(
+            padding: const EdgeInsets.all(8).copyWith(bottom: 20),
+            child: Text(
+              title!,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: AppPalette.primary),
+            ),
+          ),
+        // Give the shadow room below the shelf *inside* the panel
+        Padding(
+          padding: const EdgeInsets.only(bottom: 28), // space for blur
+          child: SizedBox(
+            height: tileH,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.bottomLeft,
+              children: [
+                // 1) Base strip (visible "shelf")
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: InnerShadow(
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.12),
+                        offset: const Offset(1, -1),
+                        blurRadius: 4,
+                      ),
+                    ],
                     child: Container(
                       height: 20,
                       decoration: BoxDecoration(
-                        // color: Colors.transparent, // not required with BoxDecoration
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            offset: const Offset(-8, 20), // smaller offset
-                            blurRadius: 30, // smaller blur
-                            spreadRadius: 0,
-                          ),
-                        ],
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xffFCF3E7),
+                            Color(0xffF4EADD),
+                            Color(0xffF1E6D8),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
+                ),
 
-                  // 3) Books on top
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20, bottom: 5),
-                    child: Row(
-                      spacing: 70,
-                      children: [
-                        BookMinimalView(storyId: 1),
-                        BookMinimalView(storyId: 2),
-                        // BookMinimalView(storyId: 3,),
-                        // BookMinimalView(storyId: 4,),
-                        // BookMinimalView(storyId: 5,),
-                        // BookMinimalView(storyId: 7,),
-                        // BookMinimalView(storyId: 8,),
-                        BookMinimalView(storyId: 9),
-                        BookMinimalView(storyId: 10),
+                // 2) OUTER shadow kept *inside* the panel (not overflowing)
+                //    Make it slightly above bottom so its blur remains visible.
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 2,
+                  child: Container(
+                    height: 20,
+                    decoration: BoxDecoration(
+                      // color: Colors.transparent, // not required with BoxDecoration
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          offset: const Offset(-8, 20), // smaller offset
+                          blurRadius: 30, // smaller blur
+                          spreadRadius: 0,
+                        ),
                       ],
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                ],
-              ),
+                ),
+
+                // 3) Books on top
+                Padding(
+                  padding: const EdgeInsets.only(left: 20, bottom: 5),
+                  child: Row(
+                    spacing: 70,
+                    children: storyIds
+                        .map((id) => BookMinimalView(storyId: id))
+                        .toList(),
+                  ),
+                ),
+              ],
             ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -176,28 +203,30 @@ class BookMinimalView extends StatelessWidget {
     return FutureBuilder<BookMinimal>(
       future: book,
       builder: (context, snap) {
-        Widget content;
-        final tileW = MediaQuery.of(context).size.width / 20;
-        final tileH = tileW * 1.75; // <-- fixed tile height so the bottom stays bottom
-
         if (snap.connectionState == ConnectionState.waiting) {
-          content = const Center(child: CircularProgressIndicator());
-        }
-
-        if (snap.hasError) {
-          print(snap.error);
-          content = Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text('Failed to load: ${snap.error}'),
+          return _sizeContent(
+            context,
+            const Center(child: CircularProgressIndicator()),
           );
         }
 
-        content = Text("data");
+        if (snap.hasError) {
+          print("snap error: ${snap.error}");
+
+          return _sizeContent(
+            context,
+            Padding(
+              padding: const EdgeInsets.all(16),
+
+              child: Text('Failed to load'),
+            ),
+          );
+        }
 
         final book = snap.data!;
         // print("data: ${snap.data?.image.path}");
 
-        content = Column(
+        Widget content = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
@@ -228,7 +257,6 @@ class BookMinimalView extends StatelessWidget {
                       );
                     },
                     child: SizedBox.expand(
-
                       child: LocalImage.relative(
                         storageRoot: "/Users/meme/Desktop/storage",
                         storyWattId: book.wattId,
@@ -246,10 +274,16 @@ class BookMinimalView extends StatelessWidget {
           ],
         );
 
-        print(book.image.path!);
-        return SizedBox(width: tileW,  height: tileH, child: content);
+        return _sizeContent(context, content);
       },
     );
+  }
+
+  Widget _sizeContent(BuildContext context, Widget content) {
+    final tileW = MediaQuery.of(context).size.width / 20;
+    final tileH = tileW * 1.75;
+
+    return SizedBox(width: tileW, height: tileH, child: content);
   }
 }
 

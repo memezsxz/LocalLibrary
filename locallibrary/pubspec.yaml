@@ -48,6 +48,7 @@ dependencies:
   video_player: ^2.9.1
   url_launcher: ^6.3.2
   url_launcher_macos: ^3.2.3
+  auto_size_text: ^3.0.0
 
 
   media_kit: ^1.2.0
