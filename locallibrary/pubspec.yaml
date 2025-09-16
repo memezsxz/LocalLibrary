@@ -49,6 +49,7 @@ dependencies:
   url_launcher: ^6.3.2
   url_launcher_macos: ^3.2.3
   auto_size_text: ^3.0.0
+  flutter_launcher_icons: ^0.14.4
 
 
   media_kit: ^1.2.0
@@ -119,6 +120,7 @@ flutter:
     #    - assets/*
     - assets/images/
     - assets/icons/
+#    - assets/
 #    - fonts/Cherry_Swash
 
   fonts:
@@ -127,3 +129,8 @@ flutter:
         - asset: fonts/Cherry_Swash/CherrySwash-Regular.ttf
         - asset: fonts/Cherry_Swash/CherrySwash-Bold.ttf
           weight: 700
+
+
+
+flutter_launcher_icons:
+  path: ./flutter_launcher_icons.yaml
