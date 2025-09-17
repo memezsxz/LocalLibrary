@@ -45,14 +45,14 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
     return BlocListener<PartSidePanelCubit, PartSidePanelState>(
       bloc: panelCubit,
       listener: (context, state) {
-        debugPrint('[SidePanelScaffold] listener state=${state.runtimeType}');
+        // debugPrint('[SidePanelScaffold] listener state=${state.runtimeType}');
 
         // Option B: prime comments when we switch to Comments with a paragraph
         if (state is PartSidePanelCommentsCubit) {
           final commentsBloc = context.read<CommentsBloc>();
           final blocId = identityHashCode(commentsBloc);
           if (state.paragraph != null) {
-            debugPrint('[SidePanelScaffold] priming paragraph comments for storyId=${state.storyId} paragraph=${state.paragraph!.paragraphId} | CommentsBloc id=$blocId');
+            // debugPrint('[SidePanelScaffold] priming paragraph comments for storyId=${state.storyId} paragraph=${state.paragraph!.paragraphId} | CommentsBloc id=$blocId');
             commentsBloc.add(
               LoadParagraphComments(state.storyId, state.paragraph!.paragraphId),
             );
@@ -60,10 +60,10 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
             final partState = context.read<PartBloc>().state;
             if (partState is PartLoaded) {
               final partId = partState.info.part.partId;
-              debugPrint('[SidePanelScaffold] priming part comments for storyId=${state.storyId} partId=$partId | CommentsBloc id=$blocId');
+              // debugPrint('[SidePanelScaffold] priming part comments for storyId=${state.storyId} partId=$partId | CommentsBloc id=$blocId');
               commentsBloc.add(LoadPartComments(state.storyId, partId));
             } else {
-              debugPrint('[SidePanelScaffold] cannot prime part comments: PartBloc not loaded');
+              // debugPrint('[SidePanelScaffold] cannot prime part comments: PartBloc not loaded');
             }
           }
         }
@@ -75,14 +75,14 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
             bloc: panelCubit,
             builder: (context, state) {
               // using the SL singleton directly
-              debugPrint('Panel BlocBuilder rebuild - state: ${state.runtimeType}');
+              // debugPrint('Panel BlocBuilder rebuild - state: ${state.runtimeType}');
 
               // be tolerant to either naming
               final bool isClosed = state is PartSidePanelNoneCubit;
 
               final double panelW = isClosed ? 0.0 : widget.panelWidth;
               final currentKey = _panelKey(state);
-              debugPrint('[SidePanelScaffold] isClosed=$isClosed width=$panelW key=$currentKey');
+              // debugPrint('[SidePanelScaffold] isClosed=$isClosed width=$panelW key=$currentKey');
 
               // (optional) quick debug
               // debugPrint('panel cubit id=${identityHashCode(panelCubit)} state=${state.runtimeType} width=$panelW');
@@ -103,7 +103,7 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                 ),
                 child: panelW == 0
                     ? (() {
-                        debugPrint('[SidePanelScaffold] Panel is closed -> rendering SizedBox');
+                        // debugPrint('[SidePanelScaffold] Panel is closed -> rendering SizedBox');
                         return const SizedBox.shrink();
                       })()
                     : Material(
@@ -113,9 +113,9 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                           key: ValueKey(currentKey),
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              debugPrint('[SidePanelScaffold] panel child -> $currentKey (${state.runtimeType}) | panel constraints: minW=${constraints.minWidth}, maxW=${constraints.maxWidth}, minH=${constraints.minHeight}, maxH=${constraints.maxHeight}');
+                              // debugPrint('[SidePanelScaffold] panel child -> $currentKey (${state.runtimeType}) | panel constraints: minW=${constraints.minWidth}, maxW=${constraints.maxWidth}, minH=${constraints.minHeight}, maxH=${constraints.maxHeight}');
                               if (constraints.minWidth > constraints.maxWidth || constraints.minHeight > constraints.maxHeight) {
-                                debugPrint('[SidePanelScaffold][WARN] NON-NORMALIZED constraints passed into panel');
+                                // debugPrint('[SidePanelScaffold][WARN] NON-NORMALIZED constraints passed into panel');
                               }
                               return state.get(); // returns CommentsPanel/Info/...
                             },
@@ -170,16 +170,16 @@ class _Dock extends StatelessWidget {
 
     // get the cubit from the widget tree
     final panelCubit = context.read<PartSidePanelCubit>();
-    debugPrint('[Dock] panel cubit id (context) = ${identityHashCode(panelCubit)}');
+    // debugPrint('[Dock] panel cubit id (context) = ${identityHashCode(panelCubit)}');
 
     return BlocBuilder<PartSidePanelCubit, PartSidePanelState>(
       bloc: panelCubit, // <- use context-provided cubit
       builder: (context, selected) {
-        debugPrint('Dock BlocBuilder rebuild - state: ${selected.runtimeType}');
+        // debugPrint('Dock BlocBuilder rebuild - state: ${selected.runtimeType}');
         final bool selectedInfo        = selected is PartSidePanelPartInfoCubit;
         final bool selectedTypography  = selected is PartSidePanelTypographyCubit;
         final bool selectedComments    = selected is PartSidePanelCommentsCubit;
-        debugPrint('Dock selected states - info: $selectedInfo, typography: $selectedTypography, comments: $selectedComments');
+        // debugPrint('Dock selected states - info: $selectedInfo, typography: $selectedTypography, comments: $selectedComments');
 
         final all = <Widget>[
           _DockBtn(
@@ -212,12 +212,12 @@ class _Dock extends StatelessWidget {
             size: size,
             iconPath: "assets/icons/comments_icon.svg",
             onTap: () {
-              debugPrint('Comments dock button clicked - selectedComments: $selectedComments');
+              // debugPrint('Comments dock button clicked - selectedComments: $selectedComments');
               if (selectedComments) {
                 debugPrint('Clearing panel');
                 panelCubit.clear();
               } else {
-                debugPrint('Opening comments panel for storyId: $storyId (no paragraph)');
+                // debugPrint('Opening comments panel for storyId: $storyId (no paragraph)');
                 panelCubit.changeContent(
                   PartSidePanelCommentsCubit(storyId: storyId),
                 );

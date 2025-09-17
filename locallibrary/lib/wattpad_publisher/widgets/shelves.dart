@@ -89,7 +89,7 @@ class Shelve extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(storyIds);
+    // print(storyIds);
     final tileW = MediaQuery.of(context).size.width / 20;
     final tileH = tileW * 1.75;
 
@@ -211,7 +211,7 @@ class BookMinimalView extends StatelessWidget {
         }
 
         if (snap.hasError) {
-          print("snap error: ${snap.error}");
+          // print("snap error: ${snap.error}");
 
           return _sizeContent(
             context,
@@ -246,8 +246,8 @@ class BookMinimalView extends StatelessWidget {
                   ),
                   child: GestureDetector(
                     onTap: () {
-                      print(book.wattId);
-                      print(book.storyId);
+                      // print(book.wattId);
+                      // print(book.storyId);
 
                       context.pushNamed(
                         'story',

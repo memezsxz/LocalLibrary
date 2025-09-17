@@ -10,6 +10,7 @@ import 'package:locallibrary/wattpad_publisher/bloc/story_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/cubit/part_side_panel_cubit.dart';
 import 'package:locallibrary/wattpad_publisher/models/models.dart';
 import 'package:locallibrary/wattpad_publisher/models/server_models.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher_macos/url_launcher_macos.dart';
 import 'package:video_player/video_player.dart';
@@ -282,110 +283,7 @@ class PartContent extends StatelessWidget {
           //     },
           //   ),
           // ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: List.generate(info.paragraphs.length, (i) {
-              final p = info.paragraphs[i];
-              final comments = p.commentsCount;
-              final hasComments = comments > 0;
-
-              Widget content = Html(
-                data: p.content,
-                style: {
-                  "p": AppTheme.paragraphsStyle.copyWith(
-                    direction: p.direction.toTextDirection,
-                  ),
-                },
-              );
-
-              if (p.contentType == ContentType.image) {
-                content = ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.7,
-                  ),
-                  child: LocalImage.relative(
-                    storageRoot: "/Users/meme/Desktop/storage",
-                    storyWattId: context
-                        .read<StoryBloc>()
-                        .state
-                        .bundles[storyId]!
-                        .story
-                        .wattId,
-                    relativePath: p.media!.path!,
-                    width: double.infinity,
-                  ),
-                );
-              }
-
-              if (p.contentType == ContentType.video) {
-                // todo: handle videos
-              }
-
-              if (p.contentType == ContentType.link ||
-                  ((p.contentType == ContentType.video ) ||
-                  (p.contentType == ContentType.image) && p.media!.path == null)) {
-                content = RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: p.contentType.name,
-                        style: TextStyle(color: Colors.blue),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () async {
-                            const url = 'https://www.google.de/';
-                            if (await canLaunchUrl(Uri.parse(url))) {
-                              await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                            } else {
-                              throw 'Could not launch $url';
-                            }
-                          },
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              return IntrinsicHeight(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    // children get full height
-                    children: [
-                      // LEFT: comment icon with number inside (clickable)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 13),
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: CommentIcon(
-                            count: comments,
-                            visible: hasComments,
-                            onTap: () {
-                              final ctxCubit = context
-                                  .read<PartSidePanelCubit>();
-                              debugPrint(
-                                '[PartScreen] paragraph icon tap storyId=$storyId paragraphId=${p.paragraphId} | cubitId=${identityHashCode(ctxCubit)}',
-                              );
-                              ctxCubit.changeContent(
-                                PartSidePanelCommentsCubit(
-                                  storyId: storyId,
-                                  paragraph: p,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-
-                      // RIGHT: the paragraph
-                      Expanded(child: content),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
+          ParagraphsColumn(info: info, storyId: storyId),
           SizedBox(height: 40),
         ],
       ),
@@ -393,125 +291,131 @@ class PartContent extends StatelessWidget {
   }
 }
 
-// class LocalVideo extends StatefulWidget {
-//   const LocalVideo({
-//     super.key,
-//     required this.absolutePath,
-//     this.width,
-//     this.height,
-//     this.borderRadius,
-//     this.autoPlay = false,
-//     this.loop = true,
-//     this.muted = true,
-//   });
-//
-//   factory LocalVideo.relative({
-//     Key? key,
-//     required String storageRoot,
-//     required String storyWattId,
-//     required String relativePath, // e.g. "media/clip.mp4"
-//     double? width,
-//     double? height,
-//     BorderRadius? borderRadius,
-//     bool autoPlay = false,
-//     bool loop = true,
-//     bool muted = true,
-//   }) => LocalVideo(
-//     key: key,
-//     absolutePath: path.join(storageRoot, storyWattId, relativePath),
-//     width: width,
-//     height: height,
-//     borderRadius: borderRadius,
-//     autoPlay: autoPlay,
-//     loop: loop,
-//     muted: muted,
-//   );
-//
-//   final String absolutePath;
-//   final double? width;
-//   final double? height;
-//   final BorderRadius? borderRadius;
-//   final bool autoPlay;
-//   final bool loop;
-//   final bool muted;
-//
-//   @override
-//   State<LocalVideo> createState() => _LocalVideoState();
-// }
-//
-// class _LocalVideoState extends State<LocalVideo> {
-//   late final VideoPlayerController _ctrl;
-//   late final Future<void> _init;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _ctrl = VideoPlayerController.file(File(widget.absolutePath));
-//     _init = _ctrl.initialize().then((_) {
-//       _ctrl.setLooping(widget.loop);
-//       if (widget.muted) _ctrl.setVolume(0);
-//       if (widget.autoPlay) _ctrl.play();
-//       setState(() {});
-//     });
-//   }
-//
-//   @override
-//   void dispose() {
-//     _ctrl.dispose();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     Widget body = FutureBuilder(
-//       future: _init,
-//       builder: (context, snap) {
-//         if (snap.connectionState != ConnectionState.done) {
-//           return const Center(child: CircularProgressIndicator());
-//         }
-//         if (snap.hasError) {
-//           print(snap.error);
-//           return const Center(child: Icon(Icons.broken_image_outlined));
-//         }
-//         return Stack(
-//           alignment: Alignment.bottomCenter,
-//           children: [
-//             AspectRatio(
-//               aspectRatio: _ctrl.value.aspectRatio == 0
-//                   ? 16 / 9
-//                   : _ctrl.value.aspectRatio,
-//               child: VideoPlayer(_ctrl),
-//             ),
-//             // Tap-to-play/pause overlay
-//             Positioned.fill(
-//               child: Material(
-//                 color: Colors.transparent,
-//                 child: InkWell(
-//                   onTap: () =>
-//                       _ctrl.value.isPlaying ? _ctrl.pause() : _ctrl.play(),
-//                   child: AnimatedOpacity(
-//                     duration: const Duration(milliseconds: 180),
-//                     opacity: _ctrl.value.isPlaying ? 0.0 : 0.9,
-//                     child: const Center(
-//                       child: Icon(Icons.play_circle_fill, size: 64),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             VideoProgressIndicator(_ctrl, allowScrubbing: true),
-//           ],
-//         );
-//       },
-//     );
-//
-//     if (widget.borderRadius != null) {
-//       body = ClipRRect(borderRadius: widget.borderRadius!, child: body);
-//     }
-//
-//     return SizedBox(width: widget.width, height: widget.height, child: body);
-//   }
-// }
+
+class ParagraphsColumn extends StatefulWidget {
+  const ParagraphsColumn({super.key, required this.info, required this.storyId});
+  final PartFullInfo info;
+  final int storyId;
+
+  @override
+  State<ParagraphsColumn> createState() => _ParagraphsColumnState();
+}
+
+class _ParagraphsColumnState extends State<ParagraphsColumn> {
+  final Map<String, GlobalKey> _paraKeys = {};
+  GlobalKey _keyFor(String id) => _paraKeys.putIfAbsent(id, () => GlobalKey());
+
+  @override
+  void initState() {
+    super.initState();
+    // Jump after first layout, no animation.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final b = context.read<StoryBloc>().state.bundles[widget.storyId];
+      if (b == null) return;
+      // only scroll if this is the current part
+      if (b.currentPart?.partId != widget.info.part.partId) return;
+
+      final targetId = b.storyProgress?.lastParagraphId;
+      if (targetId == null) return;
+
+      final ctx = _keyFor("${targetId}").currentContext;
+      // print("target id: ${targetId}");
+
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          duration: Duration(milliseconds: 500),
+          alignment: 0.1,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final info = widget.info;
+    final b = context.read<StoryBloc>().state.bundles[widget.storyId]!;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: List.generate(info.paragraphs.length, (i) {
+        final p = info.paragraphs[i];
+        final hasComments = p.commentsCount > 0;
+
+        Widget content = Html(
+          data: p.content,
+          style: {
+            "p": AppTheme.paragraphsStyle.copyWith(
+              direction: p.direction.toTextDirection,
+            ),
+          },
+        );
+
+        if (p.contentType == ContentType.image && p.media?.path != null) {
+          content = ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
+            child: LocalImage.relative(
+              storageRoot: "/Users/meme/Desktop/storage",
+              storyWattId: b.story.wattId,
+              relativePath: p.media!.path!,
+              width: double.infinity,
+            ),
+          );
+        }
+
+        if (p.contentType == ContentType.link ||
+            p.contentType == ContentType.video ||
+            (p.contentType == ContentType.image && p.media?.path == null)) {
+          content = GestureDetector(
+            onTap: () async {
+              final url = Uri.parse('https://www.google.de/');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              }
+            },
+            child: const Text('Open', style: TextStyle(color: Colors.blue)),
+          );
+        }
+
+
+        return KeyedSubtree(
+          key: _keyFor("${p.paragraphId}"),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CommentIcon(
+                  count: p.commentsCount,
+                  visible: hasComments,
+                  onTap: () => context.read<PartSidePanelCubit>().changeContent(
+                    PartSidePanelCommentsCubit(
+                      storyId: widget.storyId,
+                      paragraph: p,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: content),
+              ],
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
 
 class LocalVideo extends StatefulWidget {
   const LocalVideo({super.key, required this.absolutePath, this.fit});

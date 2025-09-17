@@ -47,15 +47,15 @@ class _CommentsPanelState extends State<CommentsPanel> {
   @override
   void didUpdateWidget(covariant CommentsPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
-    debugPrint(
-      '[CommentsPanel] didUpdateWidget oldStory=${oldWidget.storyId} oldPara=${oldWidget.paragraph?.paragraphId} -> newStory=${widget.storyId} newPara=${widget.paragraph?.paragraphId}',
-    );
+    // debugPrint(
+    //   '[CommentsPanel] didUpdateWidget oldStory=${oldWidget.storyId} oldPara=${oldWidget.paragraph?.paragraphId} -> newStory=${widget.storyId} newPara=${widget.paragraph?.paragraphId}',
+    // );
     if (oldWidget.storyId != widget.storyId ||
         oldWidget.paragraph?.paragraphId != widget.paragraph?.paragraphId) {
       _expanded.clear();
-      debugPrint(
-        '[CommentsPanel] didUpdateWidget -> load is primed by SidePanelScaffold',
-      );
+      // debugPrint(
+      //   '[CommentsPanel] didUpdateWidget -> load is primed by SidePanelScaffold',
+      // );
     }
   }
 
@@ -70,18 +70,18 @@ class _CommentsPanelState extends State<CommentsPanel> {
         .author
         .username;
     final p = widget.paragraph;
-    debugPrint('[CommentsPanel] build paragraph=${p?.paragraphId}');
+    // debugPrint('[CommentsPanel] build paragraph=${p?.paragraphId}');
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        debugPrint(
-          '[CommentsPanel] Layout constraints: minW=${constraints.minWidth}, maxW=${constraints.maxWidth}, minH=${constraints.minHeight}, maxH=${constraints.maxHeight}',
-        );
+        // debugPrint(
+        //   '[CommentsPanel] Layout constraints: minW=${constraints.minWidth}, maxW=${constraints.maxWidth}, minH=${constraints.minHeight}, maxH=${constraints.maxHeight}',
+        // );
         if (constraints.minWidth > constraints.maxWidth ||
             constraints.minHeight > constraints.maxHeight) {
-          debugPrint(
-            '[CommentsPanel][WARN] NON-NORMALIZED constraints in CommentsPanel build',
-          );
+          // debugPrint(
+          //   '[CommentsPanel][WARN] NON-NORMALIZED constraints in CommentsPanel build',
+          // );
         }
         return Column(
           children: [

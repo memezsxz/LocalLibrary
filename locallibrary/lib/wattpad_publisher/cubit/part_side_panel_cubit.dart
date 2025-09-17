@@ -18,15 +18,15 @@ class PartSidePanelCubit extends Cubit<PartSidePanelState> {
   void changeContent(PartSidePanelState state) {
     final prev = this.state.runtimeType.toString();
     if (state is PartSidePanelCommentsCubit) {
-      debugPrint('[PartSidePanelCubit] changeContent(prev=$prev -> next=Comments, storyId=${state.storyId}, paragraph=${state.paragraph?.paragraphId}) | cubitId=${identityHashCode(this)}');
+      // debugPrint('[PartSidePanelCubit] changeContent(prev=$prev -> next=Comments, storyId=${state.storyId}, paragraph=${state.paragraph?.paragraphId}) | cubitId=${identityHashCode(this)}');
     } else {
-      debugPrint('[PartSidePanelCubit] changeContent(prev=$prev -> next=${state.runtimeType}) | cubitId=${identityHashCode(this)}');
+      // debugPrint('[PartSidePanelCubit] changeContent(prev=$prev -> next=${state.runtimeType}) | cubitId=${identityHashCode(this)}');
     }
     emit(state);
   }
 
   void clear() {
-    debugPrint('[PartSidePanelCubit] clear() from=${state.runtimeType} | cubitId=${identityHashCode(this)}');
+    // debugPrint('[PartSidePanelCubit] clear() from=${state.runtimeType} | cubitId=${identityHashCode(this)}');
     emit(PartSidePanelNoneCubit());
   }
 
