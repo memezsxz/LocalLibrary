@@ -66,7 +66,7 @@ class _ShelfSection extends StatelessWidget {
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
           return SizedBox(
-            height: 160, // adjust to your Shelve's typical height
+            height: 160, // typical shelve height
             child: const Center(child: CircularProgressIndicator()),
           );
         }

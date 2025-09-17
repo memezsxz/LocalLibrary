@@ -16,7 +16,7 @@ class Dashboard extends StatelessWidget {
         Expanded(
           child: ClipRect(
             // allows side & bottom overflow for shadows, but blocks the top
-            clipper: const _TopOnlyClip(expandSides: 24, expandBottom: 24),
+            clipper: const TopOnlyClip(expandSides: 24, expandBottom: 24),
             child: const DashboardShelves(),
           ),
         ),
@@ -26,11 +26,11 @@ class Dashboard extends StatelessWidget {
 }
 
 // put this somewhere accessible
-class _TopOnlyClip extends CustomClipper<Rect> {
+class TopOnlyClip extends CustomClipper<Rect> {
   final double expandSides;
   final double expandBottom;
 
-  const _TopOnlyClip({this.expandSides = 24, this.expandBottom = 24});
+  const TopOnlyClip({this.expandSides = 24, this.expandBottom = 24});
 
   @override
   Rect getClip(Size size) => Rect.fromLTRB(
@@ -41,6 +41,6 @@ class _TopOnlyClip extends CustomClipper<Rect> {
   );
 
   @override
-  bool shouldReclip(_TopOnlyClip old) =>
+  bool shouldReclip(TopOnlyClip old) =>
       expandSides != old.expandSides || expandBottom != old.expandBottom;
 }

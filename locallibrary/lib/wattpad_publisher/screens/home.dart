@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/theme/app_palette.dart';
 import '../widgets/aside.dart';
 import '../widgets/content_router.dart';
@@ -42,7 +43,29 @@ class WDHome extends StatelessWidget {
             sidebar: Aside(
               width: sideSize,
               top: NavBar.defaults(),
-              bottom: const SizedBox.shrink(),
+              // bottom: const SizedBox.shrink(),
+              bottom: Container(
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {},
+                      child: SvgPicture.asset(
+                        "assets/icons/settings_icon_light.svg",
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        // AddStoryDialog.open(context);
+                      },
+                      child: SvgPicture.asset(
+                        "assets/icons/add_icon_light.svg",
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             // main content area (rounded outer, inner gradient + inner shadow)

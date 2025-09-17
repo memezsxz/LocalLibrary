@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:locallibrary/wattpad_publisher/datasource.dart';
+import 'package:locallibrary/wattpad_publisher/widgets/search_bar.dart';
 import 'package:locallibrary/wattpad_publisher/widgets/shelves.dart';
 
 import '../../dependency_ingection.dart';
+import 'dashboard.dart';
+
 //
 // class Library extends StatelessWidget {
 //   const Library({super.key});
@@ -98,9 +101,9 @@ class _LibraryState extends State<Library> {
         _error = e.toString();
         _hasMore = false; // stop auto-retrying; user can pull-to-refresh
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load stories: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to load stories: $e')));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -115,42 +118,61 @@ class _LibraryState extends State<Library> {
         ? 1
         : shelfCount + (showBottomLoader ? 1 : 0);
 
-    return RefreshIndicator(
-      onRefresh: _reload,
-      child: ListView.builder(
-        controller: _scroll,
-        padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(top: 0, bottom: 16),
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: itemCount,
-        itemBuilder: (context, index) {
-          // Initial error state
-          if (_storyIds.isEmpty && _error != null) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Center(child: Text('Failed to load: $_error')),
-            );
-          }
+    return Column(
+      spacing: 10,
+      children: [
+        MySearchBar(),
 
-          // Bottom loader row
-          if (index >= shelfCount) {
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
+        // the list
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: _reload,
+            child: ClipRect(
+              // allows side & bottom overflow for shadows, but blocks the top
+              clipper: const TopOnlyClip(expandSides: 24, expandBottom: 24),
+              child: ListView.builder(
+                clipBehavior: Clip.none,
+                controller: _scroll,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                ).copyWith(top: 0, bottom: 16),
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: itemCount,
+                itemBuilder: (context, index) {
+                  // Initial error state
+                  if (_storyIds.isEmpty && _error != null) {
+                    return Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: Text('Failed to load: $_error')),
+                    );
+                  }
 
-          // Compute the story IDs for this shelf (6 per shelf)
-          final start = index * 6;
-          final end = (start + 6 <= _storyIds.length) ? start + 6 : _storyIds.length;
-          final shelfStoryIds = _storyIds.sublist(start, end);
+                  // Bottom loader row
+                  if (index >= shelfCount) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
 
-          // Render one shelf (expects up to 6 items)
-          return Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Shelve(storyIds: shelfStoryIds),
-          );
-        },
-      ),
+                  // Compute the story IDs for this shelf (6 per shelf)
+                  final start = index * 6;
+                  final end = (start + 6 <= _storyIds.length)
+                      ? start + 6
+                      : _storyIds.length;
+                  final shelfStoryIds = _storyIds.sublist(start, end);
+
+                  // Render one shelf (expects up to 6 items)
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Shelve(storyIds: shelfStoryIds),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

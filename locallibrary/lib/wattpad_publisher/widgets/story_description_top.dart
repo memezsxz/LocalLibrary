@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:locallibrary/core/route/story_route.dart';
 import 'package:locallibrary/wattpad_publisher/widgets/search_bar.dart';
 
 import '../../core/exstentions/datetime.dart';
@@ -219,7 +221,7 @@ class StoryDescrioptionTopLeft extends StatelessWidget {
   final StoryBundle story;
 
   @override
-  Widget build(BuildContext context)  {
+  Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
       width: double.infinity,
@@ -247,13 +249,24 @@ class StoryDescrioptionTopLeft extends StatelessWidget {
               fit: BoxFit.fitWidth,
             ),
           ),
-          BaseButton(label: "Continue", onPressed: () {}),
+          BaseButton(
+            label: "Continue",
+            onPressed: () {
+              if (story.currentPart != null) {
+                goToPart(
+                  context,
+                  story.story.storyId,
+                  story.currentPart!.partId,
+                );
+              } else if (story.parts.length > 1) {
+                goToPart(context, story.story.storyId, story.parts[0].partId);
+              } else {
+                // Todo: tell the user there are no parts in the story
+              }
+            },
+          ),
         ],
       ),
     );
   }
 }
-
-
-
-
