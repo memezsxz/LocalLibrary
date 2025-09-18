@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -10,9 +9,8 @@ import 'package:locallibrary/wattpad_publisher/bloc/story_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/cubit/part_side_panel_cubit.dart';
 import 'package:locallibrary/wattpad_publisher/models/models.dart';
 import 'package:locallibrary/wattpad_publisher/models/server_models.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher_macos/url_launcher_macos.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../core/exstentions/image.dart';
@@ -24,8 +22,6 @@ import '../bloc/part_bloc.dart';
 import '../widgets/comment_icon.dart';
 import '../widgets/part_image_view.dart';
 import '../widgets/part_sidepanel.dart';
-
-import 'package:path/path.dart' as path;
 
 class PartScreen extends StatelessWidget {
   final int storyId;
@@ -291,9 +287,13 @@ class PartContent extends StatelessWidget {
   }
 }
 
-
 class ParagraphsColumn extends StatefulWidget {
-  const ParagraphsColumn({super.key, required this.info, required this.storyId});
+  const ParagraphsColumn({
+    super.key,
+    required this.info,
+    required this.storyId,
+  });
+
   final PartFullInfo info;
   final int storyId;
 
@@ -303,6 +303,7 @@ class ParagraphsColumn extends StatefulWidget {
 
 class _ParagraphsColumnState extends State<ParagraphsColumn> {
   final Map<String, GlobalKey> _paraKeys = {};
+
   GlobalKey _keyFor(String id) => _paraKeys.putIfAbsent(id, () => GlobalKey());
 
   @override
@@ -379,7 +380,6 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
           );
         }
 
-
         return KeyedSubtree(
           key: _keyFor("${p.paragraphId}"),
           child: Padding(
@@ -407,15 +407,6 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
 
 class LocalVideo extends StatefulWidget {
   const LocalVideo({super.key, required this.absolutePath, this.fit});

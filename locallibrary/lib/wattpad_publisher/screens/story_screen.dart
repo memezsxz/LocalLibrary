@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/theme/app_palette.dart';
 import '../../dependency_ingection.dart';
 import '../../window_service.dart';
@@ -40,9 +41,7 @@ class StoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          sl<StoryBloc>()
-            ..add(StoryRequested(storyId)),
+      create: (_) => sl<StoryBloc>()..add(StoryRequested(storyId)),
       child: Scaffold(body: _StoryView(storyId: storyId)),
     );
   }

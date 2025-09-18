@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_palette.dart';
 import 'dashed_line.dart';
 
@@ -42,10 +43,7 @@ class Aside extends StatelessWidget {
           children: [
             Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: 40,
-                  horizontal: 20,
-                ),
+                padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

@@ -1,4 +1,3 @@
-
 // window_service.dart
 //
 // Convenience helpers to open additional desktop windows that land on the
@@ -12,17 +11,20 @@
 // Remember: each window has its own isolate. Use invokeMethod to pass messages.
 
 import 'dart:convert';
+
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 
 class AppWindows {
   /// Launch a window and navigate it to a story details route.
   static Future<int> openStoryWindow({required int storyId}) async {
-    final controller = await DesktopMultiWindow.createWindow(jsonEncode({
-      'initialRoute': '/stories/$storyId',
-      'kind': 'story',
-      'storyId': storyId,
-    }));
+    final controller = await DesktopMultiWindow.createWindow(
+      jsonEncode({
+        'initialRoute': '/stories/$storyId',
+        'kind': 'story',
+        'storyId': storyId,
+      }),
+    );
     controller
       ..setTitle('Story #$storyId')
       ..center()
@@ -32,13 +34,18 @@ class AppWindows {
   }
 
   /// Launch a window and navigate it straight to a part view.
-  static Future<int> openPartWindow({required int storyId, required int partId}) async {
-    final controller = await DesktopMultiWindow.createWindow(jsonEncode({
-      'initialRoute': '/stories/$storyId/parts/$partId',
-      'kind': 'part',
-      'storyId': storyId,
-      'partId': partId,
-    }));
+  static Future<int> openPartWindow({
+    required int storyId,
+    required int partId,
+  }) async {
+    final controller = await DesktopMultiWindow.createWindow(
+      jsonEncode({
+        'initialRoute': '/stories/$storyId/parts/$partId',
+        'kind': 'part',
+        'storyId': storyId,
+        'partId': partId,
+      }),
+    );
     controller
       ..setTitle('Story $storyId • Part $partId')
       ..center()
@@ -48,8 +55,13 @@ class AppWindows {
   }
 
   /// Send a navigation command to an existing sub-window.
-  static Future<dynamic> navigate({required int windowId, required String path}) {
-    return DesktopMultiWindow.invokeMethod(windowId, 'navigate', {'path': path});
+  static Future<dynamic> navigate({
+    required int windowId,
+    required String path,
+  }) {
+    return DesktopMultiWindow.invokeMethod(windowId, 'navigate', {
+      'path': path,
+    });
   }
 
   /// Programmatically close a window.
