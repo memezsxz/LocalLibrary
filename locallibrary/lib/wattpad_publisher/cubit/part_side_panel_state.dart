@@ -49,6 +49,6 @@ final class PartSidePanelCommentsCubit extends PartSidePanelState {
 final class PartSidePanelTypographyCubit extends PartSidePanelState {
   @override
   Widget get() {
-    return ScrapeLogsPanel();
+    return Placeholder();
   }
 }

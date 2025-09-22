@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
   desktop_multi_window
+  flutter_window_close
   media_kit_video
   url_launcher_windows
   volume_controller

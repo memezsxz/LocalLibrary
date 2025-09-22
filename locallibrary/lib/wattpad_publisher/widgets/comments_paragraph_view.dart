@@ -5,44 +5,42 @@ import '../../core/theme/app_palette.dart';
 import '../models/models.dart';
 
 class CommentsParagraphView extends StatelessWidget {
-  const CommentsParagraphView({
-    super.key,
-    required this.p,
-  });
+  const CommentsParagraphView({super.key, required this.p});
 
   final Paragraph p;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      debugPrint('[CommentsParagraphView] constraints: minW=${constraints.minWidth}, maxW=${constraints.maxWidth}, minH=${constraints.minHeight}, maxH=${constraints.maxHeight}');
-      return Container(
-        color: AppPalette.surfaceAlt,
-        child: Container(
-          color: Colors.white.withOpacity(0.7),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 0,
-              horizontal: 20,
-            ),
-            child: Html(
-              data: p.contentType == ContentType.text
-                  ? "<p>${p.contentText}</p>"
-                  : "html image or video",
-              style: {
-                "p": Style(
-                  margin: Margins.zero,
-                  padding: HtmlPaddings.zero,
-                  lineHeight: LineHeight.rem(1.4),
-                  fontSize: FontSize.medium,
-                  color: Colors.black,
-                  direction: p.direction.toTextDirection,
-                ),
-              },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // debugPrint(
+        //   '[CommentsParagraphView] constraints: minW=${constraints.minWidth}, maxW=${constraints.maxWidth}, minH=${constraints.minHeight}, maxH=${constraints.maxHeight}',
+        // );
+        return Container(
+          color: AppPalette.surfaceAlt,
+          child: Container(
+            color: Colors.white.withOpacity(0.7),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              child: Html(
+                data: p.contentType == ContentType.text
+                    ? "<p>${p.contentText}</p>"
+                    : "html image or video",
+                style: {
+                  "p": Style(
+                    margin: Margins.zero,
+                    padding: HtmlPaddings.zero,
+                    lineHeight: LineHeight.rem(1.4),
+                    fontSize: FontSize.medium,
+                    color: Colors.black,
+                    direction: p.direction.toTextDirection,
+                  ),
+                },
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

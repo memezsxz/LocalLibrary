@@ -1,5 +1,6 @@
-import 'package:flutter_html/flutter_html.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:locallibrary/wattpad_publisher/models/server_parsed_json_models.dart';
+import 'package:locallibrary/wattpad_publisher/models/store_models.dart';
 
 import 'models.dart';
 
@@ -11,14 +12,19 @@ class BookMinimal {
   String title;
   final String wattId;
 
-  BookMinimal({ required this.storyId, required this.wattId, required this.title, required this.image, });
+  BookMinimal({
+    required this.storyId,
+    required this.wattId,
+    required this.title,
+    required this.image,
+  });
 
   factory BookMinimal.fromJson(Map<String, dynamic> json) {
     return BookMinimal(
       image: DbImage.fromJson(json['image']),
       storyId: json['story_id'],
       title: json['title'],
-      wattId: json['watt_id']
+      wattId: json['watt_id'],
     );
   }
 
@@ -31,8 +37,6 @@ class BookMinimal {
     return data;
   }
 }
-
-
 
 /// Represents the compound response you showed:
 /// {
@@ -58,7 +62,6 @@ class StoryBundle {
   final StoryProgress storyProgress;
 
   @JsonKey(name: 'current_part')
-
   final Part? currentPart;
 
   /// The incoming JSON uses the capitalized key "Parts" (note the P).
@@ -68,16 +71,15 @@ class StoryBundle {
   @JsonKey(name: 'tags')
   final List<Tag> tags;
 
-
   StoryBundle({
     required this.story,
     this.image,
     required this.genre,
     required this.author,
-    required  this.storyProgress,
+    required this.storyProgress,
     this.currentPart,
     required this.parts,
-    required this.tags
+    required this.tags,
   });
 
   factory StoryBundle.fromJson(Map<String, dynamic> json) =>
@@ -94,10 +96,8 @@ class PartFullInfo {
   @JsonKey(name: 'paragraphs')
   final List<Paragraph> paragraphs;
 
-
   @JsonKey(name: 'image')
   final Media? image;
-
 
   @JsonKey(name: 'video')
   final Media? video;
@@ -110,11 +110,28 @@ class PartFullInfo {
     required this.paragraphs,
     required this.commentsCount,
     this.image,
-    this.video
+    this.video,
   });
 
   factory PartFullInfo.fromJson(Map<String, dynamic> json) =>
       _$PartFullInfoFromJson(json);
 
   Map<String, dynamic> toJson() => _$PartFullInfoToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
+class ScrapeStoryRes {
+  @JsonKey(name: 'story')
+  final StoryTxResult story;
+
+  @JsonKey(name: 'part_links')
+  @JsonKey(defaultValue: List<PartLink>)
+  final List<PartLink> partLinks;
+
+  ScrapeStoryRes({required this.story, required this.partLinks});
+
+  factory ScrapeStoryRes.fromJson(Map<String, dynamic> json) =>
+      _$ScrapeStoryResFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ScrapeStoryResToJson(this);
 }

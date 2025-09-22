@@ -1,37 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_palette.dart';
 import '../../dependency_ingection.dart';
-import '../../window_service.dart';
 import '../bloc/story_bloc.dart';
 import '../widgets/story_description_bottom.dart';
 import '../widgets/story_description_top.dart';
 
-class StoryWindowLauncherPage extends StatefulWidget {
-  final int storyId;
-
-  const StoryWindowLauncherPage({required this.storyId});
-
-  @override
-  State<StoryWindowLauncherPage> createState() =>
-      StoryWindowLauncherPageState();
-}
-
-class StoryWindowLauncherPageState extends State<StoryWindowLauncherPage> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await AppWindows.openStoryWindow(storyId: widget.storyId);
-      if (mounted) context.pop(); // return to whatever was showing (Home)
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) => const SizedBox.shrink();
-}
 
 class StoryScreen extends StatelessWidget {
   final int storyId;

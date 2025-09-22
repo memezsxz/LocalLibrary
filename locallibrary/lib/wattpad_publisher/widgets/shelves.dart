@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inner_shadow/flutter_inner_shadow.dart';
-import 'package:go_router/go_router.dart';
 import 'package:locallibrary/core/theme/app_palette.dart';
 
 import '../../core/exstentions/image.dart';
 import '../../dependency_ingection.dart';
+import '../../window_service.dart';
 import '../datasource.dart';
 import '../models/server_models.dart';
-import 'dashed_line.dart';
 
 class DashboardShelves extends StatelessWidget {
   const DashboardShelves({super.key});
@@ -249,12 +248,13 @@ class BookMinimalView extends StatelessWidget {
                       // print(book.wattId);
                       // print(book.storyId);
 
-                      context.pushNamed(
-                        'story',
-                        pathParameters: {'story_id': '${book.storyId}'},
-                        extra:
-                            'window', // triggers new window only when you pass it
-                      );
+                      AppWindows.openStoryWindow(storyId: book.storyId);
+
+                      // context.pushNamed(
+                      //   'story',
+                      //   pathParameters: {'story_id': '${book.storyId}'},
+                      //   extra:'window', // triggers new window only when you pass it
+                      // );
                     },
                     child: SizedBox.expand(
                       child: LocalImage.relative(

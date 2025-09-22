@@ -1,11 +1,4 @@
 // story_remote_data_source.dart
-import 'dart:io';
-import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:locallibrary/wattpad_publisher/models/server_models.dart';
-
-import 'models/models.dart';
-
 // app_api_data_source.dart
 //
 // Data source for:
@@ -22,7 +15,16 @@ import 'models/models.dart';
 
 import 'dart:async';
 import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
+import 'package:flutter_client_sse/flutter_client_sse.dart';
 import 'package:http/http.dart' as http;
+import 'package:locallibrary/wattpad_publisher/models/server_models.dart';
+
+import 'models/logs.dart';
+import 'models/models.dart';
 
 class ApiException implements Exception {
   final int? statusCode;
@@ -299,207 +301,99 @@ class AppApiDataSource {
     }
   }
 
-  /// Stream logs for a Story scrape (SSE).
+  /// Emits SimpleEvent(event, payload) from your POST SSE endpoint.
   Stream<ScrapeEvent> streamScrapeStory({
-    required String storyUrl,
-    // required String outputDir,
+    required String storyUrl, // the Wattpad URL
     bool clearOutput = false,
+    Map<String, String>? extraHeaders,
   }) {
-    final uri = _uri('/app/scrape/story/stream');
-    final body = jsonEncode({
+    final headers = <String, String>{
+      'Accept': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Content-Type': 'application/json',
+      if (extraHeaders != null) ...extraHeaders,
+    };
+
+    final body = {
       'story_url': storyUrl,
       // 'output_dir': outputDir,
       'clear_output': clearOutput,
-    });
-    return _postSSE(uri, body);
+    };
+
+    // Subscribe with POST, body, and headers
+    final base = SSEClient.subscribeToSSE(
+      method: SSERequestType.POST,
+      url: _uri('/app/scrape/story/stream').toString(),
+      header: headers,
+      body: body,
+    ); // -> Stream<SSEModel> with .event, .data
+
+    // Map to SimpleEvent and **fan-out** when multiple JSONs appear in one data payload
+    return base
+        .where((m) => (m.data ?? '').isNotEmpty)
+        .map((m) => ScrapeEvent(m.event ?? 'message', m.data!))
+        .asyncExpand((evt) async* {
+          for (final piece in _splitNdjsonOrConcatenated(evt.payload)) {
+            yield ScrapeEvent(evt.name, piece);
+          }
+        });
   }
 
-  /// Stream logs for a Part scrape (SSE).
-  Stream<ScrapeEvent> streamScrapePart({
-    required String partUrl,
-    // required String outputDir,
-    bool clearOutput = false,
-  }) {
-    final uri = _uri('/app/scrape/part/stream');
-    final body = jsonEncode({
-      'part_url': partUrl,
-      // 'output_dir': outputDir,
-      'clear_output': clearOutput,
-    });
-    return _postSSE(uri, body);
+  /// Splits NDJSON/newline or concatenated `{...}{...}` JSON into individual JSON strings.
+  Iterable<String> _splitNdjsonOrConcatenated(String s) sync* {
+    for (final line in const LineSplitter().convert(s)) {
+      final t = line.trim();
+      if (t.isEmpty) continue;
+      for (final piece in _splitConcatenatedJsonObjects(t)) {
+        final pt = piece.trim();
+        if (pt.isNotEmpty) yield pt;
+      }
+    }
   }
 
-  /// Stream logs for a Part-Comments scrape (SSE).
-  Stream<ScrapeEvent> streamScrapePartComments({
-    required String partUrl,
-    // required String outputDir,
-    bool clearOutput = false,
-  }) {
-    final uri = _uri('/scrape/part-comments/stream');
-    final body = jsonEncode({
-      'part_url': partUrl,
-      // 'output_dir': outputDir,
-      'clear_output': clearOutput,
-    });
-    return _postSSE(uri, body);
-  }
+  Iterable<String> _splitConcatenatedJsonObjects(String s) sync* {
+    final out = <String>[];
+    final buf = StringBuffer();
+    var depth = 0;
+    var inString = false;
+    var escape = false;
 
-  /// Optional: Blocking call that returns all logs at the end (non-SSE endpoint).
-  Future<List<dynamic>> scrapeStoryOnce({
-    required String storyUrl,
-    // required String outputDir,
-    bool clearOutput = false,
-  }) async {
-    final uri = _uri('/scrape/story');
-    final res = await _client
-        .post(
-          uri,
-          headers: {
-            // override accept for JSON POST
-            ...defaultHeaders,
-            'Accept': 'application/json',
-          },
-          body: jsonEncode({
-            'story_url': storyUrl,
-            // 'output_dir': outputDir,
-            'clear_output': clearOutput,
-          }),
-        )
-        .timeout(timeout);
+    for (final r in s.runes) {
+      final ch = String.fromCharCode(r);
+      buf.write(ch);
 
-    _ensureSuccess(res);
-    final map = _decodeJsonMap(res);
-    final logs = map['logs'];
-    if (logs is List) return logs;
-    throw ApiException(
-      'Unexpected response shape: missing "logs"',
-      statusCode: res.statusCode,
-      uri: res.request?.url,
-    );
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (ch == '\\') {
+        escape = true;
+        continue;
+      }
+      if (ch == '"') {
+        inString = !inString;
+        continue;
+      }
+      if (inString) continue;
+
+      if (ch == '{') depth++;
+      if (ch == '}') {
+        depth--;
+        if (depth == 0) {
+          out.add(buf.toString());
+          buf.clear();
+        }
+      }
+    }
+    if (buf.isNotEmpty) out.add(buf.toString());
+
+    for (final piece in out) yield piece;
   }
 
   // -------------------- Internal SSE plumbing --------------------
 
   /// Posts JSON and parses text/event-stream into ScrapeEvent objects.
   /// Cancelling the StreamSubscription will close the underlying HTTP client.
-  Stream<ScrapeEvent> _postSSE(Uri uri, String jsonBody) {
-    // Use a dedicated client per SSE so cancel/close won’t affect the shared one.
-    final sseClient = http.Client();
-    final req = http.Request('POST', uri)
-      ..headers.addAll({
-        // SSE requires this Accept; Content-Type stays JSON.
-        'Accept': 'text/event-stream',
-        'Content-Type': 'application/json',
-        // (Optionally forward auth headers if defaultHeaders carry them)
-        ...{
-          for (final e in defaultHeaders.entries)
-            if (e.key.toLowerCase() != 'accept') e.key: e.value,
-        },
-      })
-      ..body = jsonBody;
-
-    final controller = StreamController<ScrapeEvent>(
-      onCancel: () {
-        sseClient.close();
-      },
-    );
-
-    () async {
-      http.StreamedResponse resp;
-      try {
-        resp = await sseClient.send(req).timeout(timeout);
-      } on TimeoutException catch (e) {
-        controller.addError(
-          ApiException('SSE connect timeout', uri: uri, inner: e),
-        );
-        await controller.close();
-        return;
-      } catch (e) {
-        controller.addError(
-          ApiException('SSE connect error', uri: uri, inner: e),
-        );
-        await controller.close();
-        return;
-      }
-
-      if (resp.statusCode < 200 || resp.statusCode >= 300) {
-        // read small error payload if present
-        final errBody = await resp.stream.bytesToString();
-        controller.addError(
-          ApiException(
-            'HTTP ${resp.statusCode}: $errBody',
-            statusCode: resp.statusCode,
-            uri: uri,
-          ),
-        );
-        await controller.close();
-        return;
-      }
-
-      // Parse SSE frames: lines of "event: ..." and "data: ...", separated by blank line
-      String currentEvent = 'message';
-      final dataLines = <String>[];
-
-      void flush() {
-        if (dataLines.isEmpty) return;
-        final payload = dataLines.join('\n');
-        dynamic parsed = payload;
-        // Try to parse JSON data payloads (your backend sends JSON in "data:")
-        try {
-          parsed = jsonDecode(payload);
-        } catch (_) {
-          // leave as string if not JSON
-        }
-        controller.add(ScrapeEvent(currentEvent, parsed));
-        currentEvent = 'message';
-        dataLines.clear();
-      }
-
-      // read as text lines
-      final sub = resp.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .listen(
-            (line) {
-              // Per SSE: empty line => dispatch event
-              if (line.isEmpty) {
-                flush();
-                return;
-              }
-              if (line.startsWith('event:')) {
-                currentEvent = line.substring(6).trim();
-                return;
-              }
-              if (line.startsWith('data:')) {
-                dataLines.add(line.substring(5).trimLeft());
-                return;
-              }
-              // Optional: ignore "retry:" or other fields; or treat as data
-              // Here we ignore other fields.
-            },
-            onError: (e, st) async {
-              controller.addError(
-                ApiException('SSE stream error', uri: uri, inner: e),
-              );
-              await controller.close();
-            },
-            onDone: () async {
-              // flush any pending
-              flush();
-              await controller.close();
-            },
-            cancelOnError: true,
-          );
-
-      // If the consumer cancels early, stop reading
-      controller.onCancel = () async {
-        await sub.cancel();
-        sseClient.close();
-      };
-    }();
-
-    return controller.stream;
-  }
 
   // comments
   // ===========================
@@ -622,14 +516,4 @@ class StoryRemoteDataSourceImpl implements StoryRemoteDataSource {
       throw ApiException('Network error: ${e.message}');
     }
   }
-}
-
-class ScrapeEvent {
-  final String type; // "started" | "log" | "finished" | "error" | ...
-  final dynamic data; // parsed JSON if data line is JSON, else String
-
-  ScrapeEvent(this.type, this.data);
-
-  @override
-  String toString() => 'ScrapeEvent(type: $type, data: $data)';
 }

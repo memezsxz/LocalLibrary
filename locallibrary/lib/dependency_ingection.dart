@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/comments_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/part_bloc.dart';
+import 'package:locallibrary/wattpad_publisher/bloc/scrape_story_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/story_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/cubit/part_side_panel_cubit.dart';
 
@@ -42,6 +43,10 @@ void initDI() {
   sl.registerLazySingleton<PartSidePanelCubit>(() => PartSidePanelCubit());
   sl.registerLazySingleton<CommentsBloc>(
     () => CommentsBloc(api: sl<AppApiDataSource>()),
+  );
+
+  sl.registerLazySingleton<ScrapeStoryBloc>(
+    () => ScrapeStoryBloc(api: sl<AppApiDataSource>()),
   );
 
   // sl<Dio>().interceptors.add(LogInterceptor(

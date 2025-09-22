@@ -51,6 +51,12 @@ dependencies:
   auto_size_text: ^3.0.0
   flutter_launcher_icons: ^0.14.4
   scrollable_positioned_list: ^0.3.8
+  equatable: ^2.0.7
+  freezed_annotation: ^3.1.0
+  freezed: ^3.2.3
+  flutter_client_sse: ^2.0.3
+  flutter_json_view: ^1.1.5
+  flutter_window_close: ^1.3.0
 
 
   media_kit: ^1.2.0
@@ -121,8 +127,8 @@ flutter:
     #    - assets/*
     - assets/images/
     - assets/icons/
-#    - assets/
-#    - fonts/Cherry_Swash
+  #    - assets/
+  #    - fonts/Cherry_Swash
 
   fonts:
     - family: CherrySwash
@@ -130,6 +136,23 @@ flutter:
         - asset: fonts/Cherry_Swash/CherrySwash-Regular.ttf
         - asset: fonts/Cherry_Swash/CherrySwash-Bold.ttf
           weight: 700
+
+    - family: IBM_Plex_Mono
+      fonts:
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-Bold.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-BoldItalic.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-ExtraLight.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-ExtraLightItalic.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-Italic.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-Light.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-LightItalic.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-Medium.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-MediumItalic.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-Regular.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-SemiBold.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-SemiBoldItalic.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-Thin.ttf
+        - asset: fonts/IBM_Plex_Mono/IBMPlexMono-ThinItalic.ttf
 
 
 

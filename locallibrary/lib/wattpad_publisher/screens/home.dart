@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import '../../core/theme/app_palette.dart';
 import '../widgets/aside.dart';
 import '../widgets/content_router.dart';
@@ -8,6 +8,7 @@ import '../widgets/inner_shadow_gradient_pane.dart';
 import '../widgets/nav_bar.dart';
 import '../widgets/rounded_content_outer.dart';
 import '../widgets/shadowed_panel.dart';
+import '../widgets/single_window_activator_button.dart';
 import '../widgets/two_pane_row.dart';
 
 class WDHome extends StatelessWidget {
@@ -44,25 +45,14 @@ class WDHome extends StatelessWidget {
               width: sideSize,
               top: NavBar.defaults(),
               // bottom: const SizedBox.shrink(),
-              bottom: Container(
+              bottom: SizedBox(
+                width: MediaQuery.of(context).size.width / 2,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    OutlinedButton(
-                      onPressed: () {},
-                      child: SvgPicture.asset(
-                        "assets/icons/settings_icon_light.svg",
-                      ),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        // AddStoryDialog.open(context);
-                      },
-                      child: SvgPicture.asset(
-                        "assets/icons/add_icon_light.svg",
-                      ),
-                    ),
+                    SingleWindowActivatorButton.settings(),
+                    SingleWindowActivatorButton.scrape(),
                   ],
                 ),
               ),

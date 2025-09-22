@@ -8,6 +8,7 @@
 
 #include <app_links/app_links_plugin_c_api.h>
 #include <desktop_multi_window/desktop_multi_window_plugin.h>
+#include <flutter_window_close/flutter_window_close_plugin.h>
 #include <media_kit_video/media_kit_video_plugin_c_api.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 #include <volume_controller/volume_controller_plugin_c_api.h>
@@ -17,6 +18,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("AppLinksPluginCApi"));
   DesktopMultiWindowPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("DesktopMultiWindowPlugin"));
+  FlutterWindowClosePluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("FlutterWindowClosePlugin"));
   MediaKitVideoPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("MediaKitVideoPluginCApi"));
   UrlLauncherWindowsRegisterWithRegistrar(

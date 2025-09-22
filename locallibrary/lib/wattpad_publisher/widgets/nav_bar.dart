@@ -30,7 +30,7 @@ class NavBar extends StatefulWidget {
 
     final items = List.generate(
       3,
-          (i) => NavItem(
+      (i) => NavItem(
         label: labels[i],
         defaultAsset: iconsDefault[i],
         selectedAsset: iconsSelected[i],
@@ -44,17 +44,11 @@ class NavBar extends StatefulWidget {
   factory NavBar.search({Key? key}) {
     const labels = ["Shelves", "All Books"];
 
-    final screens = [
-      NavigationDashboardCubit(),
-      NavigationLibraryCubit(),
-    ];
+    final screens = [NavigationDashboardCubit(), NavigationLibraryCubit()];
 
     final items = List.generate(
       2,
-          (i) => NavItem(
-        label: labels[i],
-        screen: screens[i],
-      ),
+      (i) => NavItem(label: labels[i], screen: screens[i]),
     );
 
     return NavBar._(key: key, items: items);
@@ -113,16 +107,16 @@ class NavItem {
 
   const NavItem({
     required this.label,
-     this.selectedAsset,
-     this.defaultAsset,
+    this.selectedAsset,
+    this.defaultAsset,
     required this.screen,
   });
 }
 
 class ToggleButton extends StatelessWidget {
   final String label;
-  final String? selectedImage;   // nullable
-  final String? defaultImage;    // nullable
+  final String? selectedImage; // nullable
+  final String? defaultImage; // nullable
   final bool isSelected;
   final VoidCallback onPressed;
 
@@ -171,7 +165,9 @@ class ToggleButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? AppPalette.primary : AppPalette.primaryLight,
+                color: isSelected
+                    ? AppPalette.primary
+                    : AppPalette.primaryLight,
                 fontWeight: FontWeight.normal,
               ),
             ),

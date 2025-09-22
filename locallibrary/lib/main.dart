@@ -4,15 +4,13 @@ import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:locallibrary/core/route/route.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/story_bloc.dart';
+import 'package:locallibrary/wattpad_publisher/cubit/navigation_cubit.dart';
+import 'package:locallibrary/window_service.dart';
 
-import 'core/route/story_route.dart';
 import 'core/theme/theme.dart';
 import 'dependency_ingection.dart';
-
-import 'package:locallibrary/core/route/route.dart';
-
-import 'package:locallibrary/wattpad_publisher/cubit/navigation_cubit.dart';
 
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,16 +27,23 @@ Future<void> main(List<String> args) async {
 
     // Build the sub-window router with its initial route
     final String initialRoute =
-        (payload['initialRoute'] as String?) ??
-        (payload['storyId'] != null
-            ? '/stories/${payload['storyId']}'
-            : '/stories/1');
+        (payload['initialRoute'] as String?) ?? AppRoute.scrapeInitLocation;
 
-    final router = buildSubWindowRouter(initialLocation: initialRoute);
+    // pick mode based on where you’re landing
+    final mode = initialRoute.startsWith(AppRoute.scrapeInitLocation)
+        ? AppRouterMode.subScrapeWindow
+        : AppRouterMode.subStoryWindow;
+
+    final router = AppRoute.buildRouter(
+      initialLocation: initialRoute,
+      mode: mode,
+    );
 
     // Handle messages from other windows
     DesktopMultiWindow.setMethodHandler((call, fromWindowId) async {
       switch (call.method) {
+        case 'scrape_closed':
+          ScrapeStoryAppWindow.I.markClosed(fromWindowId);
         case 'navigate':
           final map = (call.arguments as Map?)?.cast<String, dynamic>();
           final path = map?['path'] as String?;
@@ -49,9 +54,19 @@ Future<void> main(List<String> args) async {
         case 'close':
           WindowController.fromWindowId(windowId).close();
           return true;
+        case 'focus':
+          final ctrl = WindowController.fromWindowId(windowId);
+          ctrl.show();
+          // TODO: add window_manager and call focus here
+          return true;
       }
       return null;
     });
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   // attach to whatever close action you use:
+    //   DesktopMultiWindow.invokeMethod(0, 'addStoryClosed', {'id': windowId});
+    // });
 
     // Run a **locked** sub-window: no back navigation to “home”
     runApp(
@@ -82,7 +97,8 @@ Future<void> main(List<String> args) async {
         debugShowCheckedModeBanner: false,
         title: 'Local Library',
         theme: AppTheme.lightMode,
-        routerConfig: AppRoute.router, // full router with home/library/etc.
+        routerConfig:
+            AppRoute.buildRouter(), // full router with home/library/etc.
       ),
     ),
   );

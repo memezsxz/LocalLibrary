@@ -1,35 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:locallibrary/wattpad_publisher/datasource.dart';
-import 'package:locallibrary/wattpad_publisher/widgets/search_bar.dart';
+import 'package:locallibrary/wattpad_publisher/widgets/input_bars.dart';
 import 'package:locallibrary/wattpad_publisher/widgets/shelves.dart';
 
 import '../../dependency_ingection.dart';
 import 'dashboard.dart';
-
-//
-// class Library extends StatelessWidget {
-//   const Library({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     int count = 6;
-//
-//     int countThreeRows = count * 3;
-//
-//     return Padding(
-//       padding: const EdgeInsets.all(10).copyWith(top: 0),
-//       child: SingleChildScrollView(
-//         clipBehavior: Clip.none,
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             for (int i = 0; i < countThreeRows; i++) Shelve(storyIds: [1]),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class Library extends StatefulWidget {
   const Library({super.key});

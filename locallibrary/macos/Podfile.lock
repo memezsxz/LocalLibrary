@@ -3,6 +3,8 @@ PODS:
     - FlutterMacOS
   - desktop_multi_window (0.0.1):
     - FlutterMacOS
+  - flutter_window_close (0.0.1):
+    - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - media_kit_libs_macos_video (1.0.4):
     - FlutterMacOS
@@ -29,6 +31,7 @@ PODS:
 DEPENDENCIES:
   - app_links (from `Flutter/ephemeral/.symlinks/plugins/app_links/macos`)
   - desktop_multi_window (from `Flutter/ephemeral/.symlinks/plugins/desktop_multi_window/macos`)
+  - flutter_window_close (from `Flutter/ephemeral/.symlinks/plugins/flutter_window_close/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - media_kit_libs_macos_video (from `Flutter/ephemeral/.symlinks/plugins/media_kit_libs_macos_video/macos`)
   - media_kit_video (from `Flutter/ephemeral/.symlinks/plugins/media_kit_video/macos`)
@@ -45,6 +48,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/app_links/macos
   desktop_multi_window:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_multi_window/macos
+  flutter_window_close:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_window_close/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   media_kit_libs_macos_video:
@@ -69,6 +74,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   app_links: 05a6ec2341985eb05e9f97dc63f5837c39895c3f
   desktop_multi_window: 93667594ccc4b88d91a97972fd3b1b89667fa80a
+  flutter_window_close: bd408414cbbf0d39f0d3076c4da0cdbf1c527168
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   media_kit_libs_macos_video: 85a23e549b5f480e72cae3e5634b5514bc692f65
   media_kit_video: fa6564e3799a0a28bff39442334817088b7ca758

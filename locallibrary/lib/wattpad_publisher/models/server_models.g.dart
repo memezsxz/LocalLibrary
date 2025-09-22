@@ -61,3 +61,17 @@ Map<String, dynamic> _$PartFullInfoToJson(PartFullInfo instance) =>
       'video': instance.video?.toJson(),
       'comments_count': instance.commentsCount,
     };
+
+ScrapeStoryRes _$ScrapeStoryResFromJson(Map<String, dynamic> json) =>
+    ScrapeStoryRes(
+      story: StoryTxResult.fromJson(json['story'] as Map<String, dynamic>),
+      partLinks: (json['part_links'] as List<dynamic>)
+          .map((e) => PartLink.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$ScrapeStoryResToJson(ScrapeStoryRes instance) =>
+    <String, dynamic>{
+      'story': instance.story.toJson(),
+      'part_links': instance.partLinks.map((e) => e.toJson()).toList(),
+    };

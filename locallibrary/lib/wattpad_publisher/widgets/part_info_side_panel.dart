@@ -1,17 +1,15 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../core/exstentions/image.dart';
-import '../../core/route/story_route.dart';
+import '../../core/route/route.dart';
 import '../../core/theme/app_palette.dart';
 import '../bloc/part_bloc.dart';
 import '../bloc/story_bloc.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-
 import '../models/models.dart';
 import '../models/server_models.dart';
 

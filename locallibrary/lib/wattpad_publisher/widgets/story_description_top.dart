@@ -1,18 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
-import 'package:locallibrary/core/route/story_route.dart';
-import 'package:locallibrary/wattpad_publisher/widgets/search_bar.dart';
+import 'package:locallibrary/wattpad_publisher/widgets/input_bars.dart';
 
-import '../../core/exstentions/datetime.dart';
 import '../../core/exstentions/image.dart';
+import '../../core/route/route.dart';
 import '../../core/theme/app_palette.dart';
 import '../models/server_models.dart';
 import '../screens/story_screen.dart';
-
-import 'package:path/path.dart' as path;
 
 class StoryDescriptionTop extends StatelessWidget {
   const StoryDescriptionTop({
@@ -250,7 +244,7 @@ class StoryDescrioptionTopLeft extends StatelessWidget {
             ),
           ),
           BaseButton(
-            label: "Continue",
+            label: story.storyProgress.progress == null ? "Read" : "Continue",
             onPressed: () {
               if (story.currentPart != null) {
                 goToPart(

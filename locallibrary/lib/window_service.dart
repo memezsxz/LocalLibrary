@@ -1,19 +1,10 @@
-// window_service.dart
-//
-// Convenience helpers to open additional desktop windows that land on the
-// routes your GoRouter (AppRoute.router) understands.
-//
-// Example usage from any widget/cubit:
-//   final id = await AppWindows.openStoryWindow(storyId: 1);
-//   final id2 = await AppWindows.openPartWindow(storyId: 1, partId: 10);
-//   await AppWindows.navigate(windowId: id2, path: '/story/1/parts/10'); // later
-//
-// Remember: each window has its own isolate. Use invokeMethod to pass messages.
-
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
+
+import 'core/route/route.dart';
 
 class AppWindows {
   /// Launch a window and navigate it to a story details route.
@@ -73,4 +64,83 @@ class AppWindows {
   static Future<List<int>> subWindowIds() {
     return DesktopMultiWindow.getAllSubWindowIds();
   }
+
+  static Future<void> focus({required int windowId}) async {
+    // If you later add window_manager, call show()/focus() there.
+    await DesktopMultiWindow.invokeMethod(windowId, 'focus', {});
+  }
 }
+
+class ScrapeStoryAppWindow {
+  ScrapeStoryAppWindow._();
+
+  static final ScrapeStoryAppWindow I = ScrapeStoryAppWindow._();
+
+  /// Listen to this for changes (null when closed, int when open).
+  final ValueNotifier<int?> id = ValueNotifier<int?>(null);
+
+  Future<void> openOrFocus() async {
+    final current = id.value;
+    if (current == null) {
+      final win = await DesktopMultiWindow.createWindow(
+        jsonEncode({
+          'initialRoute': AppRoute.scrapeInitLocation, // your route
+          'kind': 'scrape',
+          // send parent id if you need to call back
+          // 'parentId': DesktopMultiWindow.getMainWindowId(),
+        }),
+      );
+      id.value = win.windowId;
+      win
+        ..setTitle('Local Library — Add Story')
+        ..setFrame(const Offset(120, 120) & const Size(1040, 760))
+        ..show();
+      return;
+    }
+    try {
+      await DesktopMultiWindow.invokeMethod(current, 'focus', null);
+    } catch (_) {
+      id.value = null;
+      await openOrFocus();
+    }
+  }
+
+  void markClosed(int closedId) {
+    if (id.value == closedId) id.value = null;
+  }
+}
+
+// now i want to enable update when the id changes to a number or becomes null (extension ScrapeStoryAppWindow on AppWindows {
+// static int? _id;
+//
+// static Future<void> openOrFocus() async {
+// if (_id == null) {
+// final win = await DesktopMultiWindow.createWindow(
+// jsonEncode({
+// 'initialRoute': AppRoute.scrapeInitLocation,
+// // make sure your sub-window router handles this
+// 'kind': 'scrape',
+// }),
+// );
+// _id = win.windowId;
+// win
+// ..setTitle('Local Library — Add Story')
+// ..setFrame(const Offset(120, 120) & const Size(1040, 760))
+// ..show();
+// return;
+// }
+// // Ask the sub-window to bring itself to front (handled in sub-window main)
+// try {
+// await DesktopMultiWindow.invokeMethod(_id!, 'focus', null);
+// } catch (_) {
+// // If the window was closed/crashed, recreate
+// _id = null;
+// await openOrFocus();
+// }
+// }
+//
+// static void markClosed(int id) {
+// if (_id == id) _id = null;
+// }
+// }
+// )  what is the best way to do this in a subscription way or any other way?

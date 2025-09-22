@@ -5,14 +5,14 @@
         <entry key="_fe_analyzer_shared">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-88.0.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-89.0.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="analyzer">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer-8.1.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer-8.2.0/lib" />
             </list>
           </value>
         </entry>
@@ -240,6 +240,13 @@
             </list>
           </value>
         </entry>
+        <entry key="equatable">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/equatable-2.0.7/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="fake_async">
           <value>
             <list>
@@ -282,6 +289,13 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_client_sse">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_client_sse-2.0.3/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="flutter_dotenv">
           <value>
             <list>
@@ -300,6 +314,13 @@
           <value>
             <list>
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_inner_shadow-0.0.1/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="flutter_json_view">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_json_view-1.1.5/lib" />
             </list>
           </value>
         </entry>
@@ -338,10 +359,31 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_window_close">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_window_close-1.3.0/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="fpdart">
           <value>
             <list>
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/fpdart-1.1.1/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="freezed">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/freezed-3.2.3/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="freezed_annotation">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/freezed_annotation-3.1.0/lib" />
             </list>
           </value>
         </entry>
@@ -376,7 +418,7 @@
         <entry key="go_router">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/go_router-16.2.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/go_router-16.2.2/lib" />
             </list>
           </value>
         </entry>
@@ -670,7 +712,7 @@
         <entry key="pool">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/pool-1.5.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/pool-1.5.2/lib" />
             </list>
           </value>
         </entry>
@@ -1167,8 +1209,8 @@
       </option>
     </properties>
     <CLASSES>
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-88.0.0/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer-8.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-89.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer-8.2.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/app_links-6.4.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/app_links_linux-1.0.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/app_links_platform_interface-2.0.2/lib" />
@@ -1201,23 +1243,29 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/desktop_multi_window-0.2.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/dio-5.9.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/dio_web_adapter-2.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/equatable-2.0.7/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/fake_async-1.3.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/ffi-2.1.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file-7.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/fixnum-1.1.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_bloc-9.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_client_sse-2.0.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_dotenv-6.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_html-3.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_inner_shadow-0.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_json_view-1.1.5/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_launcher_icons-0.14.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_svg-2.2.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_window_close-1.3.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/fpdart-1.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/freezed-3.2.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/freezed_annotation-3.1.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/frontend_server_client-4.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/functions_client-2.4.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/get_it-8.2.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/glob-2.1.3/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/go_router-16.2.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/go_router-16.2.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/gotrue-2.15.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/graphs-2.3.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/gtk-2.1.0/lib" />
@@ -1259,7 +1307,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/petitparser-7.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/platform-3.1.6/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/plugin_platform_interface-2.1.8/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/pool-1.5.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/pool-1.5.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/posix-6.0.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/postgrest-2.4.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/provider-6.1.5+1/lib" />

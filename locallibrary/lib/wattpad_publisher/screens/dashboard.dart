@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:locallibrary/wattpad_publisher/widgets/search_bar.dart';
+import 'package:locallibrary/wattpad_publisher/widgets/input_bars.dart';
 
 import '../widgets/shelves.dart';
 
