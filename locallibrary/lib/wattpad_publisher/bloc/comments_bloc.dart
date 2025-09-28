@@ -4,145 +4,27 @@ import 'package:meta/meta.dart';
 import '../datasource.dart';
 import '../models/models.dart';
 
-@immutable
-sealed class CommentsEvent {}
-
-/// Load first page for a paragraph.
-class LoadParagraphComments extends CommentsEvent {
-  final int storyId;
-  final int paragraphId;
-  final int? limit;
-
-  LoadParagraphComments(this.storyId, this.paragraphId, {this.limit});
-}
-
-/// Load first page for a part.
-class LoadPartComments extends CommentsEvent {
-  final int storyId;
-  final int partId;
-  final int? limit;
-
-  LoadPartComments(this.storyId, this.partId, {this.limit});
-}
-
-/// Load next page of root comments (paragraph/part whichever is active).
-class LoadMoreRootComments extends CommentsEvent {}
-
-/// Load first (or next) page of replies for a parent comment.
-class LoadReplies extends CommentsEvent {
-  final int parentCommentId;
-  final int? limit;
-
-  LoadReplies(this.parentCommentId, {this.limit});
-}
-
-@immutable
-sealed class CommentsState {}
-
-/// Single-state model that holds roots + replies (with offsets/load flags).
-class CommentsData extends CommentsState {
-  final int storyId;
-  final int? paragraphId; // when in paragraph mode
-  final int? partId; // when in part mode
-
-  final List<Comment> roots;
-  final int rootOffset;
-  final bool rootEnded;
-  final bool loadingRoot;
-  final bool loadingMoreRoot;
-
-  /// Per parent comment:
-  final Map<int, List<Comment>> replies;
-  final Map<int, int> repliesOffset; // next offset to request, per parent
-  final Map<int, bool> repliesEnded; // stop when true, per parent
-  final Set<int> repliesLoading; // currently loading parent ids
-
-  final String? error;
-
-  CommentsData({
-    required this.storyId,
-    required this.paragraphId,
-    required this.partId,
-    required this.roots,
-    required this.rootOffset,
-    required this.rootEnded,
-    required this.loadingRoot,
-    required this.loadingMoreRoot,
-    required this.replies,
-    required this.repliesOffset,
-    required this.repliesEnded,
-    required this.repliesLoading,
-    required this.error,
-  });
-
-  factory CommentsData.initial() => CommentsData(
-    storyId: -1,
-    paragraphId: null,
-    partId: null,
-    roots: <Comment>[],
-    rootOffset: 0,
-    rootEnded: false,
-    loadingRoot: false,
-    loadingMoreRoot: false,
-    replies: <int, List<Comment>>{},
-    repliesOffset: <int, int>{},
-    repliesEnded: <int, bool>{},
-    repliesLoading: <int>{},
-    error: null,
-  );
-
-  bool get isParagraphMode => paragraphId != null;
-
-  bool get isPartMode => partId != null;
-
-  CommentsData copyWith({
-    int? storyId,
-    int? paragraphId,
-    int? partId,
-    List<Comment>? roots,
-    int? rootOffset,
-    bool? rootEnded,
-    bool? loadingRoot,
-    bool? loadingMoreRoot,
-    Map<int, List<Comment>>? replies,
-    Map<int, int>? repliesOffset,
-    Map<int, bool>? repliesEnded,
-    Set<int>? repliesLoading,
-    String? error,
-  }) {
-    return CommentsData(
-      storyId: storyId ?? this.storyId,
-      paragraphId: paragraphId ?? this.paragraphId,
-      partId: partId ?? this.partId,
-      roots: roots ?? this.roots,
-      rootOffset: rootOffset ?? this.rootOffset,
-      rootEnded: rootEnded ?? this.rootEnded,
-      loadingRoot: loadingRoot ?? this.loadingRoot,
-      loadingMoreRoot: loadingMoreRoot ?? this.loadingMoreRoot,
-      replies: replies ?? this.replies,
-      repliesOffset: repliesOffset ?? this.repliesOffset,
-      repliesEnded: repliesEnded ?? this.repliesEnded,
-      repliesLoading: repliesLoading ?? this.repliesLoading,
-      error: error ?? this.error,
-    );
-  }
-}
+part 'comments_event.dart';
+part 'comments_state.dart';
 
 class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
   final AppApiDataSource api;
   static const int _pageSize = 20;
 
   CommentsBloc({required this.api}) : super(CommentsData.initial()) {
-    on<CommentsEvent>((event, emit) {
-      // top-level hook to trace events entering the bloc
-      // keep lightweight; leave logic to specific handlers
-      // ignore: avoid_print
-      print('[CommentsBloc] onEvent: ${event.runtimeType} -> $event');
-      return null;
-    }, transformer: (events, mapper) {
-      // pass-through transformer
-      return events.asyncExpand(mapper);
-    });
+    on<CommentsEvent>(
+      (event, emit) {
+        // top-level hook to trace events entering the bloc
+        // keep lightweight; leave logic to specific handlers
+        // ignore: avoid_print
+        print('[CommentsBloc] onEvent: ${event.runtimeType} -> $event');
+        return null;
+      },
+      transformer: (events, mapper) {
+        // pass-through transformer
+        return events.asyncExpand(mapper);
+      },
+    );
     on<LoadParagraphComments>(_onLoadParagraphComments);
     on<LoadPartComments>(_onLoadPartComments);
     on<LoadMoreRootComments>(_onLoadMoreRootComments);
@@ -156,7 +38,9 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     Emitter<CommentsState> emit,
   ) async {
     // ignore: avoid_print
-    print('[CommentsBloc] LoadParagraphComments storyId=${e.storyId} paragraphId=${e.paragraphId} limit=${e.limit ?? _pageSize}');
+    print(
+      '[CommentsBloc] LoadParagraphComments storyId=${e.storyId} paragraphId=${e.paragraphId} limit=${e.limit ?? _pageSize}',
+    );
     final loading = CommentsData(
       storyId: e.storyId,
       paragraphId: e.paragraphId,
@@ -214,7 +98,9 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     Emitter<CommentsState> emit,
   ) async {
     // ignore: avoid_print
-    print('[CommentsBloc] LoadPartComments storyId=${e.storyId} partId=${e.partId} limit=${e.limit ?? _pageSize}');
+    print(
+      '[CommentsBloc] LoadPartComments storyId=${e.storyId} partId=${e.partId} limit=${e.limit ?? _pageSize}',
+    );
     final loading = CommentsData(
       storyId: e.storyId,
       paragraphId: null,
@@ -275,7 +161,13 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     if (s.loadingMoreRoot || s.rootEnded) return;
 
     // ignore: avoid_print
-    print('[CommentsBloc] LoadMoreRootComments mode=${s.isParagraphMode ? 'paragraph' : s.isPartMode ? 'part' : 'none'} offset=${s.rootOffset}');
+    print(
+      '[CommentsBloc] LoadMoreRootComments mode=${s.isParagraphMode
+          ? 'paragraph'
+          : s.isPartMode
+          ? 'part'
+          : 'none'} offset=${s.rootOffset}',
+    );
     emit(s.copyWith(loadingMoreRoot: true));
 
     try {
@@ -313,7 +205,9 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
         ),
       );
       // ignore: avoid_print
-      print('[CommentsBloc] Paginated roots added=${next.length} newOffset=${s.rootOffset + next.length} ended=${next.isEmpty}');
+      print(
+        '[CommentsBloc] Paginated roots added=${next.length} newOffset=${s.rootOffset + next.length} ended=${next.isEmpty}',
+      );
     } catch (err) {
       emit(s.copyWith(loadingMoreRoot: false, error: err.toString()));
       // ignore: avoid_print
@@ -333,12 +227,16 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     final id = e.parentCommentId;
     if (s.repliesLoading.contains(id) || (s.repliesEnded[id] ?? false)) {
       // ignore: avoid_print
-      print('[CommentsBloc] LoadReplies parent=$id skipped (loading=${s.repliesLoading.contains(id)} ended=${s.repliesEnded[id] ?? false})');
+      print(
+        '[CommentsBloc] LoadReplies parent=$id skipped (loading=${s.repliesLoading.contains(id)} ended=${s.repliesEnded[id] ?? false})',
+      );
       return;
     }
 
     // ignore: avoid_print
-    print('[CommentsBloc] LoadReplies parent=$id offset=${(s.replies[id] ?? const <Comment>[]).length}');
+    print(
+      '[CommentsBloc] LoadReplies parent=$id offset=${(s.replies[id] ?? const <Comment>[]).length}',
+    );
     emit(s.copyWith(repliesLoading: {...s.repliesLoading, id}));
 
     try {
@@ -369,7 +267,9 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
         ),
       );
       // ignore: avoid_print
-      print('[CommentsBloc] Loaded replies parent=$id added=${next.length} total=${updatedReplies[id]?.length} ended=${updatedEnded[id]}');
+      print(
+        '[CommentsBloc] Loaded replies parent=$id added=${next.length} total=${updatedReplies[id]?.length} ended=${updatedEnded[id]}',
+      );
     } catch (err) {
       emit(
         s.copyWith(

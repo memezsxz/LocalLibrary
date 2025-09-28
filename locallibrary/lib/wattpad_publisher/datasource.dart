@@ -315,15 +315,66 @@ class AppApiDataSource {
     };
 
     final body = {
-      'story_url': storyUrl,
+      'url': storyUrl,
       // 'output_dir': outputDir,
       'clear_output': clearOutput,
     };
 
+    final url = _uri(
+      '/app/scrape/story/stream'
+      '',
+    ).toString();
+
+    print(url);
+
     // Subscribe with POST, body, and headers
     final base = SSEClient.subscribeToSSE(
       method: SSERequestType.POST,
-      url: _uri('/app/scrape/story/stream').toString(),
+      url: url,
+      header: headers,
+      body: body,
+    ); // -> Stream<SSEModel> with .event, .data
+
+    // Map to SimpleEvent and **fan-out** when multiple JSONs appear in one data payload
+    return base
+        .where((m) => (m.data ?? '').isNotEmpty)
+        .map((m) => ScrapeEvent(m.event ?? 'message', m.data!))
+        .asyncExpand((evt) async* {
+          for (final piece in _splitNdjsonOrConcatenated(evt.payload)) {
+            yield ScrapeEvent(evt.name, piece);
+          }
+        });
+  }
+
+  Stream<ScrapeEvent> streamScrapePart({
+    required String partUrl, // the Wattpad URL
+    required int storyId, // the Wattpad URL
+    bool clearOutput = false,
+    Map<String, String>? extraHeaders,
+  }) {
+    final headers = <String, String>{
+      'Accept': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Content-Type': 'application/json',
+      if (extraHeaders != null) ...extraHeaders,
+    };
+
+    final body = {
+      'url': partUrl,
+      "story_id": storyId,
+      'clear_output': clearOutput,
+    };
+
+    final url = _uri(
+      '/app/scrape/part/stream'
+      '',
+    ).toString();
+
+    // Subscribe with POST, body, and headers
+    final base = SSEClient.subscribeToSSE(
+      method: SSERequestType.POST,
+      url: url,
+
       header: headers,
       body: body,
     ); // -> Stream<SSEModel> with .event, .data
@@ -475,6 +526,8 @@ class AppApiDataSource {
     final decoded = jsonDecode(body);
     return ApiPage<Comment>(items: _parseComments(decoded));
   }
+
+  // streamScrapePartByIds({required int storyId, required int partId, required bool clearOutput}) {}
 }
 
 // Contract

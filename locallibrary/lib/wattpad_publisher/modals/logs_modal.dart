@@ -8,26 +8,33 @@ import 'package:intl/intl.dart';
 
 import '../../core/commen/widgets/loader.dart';
 import '../../core/theme/app_palette.dart';
-import '../../dependency_ingection.dart';
 import '../bloc/base_scrape_bloc.dart';
-import '../bloc/scrape_story_bloc.dart';
 import '../models/logs.dart';
 
-void openScrapeStoryEventsInspector(BuildContext context) async {
+// 1) Generic opener that works for any scrape bloc/result
+void openScrapeEventsModal<TRes>({
+  required BuildContext context,
+  required BaseScrapeBloc<TRes> bloc,
+}) {
+  final width = MediaQuery.of(context).size.width / 1.5;
+  final height = MediaQuery.of(context).size.height / 1.5;
   showGeneralDialog(
     context: context,
     barrierDismissible: false,
-    barrierLabel: 'Add Story',
     barrierColor: Colors.black54,
     pageBuilder: (ctx, a1, a2) {
       return Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 920, maxHeight: 680),
+          constraints: BoxConstraints(maxWidth: width, maxHeight: height),
           child: Material(
             elevation: 12,
             clipBehavior: Clip.antiAlias,
             borderRadius: BorderRadius.circular(16),
-            child: const EventInspectorModal(),
+            // If anything inside uses context.read<T>(), provide the same bloc:
+            child: BlocProvider.value(
+              value: bloc,
+              child: EventInspectorModal<TRes>(bloc: bloc),
+            ),
           ),
         ),
       );
@@ -35,30 +42,138 @@ void openScrapeStoryEventsInspector(BuildContext context) async {
   );
 }
 
-class EventInspectorModal extends StatefulWidget {
-  const EventInspectorModal();
+// void openScrapeStoryEventsInspector(BuildContext context) async {
+//   showGeneralDialog(
+//     context: context,
+//     barrierDismissible: false,
+//     barrierLabel: 'Add Story',
+//     barrierColor: Colors.black54,
+//     pageBuilder: (ctx, a1, a2) {
+//       return Center(
+//         child: ConstrainedBox(
+//           constraints: const BoxConstraints(maxWidth: 920, maxHeight: 680),
+//           child: Material(
+//             elevation: 12,
+//             clipBehavior: Clip.antiAlias,
+//             borderRadius: BorderRadius.circular(16),
+//             child: const EventInspectorModal(),
+//           ),
+//         ),
+//       );
+//     },
+//   );
+// }
+
+// class EventInspectorModal extends StatefulWidget {
+//   const EventInspectorModal();
+//
+//   @override
+//   State<EventInspectorModal> createState() => _EventInspectorModalState();
+// }
+//
+// class _EventInspectorModalState extends State<EventInspectorModal> {
+//   // tracks which panels are expanded when using ExpansionPanelList
+//   final Set<int> _expanded = {};
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<ScrapeStoryBloc, BaseScrapeState>(
+//       bloc: sl.get<ScrapeStoryBloc>(),
+//       buildWhen: (previous, current) =>
+//           previous != current || previous.events.length < current.events.length,
+//       builder: (BuildContext context, state) {
+//         final events = state.events.reversed.toList();
+//
+//         return Container(
+//           decoration: BoxDecoration(
+//             color: AppPalette.primaryLight.withOpacity(0.5),
+//             image: DecorationImage(
+//               repeat: ImageRepeat.repeat,
+//               image: AssetImage("assets/images/texture_5.png"),
+//               fit: BoxFit.none,
+//               opacity: 0.1,
+//             ),
+//           ),
+//           height: MediaQuery.of(context).size.height * 0.80,
+//           child: Column(
+//             children: [
+//               _InspectorHeader(
+//                 count: events.length,
+//                 onExpandAll: () => setState(
+//                   () =>
+//                       _expanded..addAll(List.generate(events.length, (i) => i)),
+//                 ),
+//                 onCollapseAll: () => setState(() => _expanded.clear()),
+//                 onCopyAll: () async {
+//                   final pretty = const JsonEncoder.withIndent(
+//                     '  ',
+//                   ).convert(events.map((e) => e.toJson()).toList());
+//                   await Clipboard.setData(ClipboardData(text: pretty));
+//                 },
+//               ),
+//               const Divider(height: 1, color: AppPalette.primary),
+//               Expanded(
+//                 child: Container(
+//                   color: Colors.white,
+//                   child: ListView.builder(
+//                     padding: const EdgeInsets.only(bottom: 16),
+//                     itemCount: events.length,
+//                     itemBuilder: (context, index) {
+//                       final vm = events[index];
+//                       final isOpen = _expanded.contains(index);
+//                       return _EventTile(
+//                         vm: vm,
+//                         isExpanded: isOpen,
+//                         onToggle: () => setState(() {
+//                           if (isOpen) {
+//                             _expanded.remove(index);
+//                           } else {
+//                             _expanded.add(index);
+//                           }
+//                         }),
+//                       );
+//                     },
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }
+
+// A single modal that works with ANY BaseScrapeBloc<TRes>
+class EventInspectorModal<TRes> extends StatefulWidget {
+  const EventInspectorModal({super.key, required this.bloc});
+
+  final BaseScrapeBloc<TRes> bloc;
 
   @override
-  State<EventInspectorModal> createState() => _EventInspectorModalState();
+  State<EventInspectorModal<TRes>> createState() =>
+      _EventInspectorModalState<TRes>();
 }
 
-class _EventInspectorModalState extends State<EventInspectorModal> {
-  // tracks which panels are expanded when using ExpansionPanelList
+class _EventInspectorModalState<TRes> extends State<EventInspectorModal<TRes>> {
   final Set<int> _expanded = {};
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ScrapeStoryBloc, BaseScrapeState>(
-      bloc: sl.get<ScrapeStoryBloc>(),
-      buildWhen: (previous, current) =>
-          previous != current || previous.events.length < current.events.length,
-      builder: (BuildContext context, state) {
+    return BlocBuilder<BaseScrapeBloc<TRes>, BaseScrapeState<TRes>>(
+      bloc: widget.bloc, // << pass the specific instance
+      buildWhen: (prev, next) =>
+          prev.events.length != next.events.length ||
+          prev.status != next.status ||
+          !identical(prev.result, next.result),
+      builder: (_, state) {
         final events = state.events.reversed.toList();
 
+        // print("len events ${events.length}");
         return Container(
           decoration: BoxDecoration(
             color: AppPalette.primaryLight.withOpacity(0.5),
-            image: DecorationImage(
+            image: const DecorationImage(
               repeat: ImageRepeat.repeat,
               image: AssetImage("assets/images/texture_5.png"),
               fit: BoxFit.none,
@@ -69,6 +184,7 @@ class _EventInspectorModalState extends State<EventInspectorModal> {
           child: Column(
             children: [
               _InspectorHeader(
+                // title: widget.title ?? 'Events',
                 count: events.length,
                 onExpandAll: () => setState(
                   () =>
@@ -96,11 +212,9 @@ class _EventInspectorModalState extends State<EventInspectorModal> {
                         vm: vm,
                         isExpanded: isOpen,
                         onToggle: () => setState(() {
-                          if (isOpen) {
-                            _expanded.remove(index);
-                          } else {
-                            _expanded.add(index);
-                          }
+                          isOpen
+                              ? _expanded.remove(index)
+                              : _expanded.add(index);
                         }),
                       );
                     },

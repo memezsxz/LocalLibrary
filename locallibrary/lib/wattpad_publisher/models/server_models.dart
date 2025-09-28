@@ -135,3 +135,4 @@ class ScrapeStoryRes {
 
   Map<String, dynamic> toJson() => _$ScrapeStoryResToJson(this);
 }
+

@@ -52,10 +52,10 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
     final raw = (await ClipboardService().getFromClipboard())?.trim() ?? '';
     if (raw.isEmpty) return;
 
-    final msg = validateUrlMessage(raw);
+    final msg = validateStoryUrlMessage(raw);
     if (msg != null) return; // not a Wattpad story link
 
-    final url = normalizeUrl(raw);
+    final url = raw;
     _urlCtrl.text = url;
     bloc.add(InputChanged(url));
   }
@@ -200,7 +200,10 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                             status: state.status,
                             onPrimaryTap: () {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
-                                openScrapeStoryEventsInspector(context);
+                                openScrapeEventsModal<ScrapeStoryRes>(
+                                  context: context,
+                                  bloc: sl.get<ScrapeStoryBloc>(),
+                                );
                               });
                             },
                             onSecondary: () => sl.get<ScrapeStoryBloc>().add(

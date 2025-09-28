@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:locallibrary/wattpad_publisher/bloc/scrape_part_bloc.dart';
+import 'package:locallibrary/wattpad_publisher/datasource.dart';
+import 'package:locallibrary/wattpad_publisher/modals/logs_modal.dart';
 import 'package:locallibrary/wattpad_publisher/widgets/split_filled_button.dart';
 
 import '../../core/exstentions/image.dart';
 import '../../core/theme/app_palette.dart';
+import '../../dependency_ingection.dart';
 import '../bloc/base_scrape_bloc.dart';
 import '../models/server_models.dart';
+import '../models/server_parsed_json_models.dart';
+import '../models/store_models.dart';
 import '../screens/dashboard.dart';
 import '../widgets/input_bars.dart';
 import '../widgets/story_description_bottom.dart';
@@ -178,57 +185,124 @@ class ScrapedPartLinks extends StatelessWidget {
     return Column(
       children: res.partLinks
           .map(
-            (e) => Row(
-              spacing: 20,
-              children: [
-                Expanded(
-                  flex: 90,
-                  child: WhiteContainer(
-                    spacing: 10,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              e.wattId,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(
-                                    fontSize: 16,
-                                    color: AppPalette.primary,
-                                    // TODO: if downloaded show part title and not in bold
-                                    // backgroundColor: AppPalette.error,
-                                  ),
-                            ),
-                            SplitFilledButton(
-                              onPrimaryTap: () {},
-                              onSecondary: () {},
-                              status: ScrapeStatus.idle,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 5,
-                  child: WhiteContainer(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [SvgPicture.asset("assets/icons/adult_icon.svg")],
-                  ),
-                ),
-                Expanded(
-                  flex: 5,
-                  child: WhiteContainer(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [SvgPicture.asset("assets/icons/adult_icon.svg")],
-                  ),
-                ),
-              ],
-            ),
+            (e) =>
+                ScrapedPartRow(storyId: res.story.story.storyId, partLink: e),
           )
           .toList(),
+    );
+  }
+}
+
+class ScrapedPartRow extends StatefulWidget {
+  final int storyId;
+  final PartLink partLink; // has: String wattId; String? url;
+
+  const ScrapedPartRow({
+    super.key,
+    required this.storyId,
+    required this.partLink,
+  });
+
+  @override
+  State<ScrapedPartRow> createState() => _ScrapedPartRowState();
+}
+
+class _ScrapedPartRowState extends State<ScrapedPartRow> {
+  late final ScrapePartBloc _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = ScrapePartBloc(
+      api: sl.get<AppApiDataSource>(),
+      storyId: widget.storyId, // if your bloc supports ctor capture
+    );
+  }
+
+  @override
+  void dispose() {
+    _bloc.close();
+    super.dispose();
+  }
+
+  bool _isActive(BaseScrapeState<PartTxResult> s) =>
+      s.status == ScrapeStatus.connecting || s.status == ScrapeStatus.streaming;
+
+  void _onPrimaryTap(BaseScrapeState<PartTxResult> s) {
+    if (_isActive(s)) {
+      // already scraping -> show live events
+      openScrapeEventsModal<PartTxResult>(context: context, bloc: _bloc);
+      return;
+    }
+
+    // If your bloc uses the custom event that carries storyId + input:
+    _bloc.add(InputChanged(widget.partLink.url!));
+    _bloc.add(StartRequested());
+
+    // Optionally open the inspector immediately:
+    openScrapeEventsModal<PartTxResult>(context: context, bloc: _bloc);
+  }
+
+  void _onCancel(BaseScrapeState<PartTxResult> s) {
+    if (_isActive(s)) _bloc.add(CancelRequested());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ScrapePartBloc, BaseScrapeState<PartTxResult>>(
+      bloc: _bloc,
+      buildWhen: (p, n) =>
+          p.status != n.status || p.events.length != n.events.length,
+      builder: (context, state) {
+        print(state.status.name);
+        return Row(
+          spacing: 20,
+          children: [
+            Expanded(
+              flex: 90,
+              child: WhiteContainer(
+                spacing: 10,
+                children: [
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          widget.partLink.wattId,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontSize: 16,
+                                color: AppPalette.primary,
+                              ),
+                        ),
+                        SplitFilledButton(
+                          status: state.status,
+                          onPrimaryTap: () => _onPrimaryTap(state),
+                          onSecondary: () => _onCancel(state),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 5,
+              child: WhiteContainer(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [SvgPicture.asset("assets/icons/adult_icon.svg")],
+              ),
+            ),
+            Expanded(
+              flex: 5,
+              child: WhiteContainer(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [SvgPicture.asset("assets/icons/adult_icon.svg")],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
