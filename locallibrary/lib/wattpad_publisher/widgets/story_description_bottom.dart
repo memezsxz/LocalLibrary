@@ -4,6 +4,7 @@ import 'package:locallibrary/core/exstentions/datetime.dart';
 
 import '../../core/route/route.dart';
 import '../../core/theme/app_palette.dart';
+import '../models/models.dart';
 import '../models/server_models.dart';
 
 class StoryDescriptionBottom extends StatelessWidget {
@@ -28,29 +29,7 @@ class StoryDescriptionBottom extends StatelessWidget {
         SizedBox(height: 50),
 
         // tags
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          runAlignment: WrapAlignment.start,
-          alignment: WrapAlignment.start,
-          crossAxisAlignment: WrapCrossAlignment.start,
-          children: [
-            for (var t in storyBundle.tags)
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(50)),
-                  color: AppPalette.primaryLight,
-                ),
-                child: Text(
-                  t.name,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelMedium?.copyWith(fontSize: 16),
-                ),
-              ),
-          ],
-        ),
+        StoryTagsWrap(tags: storyBundle.tags),
         SizedBox(height: 50),
 
         // table of content
@@ -164,6 +143,43 @@ class StoryDescriptionBottom extends StatelessWidget {
             ],
           ),
         ),
+      ],
+    );
+  }
+}
+
+class StoryTagsWrap extends StatelessWidget {
+  const StoryTagsWrap({super.key, required this.tags, this.fontSize = 16});
+
+  final List<Tag> tags;
+  final double fontSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      runAlignment: WrapAlignment.start,
+      alignment: WrapAlignment.start,
+      crossAxisAlignment: WrapCrossAlignment.start,
+      children: [
+        for (var t in tags)
+          Container(
+            padding: EdgeInsets.symmetric(
+              vertical: fontSize / 3,
+              horizontal: fontSize - 2,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(50)),
+              color: AppPalette.primaryLight,
+            ),
+            child: Text(
+              t.name,
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(fontSize: fontSize),
+            ),
+          ),
       ],
     );
   }

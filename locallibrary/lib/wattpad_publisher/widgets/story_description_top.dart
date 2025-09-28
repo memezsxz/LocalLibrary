@@ -245,7 +245,7 @@ class StoryDescrioptionTopLeft extends StatelessWidget {
           ),
           BaseButton(
             label: story.storyProgress.progress == null ? "Read" : "Continue",
-            onPressed: () {
+            onPressed: () async {
               if (story.currentPart != null) {
                 goToPart(
                   context,

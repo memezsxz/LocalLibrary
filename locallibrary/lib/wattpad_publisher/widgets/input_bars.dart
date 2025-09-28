@@ -4,19 +4,29 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/theme/app_palette.dart';
 import 'dashed_line.dart';
 
-class WhiteContainerRow extends StatelessWidget {
+class WhiteContainer extends StatelessWidget {
+  final Axis axis;
   final List<Widget> children;
   final MainAxisAlignment mainAxisAlignment;
   final MainAxisSize mainAxisSize;
   final CrossAxisAlignment crossAxisAlignment;
   final bool withDash;
 
-  WhiteContainerRow({
+  final double spacing;
+  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
+
+  const WhiteContainer({
+    super.key,
+    this.axis = Axis.horizontal,
     required this.children,
     this.mainAxisSize = MainAxisSize.max,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.withDash = false,
+    this.padding = const EdgeInsetsGeometry.all(10),
+    this.spacing = 10,
+    this.margin = const EdgeInsetsGeometry.only(bottom: 5),
   });
 
   @override
@@ -24,30 +34,38 @@ class WhiteContainerRow extends StatelessWidget {
     return Stack(
       alignment: AlignmentGeometry.bottomCenter,
       children: [
-        Container(
-          padding: EdgeInsetsGeometry.all(10),
-          margin: EdgeInsetsGeometry.only(bottom: 5),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                offset: const Offset(0, 8),
-                blurRadius: 9.4,
-                spreadRadius: 0,
-              ),
-            ],
-          ),
-          child: Expanded(
-            child: Row(
-              mainAxisSize: mainAxisSize,
-              mainAxisAlignment: mainAxisAlignment,
-              crossAxisAlignment: crossAxisAlignment,
-              spacing: 10,
-              children: children,
+        Expanded(
+          child: Container(
+            padding: padding,
+            margin: margin,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  offset: const Offset(0, 8),
+                  blurRadius: 9.4,
+                  spreadRadius: 0,
+                ),
+              ],
             ),
+            child: axis == Axis.horizontal
+                ? Row(
+                    mainAxisSize: mainAxisSize,
+                    mainAxisAlignment: mainAxisAlignment,
+                    crossAxisAlignment: crossAxisAlignment,
+                    spacing: spacing,
+                    children: children,
+                  )
+                : Column(
+                    mainAxisSize: mainAxisSize,
+                    mainAxisAlignment: mainAxisAlignment,
+                    crossAxisAlignment: crossAxisAlignment,
+                    spacing: spacing,
+                    children: children,
+                  ),
           ),
         ),
         if (withDash)
@@ -66,29 +84,48 @@ class WhiteContainerRow extends StatelessWidget {
   }
 }
 
+class GrayContainer extends StatelessWidget {
+  final Widget child;
+  final EdgeInsets padding;
+  final double borderRadius;
+
+  const GrayContainer({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    this.borderRadius = 10,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        color: AppPalette.gray.withOpacity(0.2),
+        border: Border.all(
+          color: AppPalette.gray.withOpacity(0.01),
+          width: 1.5,
+        ),
+      ),
+
+      child: child,
+    );
+  }
+}
+
 class MySearchBar extends StatelessWidget {
   const MySearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return WhiteContainerRow(
+    return WhiteContainer(
       withDash: true,
       children: [
         BaseButton(label: "Shelves", onPressed: () {}),
         BaseButton(label: "All Books", onPressed: () {}),
         Expanded(
-          child: Container(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 10, vertical: 2),
-            // width: double.infinity,
-            // height: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color: AppPalette.gray.withOpacity(0.2),
-              border: BoxBorder.all(
-                color: AppPalette.gray.withOpacity(0.01),
-                width: 1.5,
-              ),
-            ),
+          child: GrayContainer(
             child: Row(
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -186,21 +223,12 @@ class UrlWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WhiteContainerRow(
+    return WhiteContainer(
       withDash: true,
       children: [
         Text("Story URL:", style: TextStyle(color: AppPalette.primary)),
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: AppPalette.gray.withOpacity(0.2),
-              border: Border.all(
-                color: AppPalette.gray.withOpacity(0.01),
-                width: 1.5,
-              ),
-            ),
+          child: GrayContainer(
             child: Row(
               spacing: 10,
               children: [
@@ -262,6 +290,31 @@ class UrlWidget extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class InfoContainer extends StatelessWidget {
+  final String title;
+  final Widget rowContent;
+  final EdgeInsets padding;
+
+  const InfoContainer({
+    super.key,
+    required this.title,
+    required this.rowContent,
+    this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return WhiteContainer(
+      children: [
+        Text(title, style: TextStyle(color: AppPalette.primary)),
+        Expanded(
+          child: GrayContainer(child: rowContent, padding: padding),
         ),
       ],
     );

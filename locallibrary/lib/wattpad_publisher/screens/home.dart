@@ -51,7 +51,7 @@ class WDHome extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    SingleWindowActivatorButton.settings(),
+                    SingleWindowActivatorButton.settings(1),
                     SingleWindowActivatorButton.scrape(),
                   ],
                 ),

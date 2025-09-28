@@ -793,6 +793,41 @@
             </list>
           </value>
         </entry>
+        <entry key="screen_retriever">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/screen_retriever-0.2.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="screen_retriever_linux">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/screen_retriever_linux-0.2.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="screen_retriever_macos">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/screen_retriever_macos-0.2.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="screen_retriever_platform_interface">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/screen_retriever_platform_interface-0.2.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="screen_retriever_windows">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/screen_retriever_windows-0.2.0/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="scrollable_positioned_list">
           <value>
             <list>
@@ -1178,6 +1213,13 @@
             </list>
           </value>
         </entry>
+        <entry key="window_manager">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/window_manager-0.5.1/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="xdg_directories">
           <value>
             <list>
@@ -1319,6 +1361,11 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/safe_local_storage-2.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/screen_brightness_android-2.1.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/screen_brightness_platform_interface-2.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/screen_retriever-0.2.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/screen_retriever_linux-0.2.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/screen_retriever_macos-0.2.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/screen_retriever_platform_interface-0.2.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/screen_retriever_windows-0.2.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/scrollable_positioned_list-0.3.8/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences-2.5.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.12/lib" />
@@ -1373,6 +1420,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/web_socket-1.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/web_socket_channel-3.0.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/win32-5.14.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/window_manager-0.5.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/xdg_directories-1.1.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/xml-6.6.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/yaml-3.1.3/lib" />

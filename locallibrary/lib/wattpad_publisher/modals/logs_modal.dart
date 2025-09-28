@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../../core/commen/widgets/loader.dart';
 import '../../core/theme/app_palette.dart';
 import '../../dependency_ingection.dart';
+import '../bloc/base_scrape_bloc.dart';
 import '../bloc/scrape_story_bloc.dart';
 import '../models/logs.dart';
 
@@ -26,7 +27,7 @@ void openScrapeStoryEventsInspector(BuildContext context) async {
             elevation: 12,
             clipBehavior: Clip.antiAlias,
             borderRadius: BorderRadius.circular(16),
-            child: const _EventInspectorModal(),
+            child: const EventInspectorModal(),
           ),
         ),
       );
@@ -34,20 +35,20 @@ void openScrapeStoryEventsInspector(BuildContext context) async {
   );
 }
 
-class _EventInspectorModal extends StatefulWidget {
-  const _EventInspectorModal();
+class EventInspectorModal extends StatefulWidget {
+  const EventInspectorModal();
 
   @override
-  State<_EventInspectorModal> createState() => _EventInspectorModalState();
+  State<EventInspectorModal> createState() => _EventInspectorModalState();
 }
 
-class _EventInspectorModalState extends State<_EventInspectorModal> {
+class _EventInspectorModalState extends State<EventInspectorModal> {
   // tracks which panels are expanded when using ExpansionPanelList
   final Set<int> _expanded = {};
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ScrapeStoryBloc, ScrapeStoryState>(
+    return BlocBuilder<ScrapeStoryBloc, BaseScrapeState>(
       bloc: sl.get<ScrapeStoryBloc>(),
       buildWhen: (previous, current) =>
           previous != current || previous.events.length < current.events.length,

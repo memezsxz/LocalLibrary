@@ -66,7 +66,6 @@ class _StoryView extends StatelessWidget {
                     child: StoryDescriptionBottom(storyBundle: story),
                   ),
                 ),
-
                 // Top card with drop shadow
                 Container(
                   decoration: BoxDecoration(

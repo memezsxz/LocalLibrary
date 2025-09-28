@@ -4,4 +4,7 @@ ser_models:
 set_icon:
 	dart run flutter_launcher_icons
 
-.PHONY: ser_models
+clean:
+	flutter clean
+
+.PHONY: ser_models, set_icon, clean

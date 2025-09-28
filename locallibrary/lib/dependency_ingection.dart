@@ -1,10 +1,12 @@
 // dependency_injection.dart
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/comments_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/part_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/scrape_story_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/story_bloc.dart';
+import 'package:locallibrary/wattpad_publisher/bloc/windows_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/cubit/part_side_panel_cubit.dart';
 
 import 'core/secrets/app_secrets.dart';
@@ -13,6 +15,8 @@ import 'wattpad_publisher/datasource.dart';
 final sl = GetIt.instance;
 
 void initDI() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   final base = AppSecrets.apiBaseUrl;
 
   sl.registerLazySingleton<Dio>(
@@ -49,6 +53,9 @@ void initDI() {
     () => ScrapeStoryBloc(api: sl<AppApiDataSource>()),
   );
 
+  sl.registerLazySingleton<WindowsBloc>(
+        () => WindowsBloc(),
+  );
   // sl<Dio>().interceptors.add(LogInterceptor(
   //     request: true, requestBody: true, responseBody: true, error: true));
 }

@@ -4,7 +4,7 @@ import 'package:locallibrary/core/theme/app_palette.dart';
 
 import '../../core/exstentions/image.dart';
 import '../../dependency_ingection.dart';
-import '../../window_service.dart';
+import '../bloc/windows_bloc.dart';
 import '../datasource.dart';
 import '../models/server_models.dart';
 
@@ -248,7 +248,11 @@ class BookMinimalView extends StatelessWidget {
                       // print(book.wattId);
                       // print(book.storyId);
 
-                      AppWindows.openStoryWindow(storyId: book.storyId);
+                      sl.get<WindowsBloc>().add(
+                        OpenWindowRequested.story(storyId),
+                      );
+
+                      // AppWindows.openStoryWindow(storyId: book.storyId);
 
                       // context.pushNamed(
                       //   'story',

@@ -1,18 +1,19 @@
-import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_window_close/flutter_window_close.dart';
-import 'package:locallibrary/core/exstentions/scrape_status.dart';
-import 'package:locallibrary/core/theme/theme.dart';
-import 'package:locallibrary/wattpad_publisher/bloc/scrape_story_bloc.dart';
+import 'package:locallibrary/wattpad_publisher/bloc/base_scrape_bloc.dart';
 
+import '../../core/commen/clipboard.dart';
 import '../../core/theme/app_palette.dart';
+import '../../core/theme/theme.dart';
 import '../../dependency_ingection.dart';
+import '../bloc/scrape_story_bloc.dart';
 import '../modals/logs_modal.dart';
+import '../models/server_models.dart';
 import '../widgets/inner_shadow_gradient_pane.dart';
 import '../widgets/input_bars.dart';
 import '../widgets/rounded_content_outer.dart';
+import '../widgets/scraped_story_info_view.dart';
+import '../widgets/split_filled_button.dart';
 
 class ScrapeStoryScreen extends StatelessWidget {
   const ScrapeStoryScreen({super.key});
@@ -33,33 +34,30 @@ class _ScrapeStoryView extends StatefulWidget {
 class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
   final _urlCtrl = TextEditingController();
 
-  int? parentId;
-
   @override
   void initState() {
     super.initState();
-    _loadArgs();
-    // Set a handler that runs whenever the window is asked to close.
-    FlutterWindowClose.setWindowShouldCloseHandler(() async {
-      // tell parent we're closing
-      if (parentId != null) {
-        try {
-          await DesktopMultiWindow.invokeMethod(
-            parentId!,
-            'scrape_closed',
-            null,
-          );
-        } catch (_) {}
-      }
-      // return true to proceed with closing; false to cancel
-      return true;
-    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _prefillFromClipboard(),
+    );
   }
 
-  Future<void> _loadArgs() async {
-    final raw = await DesktopMultiWindow.getAllSubWindowIds();
-    parentId = raw[0];
-    setState(() {});
+  Future<void> _prefillFromClipboard() async {
+    final bloc = sl.get<ScrapeStoryBloc>();
+
+    // Don’t overwrite if user or state already has something
+    if (_urlCtrl.text.trim().isNotEmpty || bloc.state.input.trim().isNotEmpty)
+      return;
+
+    final raw = (await ClipboardService().getFromClipboard())?.trim() ?? '';
+    if (raw.isEmpty) return;
+
+    final msg = validateUrlMessage(raw);
+    if (msg != null) return; // not a Wattpad story link
+
+    final url = normalizeUrl(raw);
+    _urlCtrl.text = url;
+    bloc.add(InputChanged(url));
   }
 
   @override
@@ -72,16 +70,41 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
           opacity: 0.04,
         ),
       ),
-      child: Stack(
-        children: [
+      child:
           // Main content and BLoC wiring
-          BlocConsumer<ScrapeStoryBloc, ScrapeStoryState>(
+          BlocConsumer<ScrapeStoryBloc, BaseScrapeState<ScrapeStoryRes>>(
             bloc: sl.get<ScrapeStoryBloc>(),
             listenWhen: (prev, next) =>
                 prev.errorMessage != next.errorMessage ||
                 prev.status != next.status ||
                 prev.result != next.result,
             listener: (context, state) async {
+              if (state.status == ScrapeStatus.done && state.result != null) {
+                final storyId = state.result!.story.story.storyId;
+
+                // await openStory(storyId);
+                // sl.get<WindowsBloc>().add(OpenWindowRequested.story(storyId));
+                // AppWindows.openStoryWindow(
+                //   storyId: state.result!.story.story.storyId,
+                // );
+
+                // await closeNamed("scrape");
+                // _closeThisWindow();
+
+                // debugPrint("parent id : $parentId");
+                // // 2) Optionally tell parent which story opened
+                // if (parentId != null) {
+                //   try {
+                //     await DesktopMultiWindow.invokeMethod(
+                //       parentId!,
+                //       'scrape_closed',
+                //       {'story_id': storyId},
+                //     );
+                //   } catch (_) {}
+                // }
+
+                // ScrapeStoryAppWindow.I.markClosed(ScrapeStoryAppWindow.I.id.value!);
+              }
               // 1) Show errors as a toast/snackbar (side-effect)
               if (state.errorMessage != null &&
                   state.errorMessage!.isNotEmpty) {}
@@ -100,15 +123,16 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
 
             // Rebuild UI for URL / error / status / timeline changes
             buildWhen: (prev, next) =>
-                prev.url != next.url ||
-                prev.urlHint != next.urlHint ||
+                prev.input != next.input ||
+                prev.inputHint != next.inputHint ||
                 prev.errorMessage != next.errorMessage ||
                 prev.status != next.status,
 
             builder: (context, state) {
-              final isBusy =
+              final showButton =
                   state.status == ScrapeStatus.connecting ||
-                  state.status == ScrapeStatus.streaming;
+                  state.status == ScrapeStatus.streaming ||
+                  state.status == ScrapeStatus.error;
 
               return RoundedContentOuter(
                 child: InnerShadowGradientPane(
@@ -131,30 +155,30 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                       // URL input
                       UrlWidget(
                         controller: _urlCtrl
-                          ..text = state.url
+                          ..text = state.input
                           ..selection = TextSelection.fromPosition(
-                            TextPosition(offset: state.url.length),
+                            TextPosition(offset: state.input.length),
                           ),
                         onChanged: (v) =>
-                            sl.get<ScrapeStoryBloc>().add(UrlChanged(v)),
+                            sl.get<ScrapeStoryBloc>().add(InputChanged(v)),
                         onSubmit: () =>
                             sl.get<ScrapeStoryBloc>().add(StartRequested()),
                         onPasteRequested: () async {
-                          final data = await Clipboard.getData(
-                            Clipboard.kTextPlain,
-                          );
-                          final txt = data?.text?.trim() ?? '';
+                          final data = await ClipboardService()
+                              .getFromClipboard();
+                          final txt = data?.trim() ?? '';
                           if (txt.isEmpty) return;
                           final url = txt;
                           _urlCtrl.text = url;
-                          sl.get<ScrapeStoryBloc>().add(UrlChanged(url));
+                          sl.get<ScrapeStoryBloc>().add(InputChanged(url));
                         },
                       ),
 
                       // Soft hint while typing (not red)
-                      if (state.urlHint != null && state.urlHint!.isNotEmpty)
+                      if (state.inputHint != null &&
+                          state.inputHint!.isNotEmpty)
                         Text(
-                          state.urlHint!,
+                          state.inputHint!,
                           style: TextStyle(color: AppPalette.error),
                         ),
 
@@ -167,6 +191,7 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                         ),
 
                       // Actions row
+                      // if (showButton)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         spacing: 10,
@@ -178,117 +203,22 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                                 openScrapeStoryEventsInspector(context);
                               });
                             },
-                            onCancel: () => sl.get<ScrapeStoryBloc>().add(
+                            onSecondary: () => sl.get<ScrapeStoryBloc>().add(
                               CancelRequested(),
                             ),
                           ),
-
-                          if (state.status == ScrapeStatus.done &&
-                              state.result != null)
-                            Text(state.result!.story.genre.name),
                         ],
                       ),
+
+                      if (state.status == ScrapeStatus.done &&
+                          state.result != null)
+                        Expanded(child: ScrapedStoryInfo(res: state.result!)),
                     ],
                   ),
                 ),
               );
             },
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class SplitFilledButton extends StatelessWidget {
-  const SplitFilledButton({
-    super.key,
-    required this.status,
-    required this.onPrimaryTap, // openEventInspector
-    required this.onCancel, // dispatch CancelRequested
-  });
-
-  final ScrapeStatus status;
-  final VoidCallback onPrimaryTap;
-  final VoidCallback onCancel;
-
-  bool get _canCancel =>
-      status == ScrapeStatus.connecting || status == ScrapeStatus.streaming;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bg = AppPalette.primaryLight;
-    final fg = AppPalette.primary;
-
-    return Material(
-      color: bg,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        // Enable ink on the whole pill (primary action area still gets its own handler)
-        borderRadius: BorderRadius.circular(12),
-        onTap: onPrimaryTap,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Primary side (status + label)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // status indicator (your extension getter)
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 180),
-                    child: IconTheme.merge(
-                      data: IconThemeData(color: fg, size: 18),
-                      child: KeyedSubtree(
-                        key: ValueKey(status),
-                        child: status.indicator,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 180),
-                    child: Text(
-                      status.title,
-                      key: ValueKey(status.title),
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: fg,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Divider between primary/secondary
-            Container(
-              width: 1,
-              height: 24,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              color: fg.withOpacity(0.16),
-            ),
-
-            // Secondary side (Stop)
-            InkResponse(
-              onTap: _canCancel ? onCancel : null,
-              radius: 24,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                child: Icon(
-                  Icons.stop,
-                  size: 20,
-                  color: _canCancel ? fg : fg.withOpacity(0.38),
-                ),
-              ),
-            ),
-            const SizedBox(width: 2),
-          ],
-        ),
-      ),
     );
   }
 }
