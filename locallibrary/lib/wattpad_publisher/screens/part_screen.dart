@@ -56,7 +56,7 @@ class PartScreen extends StatelessWidget {
 }
 
 class _PartView extends StatelessWidget {
-  _PartView({super.key, required this.storyId});
+  _PartView({required this.storyId});
 
   final CarouselSliderController buttonCarouselController =
       CarouselSliderController();
@@ -316,10 +316,10 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
       // only scroll if this is the current part
       if (b.currentPart?.partId != widget.info.part.partId) return;
 
-      final targetId = b.storyProgress?.lastParagraphId;
+      final targetId = b.storyProgress.lastParagraphId;
       if (targetId == null) return;
 
-      final ctx = _keyFor("${targetId}").currentContext;
+      final ctx = _keyFor("$targetId").currentContext;
       // print("target id: ${targetId}");
 
       if (ctx != null) {

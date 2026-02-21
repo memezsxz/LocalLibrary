@@ -210,7 +210,7 @@ class StoryData extends StatelessWidget {
 }
 
 class StoryDescrioptionTopLeft extends StatelessWidget {
-  StoryDescrioptionTopLeft({super.key, required this.story});
+  const StoryDescrioptionTopLeft({super.key, required this.story});
 
   final StoryBundle story;
 

@@ -65,7 +65,7 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
 
         // _scheduleScrollTo(b);
         final targetIndex = _currentIndex(b);
-        return Container(
+        return SizedBox(
           height: double.infinity,
           // color: Colors.amberAccent,
           child: Column(
@@ -141,7 +141,6 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
 
 class _PartInfoSidePanelStoryInfo extends StatelessWidget {
   const _PartInfoSidePanelStoryInfo({
-    super.key,
     required this.storyId,
     required this.image,
     required bundle,
@@ -242,7 +241,6 @@ class _PartInfoSidePanelStoryInfo extends StatelessWidget {
 
 class _PartContainer extends StatelessWidget {
   const _PartContainer({
-    super.key,
     required this.isCurrentPart,
     required this.storyId,
     required this.part,

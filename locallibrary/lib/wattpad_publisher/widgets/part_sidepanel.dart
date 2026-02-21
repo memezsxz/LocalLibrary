@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +6,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:locallibrary/wattpad_publisher/cubit/part_side_panel_cubit.dart';
 
 import '../../core/theme/app_palette.dart';
-import '../../dependency_ingection.dart';
 import '../bloc/comments_bloc.dart';
 import '../bloc/part_bloc.dart';
 
@@ -159,7 +157,7 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
 }
 
 class _Dock extends StatelessWidget {
-  const _Dock({required this.size, required this.storyId, super.key});
+  const _Dock({required this.size, required this.storyId});
 
   final double size;
   final int storyId;
@@ -239,7 +237,6 @@ class _Dock extends StatelessWidget {
 
 class _DockBtn extends StatelessWidget {
   const _DockBtn({
-    super.key,
     required this.iconPath,
     required this.size,
     required this.onTap,

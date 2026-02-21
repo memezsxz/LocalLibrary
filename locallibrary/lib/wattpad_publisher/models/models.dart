@@ -1,8 +1,7 @@
 import 'dart:convert';
-
-import 'package:intl/intl.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'dart:ui' as ui;
+
+import 'package:json_annotation/json_annotation.dart';
 
 part 'models.g.dart';
 

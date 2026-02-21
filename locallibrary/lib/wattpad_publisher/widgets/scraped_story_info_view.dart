@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/scrape_part_bloc.dart';
@@ -275,11 +276,49 @@ class _ScrapedPartRowState extends State<ScrapedPartRow> {
                                 color: AppPalette.primary,
                               ),
                         ),
+
                         SplitFilledButton(
                           status: state.status,
-                          onPrimaryTap: () => _onPrimaryTap(state),
-                          onSecondary: () => _onCancel(state),
-                        ),
+                          onPrimaryTap: () {
+                            _onPrimaryTap(_bloc.state);
+                            // start scrape or open inspector
+                          },
+                          onSecondary: () {
+                            // cancel requested
+                            context.read<ScrapePartBloc>().add(
+                                CancelRequested());
+                          },
+                          secondaryActions: [
+                            SecondaryAction(
+                              label: 'Open logs',
+                              icon: Icons.list_alt,
+                              onTap: () =>
+                                  openScrapeEventsModal<PartTxResult>(
+                                    context: context,
+                                    bloc: _bloc,
+                                    // title: 'Part Scrape • ${widget.partLink.wattId}',
+                                  ),
+                            ),
+                            SecondaryAction(
+                              label: 'Copy part URL',
+                              icon: Icons.copy,
+                              onTap: () =>
+                                  Clipboard.setData(ClipboardData(
+                                      text: widget.partLink.url!)),
+                            ),
+                            SecondaryAction(
+                              label: 'Rescrape',
+                              icon: Icons.refresh,
+                              onTap: () => () => _onPrimaryTap(state),
+                            ),
+                          ],
+                        )
+
+                        // SplitFilledButton(
+                        //   status: state.status,
+                        //   onPrimaryTap: () => _onPrimaryTap(state),
+                        //   onSecondary: () => _onCancel(state),
+                        // ),
                       ],
                     ),
                   ),

@@ -56,7 +56,7 @@ class _ShelfSection extends StatelessWidget {
   final String title;
   final Future<List<int>> future;
 
-  const _ShelfSection({required this.title, required this.future, super.key});
+  const _ShelfSection({required this.title, required this.future});
 
   @override
   Widget build(BuildContext context) {
@@ -298,7 +298,7 @@ class BookProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 10,
       child: InnerShadow(

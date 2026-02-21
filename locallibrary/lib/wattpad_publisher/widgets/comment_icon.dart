@@ -5,6 +5,7 @@ import '../../core/theme/app_palette.dart';
 
 class CommentIcon extends StatelessWidget {
   const CommentIcon({
+    super.key,
     required this.count,
     required this.visible,
     this.onTap,

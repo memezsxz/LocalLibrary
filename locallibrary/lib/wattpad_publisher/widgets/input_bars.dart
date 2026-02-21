@@ -314,7 +314,7 @@ class InfoContainer extends StatelessWidget {
       children: [
         Text(title, style: TextStyle(color: AppPalette.primary)),
         Expanded(
-          child: GrayContainer(child: rowContent, padding: padding),
+          child: GrayContainer(padding: padding, child: rowContent),
         ),
       ],
     );

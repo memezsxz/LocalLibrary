@@ -25,7 +25,7 @@ class ScrapeStoryScreen extends StatelessWidget {
 }
 
 class _ScrapeStoryView extends StatefulWidget {
-  const _ScrapeStoryView({super.key});
+  const _ScrapeStoryView();
 
   @override
   State<_ScrapeStoryView> createState() => _ScrapeStoryViewState();
@@ -46,8 +46,9 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
     final bloc = sl.get<ScrapeStoryBloc>();
 
     // Don’t overwrite if user or state already has something
-    if (_urlCtrl.text.trim().isNotEmpty || bloc.state.input.trim().isNotEmpty)
+    if (_urlCtrl.text.trim().isNotEmpty || bloc.state.input.trim().isNotEmpty) {
       return;
+    }
 
     final raw = (await ClipboardService().getFromClipboard())?.trim() ?? '';
     if (raw.isEmpty) return;

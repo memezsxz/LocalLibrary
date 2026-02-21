@@ -112,7 +112,7 @@ class AppApiDataSource {
     // Ensure RFC3339 without milliseconds: 2006-01-02T15:04:05Z
     final ts = since.toUtc().toIso8601String();
     final rfc3339 = ts.contains('.')
-        ? ts.substring(0, ts.indexOf('.')) + 'Z'
+        ? '${ts.substring(0, ts.indexOf('.'))}Z'
         : ts; // already ends with 'Z'
     qp['timestamp'] = rfc3339;
 
@@ -146,7 +146,7 @@ class AppApiDataSource {
     // Ensure RFC3339 without milliseconds: 2006-01-02T15:04:05Z
     final ts = since.toUtc().toIso8601String();
     final rfc3339 = ts.contains('.')
-        ? ts.substring(0, ts.indexOf('.')) + 'Z'
+        ? '${ts.substring(0, ts.indexOf('.'))}Z'
         : ts; // already ends with 'Z'
     qp['timestamp'] = rfc3339;
 
@@ -180,7 +180,7 @@ class AppApiDataSource {
     // Ensure RFC3339 without milliseconds: 2006-01-02T15:04:05Z
     final ts = since.toUtc().toIso8601String();
     final rfc3339 = ts.contains('.')
-        ? ts.substring(0, ts.indexOf('.')) + 'Z'
+        ? '${ts.substring(0, ts.indexOf('.'))}Z'
         : ts; // already ends with 'Z'
     qp['timestamp'] = rfc3339;
 
@@ -438,7 +438,9 @@ class AppApiDataSource {
     }
     if (buf.isNotEmpty) out.add(buf.toString());
 
-    for (final piece in out) yield piece;
+    for (final piece in out) {
+      yield piece;
+    }
   }
 
   // -------------------- Internal SSE plumbing --------------------

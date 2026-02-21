@@ -241,10 +241,10 @@ class WindowsBloc extends Bloc<WindowsEvent, WindowsState> {
       // Older versions expose position/size; some expose visiblePosition/visibleSize.
       // We read visible* via `dynamic` if present.
       final dyn = d as dynamic;
-      final Size? visSize = (dyn is dynamic && (dyn.visibleSize is Size))
+      final Size? visSize = ((dyn.visibleSize is Size))
           ? dyn.visibleSize as Size
           : null;
-      final Offset? visPos = (dyn is dynamic && (dyn.visiblePosition is Offset))
+      final Offset? visPos = ((dyn.visiblePosition is Offset))
           ? dyn.visiblePosition as Offset
           : null;
 
@@ -292,10 +292,10 @@ class WindowsBloc extends Bloc<WindowsEvent, WindowsState> {
 
     // Try visible (work area) first; fall back to full bounds.
     final dyn = display as dynamic;
-    final Size? visSize = (dyn is dynamic && (dyn.visibleSize is Size))
+    final Size? visSize = ((dyn.visibleSize is Size))
         ? dyn.visibleSize as Size
         : null;
-    final Offset? visPos = (dyn is dynamic && (dyn.visiblePosition is Offset))
+    final Offset? visPos = ((dyn.visiblePosition is Offset))
         ? dyn.visiblePosition as Offset
         : null;
 
@@ -303,7 +303,7 @@ class WindowsBloc extends Bloc<WindowsEvent, WindowsState> {
     final Offset pos = visPos ?? display.visiblePosition!;
 
     // Some versions expose scaleFactor; if not, assume logical pixels.
-    final double scale = (dyn is dynamic && (dyn.scaleFactor is num))
+    final double scale = ((dyn.scaleFactor is num))
         ? (dyn.scaleFactor as num).toDouble()
         : 1.0;
 
@@ -344,14 +344,14 @@ class WindowsBloc extends Bloc<WindowsEvent, WindowsState> {
     final info = state.windowsById[e.id]!;
 
     try {
-      final c = info?.controller ?? WindowController.fromWindowId(e.id);
+      final c = info.controller ?? WindowController.fromWindowId(e.id);
       await c.close();
     } catch (_) {}
 
     final windowsById = Map<int, WindowInfo>.from(state.windowsById)
       ..remove(e.id);
     final idByName = Map<String, int>.from(state.idByName);
-    if (info != null) idByName.remove(info.name);
+    idByName.remove(info.name);
 
     emit(
       state.copyWith(
