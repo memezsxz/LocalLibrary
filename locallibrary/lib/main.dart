@@ -12,6 +12,33 @@ import 'package:locallibrary/wattpad_publisher/cubit/navigation_cubit.dart';
 import 'core/theme/theme.dart';
 import 'dependency_ingection.dart';
 
+class WindowCloseNotifier extends StatefulWidget {
+  final int parentId;
+  final Widget child;
+
+  const WindowCloseNotifier({
+    super.key,
+    required this.parentId,
+    required this.child,
+  });
+
+  @override
+  State<WindowCloseNotifier> createState() => _WindowCloseNotifierState();
+}
+
+class _WindowCloseNotifierState extends State<WindowCloseNotifier> {
+  @override
+  void dispose() {
+    try {
+      DesktopMultiWindow.invokeMethod(widget.parentId, 'window_closed', {});
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
@@ -25,11 +52,7 @@ Future<void> main(List<String> args) async {
   //   }
   // } catch (_) {}
 
-  final windowsBloc = sl.get<WindowsBloc>();
-
   if (args.isNotEmpty && args.first == 'multi_window') {
-    final windowId = int.parse(args[1]);
-
     // Read JSON payload passed from createWindow(...)
     // (This works even if process args aren’t populated on your platform)
     final Map<String, dynamic> payload =
@@ -68,21 +91,22 @@ Future<void> main(List<String> args) async {
 
     runApp(
       MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: windowsBloc),
-          BlocProvider<StoryBloc>(create: (_) => sl<StoryBloc>()),
-        ],
-        child: MaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          title: payload["name"],
-          theme: AppTheme.lightMode,
-          routerConfig: router, // <-- use the sub-window router
+        providers: [BlocProvider<StoryBloc>(create: (_) => sl<StoryBloc>())],
+        child: WindowCloseNotifier(
+          parentId: parentId,
+          child: MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            title: payload["name"],
+            theme: AppTheme.lightMode,
+            routerConfig: router, // <-- use the sub-window router
+          ),
         ),
       ),
     );
 
     return;
   }
+  sl.get<WindowsBloc>();
 
   runApp(
     MultiBlocProvider(

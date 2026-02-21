@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -28,6 +29,10 @@ sealed class WindowsEvent extends Equatable {
 
   @override
   List<Object?> get props => [];
+}
+
+class WindowsListChanged extends WindowsEvent {
+  const WindowsListChanged();
 }
 
 /// Open a window identified by a unique `name` (singleton per name).
@@ -122,18 +127,32 @@ class HandleMethodCall extends WindowsEvent {
 
 // app_windows_bloc.dart
 class WindowsBloc extends Bloc<WindowsEvent, WindowsState> {
+  late final Timer _syncWindowsTimer;
+
   WindowsBloc() : super(const WindowsState()) {
     on<OpenWindowRequested>(_onOpen);
     on<FocusWindowRequested>(_onFocus);
     on<CloseWindowByIdRequested>(_onCloseById);
     on<CloseWindowByNameRequested>(_onCloseByName);
     on<HandleMethodCall>(_onHandle);
+    on<WindowsListChanged>(_onWindowsListChanged);
 
     // Route child -> parent messages here
     DesktopMultiWindow.setMethodHandler((MethodCall call, int fromId) async {
       add(HandleMethodCall(call, fromId));
       return null;
     });
+
+    // Keep parent state in sync when a sub-window is closed via OS controls.
+    _syncWindowsTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      add(const WindowsListChanged());
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    _syncWindowsTimer.cancel();
+    return super.close();
   }
 
   // Build the JSON that the child reads on startup
@@ -341,11 +360,11 @@ class WindowsBloc extends Bloc<WindowsEvent, WindowsState> {
     Emitter<WindowsState> emit,
   ) async {
     print("closing");
-    final info = state.windowsById[e.id]!;
+    final info = state.windowsById[e.id];
+    if (info == null) return;
 
     try {
-      final c = info.controller ?? WindowController.fromWindowId(e.id);
-      await c.close();
+      await info.controller.close();
     } catch (_) {}
 
     final windowsById = Map<int, WindowInfo>.from(state.windowsById)
@@ -470,6 +489,39 @@ class WindowsBloc extends Bloc<WindowsEvent, WindowsState> {
         debugPrint('Unknown window method: $method');
         break;
     }
+  }
+
+  Future<void> _onWindowsListChanged(
+    WindowsListChanged e,
+    Emitter<WindowsState> emit,
+  ) async {
+    final List<int> aliveIds;
+    try {
+      aliveIds = await DesktopMultiWindow.getAllSubWindowIds();
+    } catch (_) {
+      return;
+    }
+
+    final aliveIdSet = aliveIds.toSet();
+    final windowsById = Map<int, WindowInfo>.from(state.windowsById)
+      ..removeWhere((id, _) => !aliveIdSet.contains(id));
+    final idByName = Map<String, int>.from(state.idByName)
+      ..removeWhere((_, id) => !aliveIdSet.contains(id));
+
+    if (mapEquals(windowsById, state.windowsById) &&
+        mapEquals(idByName, state.idByName)) {
+      return;
+    }
+
+    final lastActiveId = state.lastActiveId;
+    emit(
+      state.copyWith(
+        windowsById: windowsById,
+        idByName: idByName,
+        clearLastActive:
+            lastActiveId != null && !aliveIdSet.contains(lastActiveId),
+      ),
+    );
   }
 }
 
