@@ -16,7 +16,7 @@ class StoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<StoryBloc>()..add(StoryRequested(storyId)),
+      create: (_) => StoryBloc(api: sl())..add(StoryRequested(storyId)),
       child: Scaffold(body: _StoryView(storyId: storyId)),
     );
   }

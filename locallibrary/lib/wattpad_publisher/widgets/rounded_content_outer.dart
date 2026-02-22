@@ -19,7 +19,8 @@ class RoundedContentOuter extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: radius,
-      child: Stack(clipBehavior: clipBehavior, children: [child]),
+      clipBehavior: clipBehavior,
+      child: child,
     );
   }
 }

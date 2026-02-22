@@ -91,7 +91,9 @@ Future<void> main(List<String> args) async {
 
     runApp(
       MultiBlocProvider(
-        providers: [BlocProvider<StoryBloc>(create: (_) => sl<StoryBloc>())],
+        providers: [
+          BlocProvider<StoryBloc>(create: (_) => StoryBloc(api: sl()))
+        ],
         child: WindowCloseNotifier(
           parentId: parentId,
           child: MaterialApp.router(
@@ -115,8 +117,9 @@ Future<void> main(List<String> args) async {
         debugShowCheckedModeBanner: false,
         title: 'Local Library',
         theme: AppTheme.lightMode,
-        routerConfig:
-            AppRoute.buildRouter(), // full router with home/library/etc.
+        routerConfig: AppRoute.buildRouter(
+          initialLocation: AppRoute.scrapeInitLocation,
+        ),
       ),
     ),
   );

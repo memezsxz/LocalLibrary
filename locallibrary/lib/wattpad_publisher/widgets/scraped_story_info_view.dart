@@ -269,7 +269,7 @@ class _ScrapedPartRowState extends State<ScrapedPartRow> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          widget.partLink.wattId,
+                          widget.partLink.title ?? widget.partLink.wattId,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(
                                 fontSize: 16,
@@ -345,3 +345,127 @@ class _ScrapedPartRowState extends State<ScrapedPartRow> {
     );
   }
 }
+
+// class ScrapedPartLinkRow extends StatefulWidget {
+//   final int storyId;
+//   final PartLink partLink;
+//
+//   const ScrapedPartLinkRow({
+//     super.key,
+//     required this.storyId,
+//     required this.partLink,
+//   });
+//
+//   @override
+//   State<ScrapedPartLinkRow> createState() => _ScrapedPartLinkRowState();
+// }
+//
+// class _ScrapedPartLinkRowState extends State<ScrapedPartLinkRow> {
+//   late final ScrapePartBloc _bloc;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _bloc = ScrapePartBloc(api: sl.get<AppApiDataSource>(), storyId: widget.storyId);
+//   }
+//
+//   @override
+//   void dispose() {
+//     _bloc.close();
+//     super.dispose();
+//   }
+//
+//   bool _isActive(BaseScrapeState<PartTxResult> s) =>
+//       s.status == ScrapeStatus.connecting || s.status == ScrapeStatus.streaming;
+//
+//   void _onPrimaryTap(BaseScrapeState<PartTxResult> s) {
+//     if (_isActive(s)) {
+//       openScrapeEventsModal<PartTxResult>(context: context, bloc: _bloc);
+//       return;
+//     }
+//
+//     final href = widget.partLink.url;
+//     if (href == null || href.isEmpty) return;
+//
+//     _bloc.add(InputChanged(href));
+//     _bloc.add(StartRequested());
+//     openScrapeEventsModal<PartTxResult>(context: context, bloc: _bloc);
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<ScrapePartBloc, BaseScrapeState<PartTxResult>>(
+//       bloc: _bloc,
+//       buildWhen: (p, n) =>
+//           p.status != n.status || p.events.length != n.events.length,
+//       builder: (context, state) {
+//         return Row(
+//           spacing: 20,
+//           children: [
+//             Expanded(
+//               flex: 90,
+//               child: WhiteContainer(
+//                 spacing: 10,
+//                 children: [
+//                   Expanded(
+//                     child: Row(
+//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                       children: [
+//                         Text(
+//                           widget.partLink.wattId,
+//                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                             fontSize: 16,
+//                             color: AppPalette.primary,
+//                           ),
+//                         ),
+//                         SplitFilledButton(
+//                           status: state.status,
+//                           onPrimaryTap: () => _onPrimaryTap(_bloc.state),
+//                           onSecondary: () =>
+//                               context.read<ScrapePartBloc>().add(CancelRequested()),
+//                           secondaryActions: [
+//                             SecondaryAction(
+//                               label: 'Open logs',
+//                               icon: Icons.list_alt,
+//                               onTap: () => openScrapeEventsModal<PartTxResult>(
+//                                 context: context,
+//                                 bloc: _bloc,
+//                               ),
+//                             ),
+//                             SecondaryAction(
+//                               label: 'Copy part URL',
+//                               icon: Icons.copy,
+//                               onTap: () {
+//                                 final href = widget.partLink.url;
+//                                 if (href == null || href.isEmpty) return;
+//                                 Clipboard.setData(ClipboardData(text: href));
+//                               },
+//                             ),
+//                           ],
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//             Expanded(
+//               flex: 5,
+//               child: WhiteContainer(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [SvgPicture.asset("assets/icons/adult_icon.svg")],
+//               ),
+//             ),
+//             Expanded(
+//               flex: 5,
+//               child: WhiteContainer(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [SvgPicture.asset("assets/icons/adult_icon.svg")],
+//               ),
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+// }

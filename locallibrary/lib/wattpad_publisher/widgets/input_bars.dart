@@ -34,39 +34,37 @@ class WhiteContainer extends StatelessWidget {
     return Stack(
       alignment: AlignmentGeometry.bottomCenter,
       children: [
-        Expanded(
-          child: Container(
-            padding: padding,
-            margin: margin,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  offset: const Offset(0, 8),
-                  blurRadius: 9.4,
-                  spreadRadius: 0,
-                ),
-              ],
-            ),
-            child: axis == Axis.horizontal
-                ? Row(
-                    mainAxisSize: mainAxisSize,
-                    mainAxisAlignment: mainAxisAlignment,
-                    crossAxisAlignment: crossAxisAlignment,
-                    spacing: spacing,
-                    children: children,
-                  )
-                : Column(
-                    mainAxisSize: mainAxisSize,
-                    mainAxisAlignment: mainAxisAlignment,
-                    crossAxisAlignment: crossAxisAlignment,
-                    spacing: spacing,
-                    children: children,
-                  ),
+        Container(
+          padding: padding,
+          margin: margin,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                offset: const Offset(0, 8),
+                blurRadius: 9.4,
+                spreadRadius: 0,
+              ),
+            ],
           ),
+          child: axis == Axis.horizontal
+              ? Row(
+                  mainAxisSize: mainAxisSize,
+                  mainAxisAlignment: mainAxisAlignment,
+                  crossAxisAlignment: crossAxisAlignment,
+                  spacing: spacing,
+                  children: children,
+                )
+              : Column(
+                  mainAxisSize: mainAxisSize,
+                  mainAxisAlignment: mainAxisAlignment,
+                  crossAxisAlignment: crossAxisAlignment,
+                  spacing: spacing,
+                  children: children,
+                ),
         ),
         if (withDash)
           Padding(

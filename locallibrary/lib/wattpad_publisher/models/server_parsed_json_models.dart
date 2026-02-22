@@ -7,8 +7,9 @@ class PartLink {
   @JsonKey(fromJson: _asNonEmptyString)
   final String wattId;
   final String? url;
+  final String? title;
 
-  const PartLink({required this.wattId, this.url});
+  const PartLink({required this.wattId, this.url, this.title});
 
   factory PartLink.fromJson(Map<String, dynamic> json) =>
       _$PartLinkFromJson(json);
