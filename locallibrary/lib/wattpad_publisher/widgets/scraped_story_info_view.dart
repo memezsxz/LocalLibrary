@@ -4,6 +4,9 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../core/exstentions/image.dart';
 import '../../core/theme/app_palette.dart';
+import '../../dependency_ingection.dart';
+import '../bloc/scrape_part_bloc.dart';
+import '../datasource.dart';
 import '../models/server_models.dart';
 import '../screens/dashboard.dart';
 import '../widgets/input_bars.dart';
@@ -168,15 +171,44 @@ class ScrapedStoryInfo extends StatelessWidget {
   }
 }
 
-class ScrapedPartLinks extends StatelessWidget {
+class ScrapedPartLinks extends StatefulWidget {
   const ScrapedPartLinks({super.key, required this.res});
 
   final ScrapeStoryRes res;
 
   @override
-  Widget build(BuildContext context) {
-    final storyId = res.story.story.storyId;
+  State<ScrapedPartLinks> createState() => _ScrapedPartLinksState();
+}
 
+class _ScrapedPartLinksState extends State<ScrapedPartLinks> {
+  late final List<ScrapePartBloc> _blocs;
+  late final List<ValueNotifier<bool>> _expansionNotifiers;
+
+  @override
+  void initState() {
+    super.initState();
+    final storyId = widget.res.story.story.storyId;
+    _blocs = widget.res.partLinks
+        .map(
+          (_) =>
+              ScrapePartBloc(api: sl.get<AppApiDataSource>(), storyId: storyId),
+        )
+        .toList();
+    _expansionNotifiers = List.generate(
+      widget.res.partLinks.length,
+      (_) => ValueNotifier(false),
+    );
+  }
+
+  @override
+  void dispose() {
+    for (final bloc in _blocs) bloc.close();
+    for (final notifier in _expansionNotifiers) notifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ExpansionTileList(
       shrinkWrap: true,
       primary: false,
@@ -184,22 +216,11 @@ class ScrapedPartLinks extends StatelessWidget {
       itemGapSize: 12,
       expansionMode: ExpansionMode.atMostOne,
       children: [
-        for (final partLink in res.partLinks)
-          ExpansionTile(
-            key: PageStorageKey('part_${partLink.wattId}'),
-            maintainState: true,
-            tilePadding: EdgeInsets.zero,
-            title: ScrapedPartRow(storyId: storyId, partLink: partLink),
-            childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-            children: [
-              if ((partLink.url ?? '').isNotEmpty)
-                SelectableText(
-                  partLink.url!,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppPalette.primary.withOpacity(0.8),
-                  ),
-                ),
-            ],
+        for (var i = 0; i < widget.res.partLinks.length; i++)
+          ScrapedPartRow(
+            partLink: widget.res.partLinks[i],
+            bloc: _blocs[i],
+            expansionNotifier: _expansionNotifiers[i],
           ),
       ],
     );
