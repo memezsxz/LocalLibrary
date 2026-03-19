@@ -62,8 +62,8 @@ class _CommentsPanelState extends State<CommentsPanel> {
     final authorUsername = context
         .read<StoryBloc>()
         .state
-        .getBundle(widget.storyId)!
-        .author
+        .getBundle(widget.storyId)
+        ?.author
         .username;
     final p = widget.paragraph;
     // debugPrint('[CommentsPanel] build paragraph=${p?.paragraphId}');

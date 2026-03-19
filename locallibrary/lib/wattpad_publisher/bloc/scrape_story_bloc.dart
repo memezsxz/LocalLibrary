@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import '../datasource.dart';
 import '../models/logs.dart';
 import '../models/server_models.dart';
@@ -44,8 +46,13 @@ class ScrapeStoryBloc extends BaseScrapeBloc<ScrapeStoryRes> {
             final obj = (v is Map && v['ok'] == true && v['result'] is Map)
                 ? v['result'] as Map<String, dynamic>
                 : (v is Map<String, dynamic> ? v : null);
-            return obj == null ? null : ScrapeStoryRes.fromJson(obj);
-          } catch (_) {
+            if (obj == null) return null;
+            // part_links may be absent/null if the server omits it —
+            // the generated fromJson does a hard cast, so default it here.
+            obj['part_links'] ??= <dynamic>[];
+            return ScrapeStoryRes.fromJson(obj);
+          } catch (e, st) {
+            debugPrint('[ScrapeStoryBloc] parseFinished failed: $e\n$st');
             return null;
           }
         },

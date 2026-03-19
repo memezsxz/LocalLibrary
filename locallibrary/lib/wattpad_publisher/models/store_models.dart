@@ -7,7 +7,7 @@ part 'store_models.g.dart';
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
 class StoryTxResult {
   final Author author;
-  final DbImage image;
+  final Media image;
   final Story story;
   final Genre genre;
   final List<Tag> tags;

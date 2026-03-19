@@ -6,8 +6,10 @@ import 'models.dart';
 
 part 'server_models.g.dart';
 
+@JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
 class BookMinimal {
-  DbImage image;
+  @JsonKey(name: 'medium')
+  Media image;
   int storyId;
   String title;
   final String wattId;
@@ -19,23 +21,10 @@ class BookMinimal {
     required this.image,
   });
 
-  factory BookMinimal.fromJson(Map<String, dynamic> json) {
-    return BookMinimal(
-      image: DbImage.fromJson(json['image']),
-      storyId: json['story_id'],
-      title: json['title'],
-      wattId: json['watt_id'],
-    );
-  }
+  factory BookMinimal.fromJson(Map<String, dynamic> json) =>
+      _$BookMinimalFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['image'] = image;
-    data['story_id'] = storyId;
-    data['title'] = title;
-    data['watt_id'] = wattId;
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$BookMinimalToJson(this);
 }
 
 /// Represents the compound response you showed:
@@ -52,7 +41,8 @@ class StoryBundle {
   final Story story;
 
   /// Optional because some stories might not have a cover.
-  final DbImage? image;
+  @JsonKey(name: 'medium')
+  final Media? image;
 
   final Genre genre;
   final Author author;
@@ -124,8 +114,7 @@ class ScrapeStoryRes {
   @JsonKey(name: 'story')
   final StoryTxResult story;
 
-  @JsonKey(name: 'part_links')
-  @JsonKey(defaultValue: List<PartLink>)
+  @JsonKey(name: 'part_links', defaultValue: [])
   final List<PartLink> partLinks;
 
   ScrapeStoryRes({required this.story, required this.partLinks});

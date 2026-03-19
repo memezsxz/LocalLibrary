@@ -252,7 +252,7 @@ class StoryDescrioptionTopLeft extends StatelessWidget {
                   story.story.storyId,
                   story.currentPart!.partId,
                 );
-              } else if (story.parts.length > 1) {
+              } else if (story.parts.isNotEmpty) {
                 goToPart(context, story.story.storyId, story.parts[0].partId);
               } else {
                 // Todo: tell the user there are no parts in the story

@@ -7,6 +7,7 @@ import '../../core/theme/app_palette.dart';
 import '../../core/theme/theme.dart';
 import '../../dependency_ingection.dart';
 import '../bloc/scrape_story_bloc.dart';
+import '../datasource.dart';
 import '../modals/logs_modal.dart';
 import '../models/server_models.dart';
 import '../widgets/inner_shadow_gradient_pane.dart';
@@ -33,6 +34,7 @@ class _ScrapeStoryView extends StatefulWidget {
 
 class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
   final _urlCtrl = TextEditingController();
+  StoryBundle? _bundle;
 
   @override
   void initState() {
@@ -80,30 +82,19 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                 prev.status != next.status ||
                 prev.result != next.result,
             listener: (context, state) async {
+              if (state.status == ScrapeStatus.connecting) {
+                setState(() => _bundle = null);
+              }
               if (state.status == ScrapeStatus.done && state.result != null) {
-                // await openStory(storyId);
-                // sl.get<WindowsBloc>().add(OpenWindowRequested.story(storyId));
-                // AppWindows.openStoryWindow(
-                //   storyId: state.result!.story.story.storyId,
-                // );
+                final storyId = state.result!.story.story.storyId;
+                try {
+                  final bundle = await sl
+                      .get<AppApiDataSource>()
+                      .getFullStoryInfo(storyId);
+                  if (mounted) setState(() => _bundle = bundle);
+                } catch (_) {}
+              }
 
-                // await closeNamed("scrape");
-            // _closeThisWindow();
-
-                // debugPrint("parent id : $parentId");
-                // // 2) Optionally tell parent which story opened
-                // if (parentId != null) {
-                //   try {
-                //     await DesktopMultiWindow.invokeMethod(
-                //       parentId!,
-                //       'scrape_closed',
-                //       {'story_id': storyId},
-                //     );
-                //   } catch (_) {}
-                // }
-
-                // ScrapeStoryAppWindow.I.markClosed(ScrapeStoryAppWindow.I.id.value!);
-          }
           // 1) Show errors as a toast/snackbar (side-effect)
           if (state.errorMessage != null &&
               state.errorMessage!.isNotEmpty) {}
@@ -134,7 +125,8 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                       (state.status == ScrapeStatus.done &&
                           state.result != null)
                       ? SizedBox.expand(
-                          child: ScrapedStoryInfo(res: state.result!),
+                        child: ScrapedStoryInfo(
+                            res: state.result!, bundle: _bundle),
                         )
                       : Column(
                           mainAxisSize: MainAxisSize.max,

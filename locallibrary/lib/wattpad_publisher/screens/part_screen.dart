@@ -13,6 +13,7 @@ import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../core/commen/widgets/loader.dart';
 import '../../core/exstentions/image.dart';
 import '../../core/theme/app_palette.dart';
 import '../../core/theme/theme.dart';
@@ -33,13 +34,18 @@ class PartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
+        BlocProvider<StoryBloc>(
           create: (_) =>
-              sl<PartBloc>()
-                ..add(PartFetchRequested(storyId: storyId, partId: partId)),
+          sl<StoryBloc>()
+            ..add(StoryRequested(storyId)),
         ),
 
-        // BlocProvider(create: (ctx) => PartSidePanelCubit()),
+        BlocProvider<PartBloc>(
+          create: (_) =>
+          sl<PartBloc>()
+            ..add(PartFetchRequested(storyId: storyId, partId: partId)),
+        ),
+
         BlocProvider<PartSidePanelCubit>(
           create: (_) => sl<PartSidePanelCubit>(),
         ),
@@ -65,75 +71,87 @@ class _PartView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        // keep the panel widget stable
-        child: SidePanelScaffold(
-          storyId: storyId,
-          panelWidth: MediaQuery.of(context).size.width / 4,
-          // tweak to match the mock
-          dockSize: 40,
+    return BlocBuilder<PartBloc, PartState>(
+      builder: (context, partState) {
+        return BlocBuilder<StoryBloc, StoryState>(
+          builder: (context, storyState) {
+            final bundle = storyState.bundles[storyId];
 
-          // ⬇️ only this part rebuilds on new PartBloc state
-          content: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth:
-                            MediaQuery.of(context).size.width /
-                            1.6, // controls the size of the paper
-                        minHeight: MediaQuery.sizeOf(context).height,
-                      ),
-                      child: Container(
-                        // height: 120,
-                        decoration: BoxDecoration(
-                          color: AppPalette.surfaceAlt,
-                          image: DecorationImage(
-                            repeat: ImageRepeat.repeat,
-                            image: AssetImage("assets/images/texture_5.png"),
-                            fit: BoxFit.none,
-                            opacity: 0.1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              blurRadius: 40,
+            if (partState is PartInitial ||
+                partState is PartLoading ||
+                bundle == null) {
+              return const Scaffold(
+                body: Center(child: Loader()),
+              );
+            }
+
+            if (partState is PartError) {
+              return Scaffold(
+                body: Center(
+                  child: Text('Failed: ${(partState as PartError).message}'),
+                ),
+              );
+            }
+
+            final info = (partState as PartLoaded).info;
+
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: SafeArea(
+                child: SidePanelScaffold(
+                  storyId: storyId,
+                  panelWidth: MediaQuery
+                      .of(context)
+                      .size
+                      .width / 4,
+                  dockSize: 40,
+                  content: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width / 1.6,
+                              minHeight: MediaQuery
+                                  .sizeOf(context)
+                                  .height,
                             ),
-                          ],
-                        ),
-                        alignment: Alignment.topCenter,
-                        child: BlocBuilder<PartBloc, PartState>(
-                          builder: (context, state) {
-                            if (state is PartInitial || state is PartLoading) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                            if (state is PartError) {
-                              return Center(
-                                child: Text('Failed: ${state.message}'),
-                              );
-                            }
-                            final info = (state as PartLoaded).info;
-
-                            return PartContent(storyId: storyId, info: info);
-                          },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AppPalette.surfaceAlt,
+                                image: DecorationImage(
+                                  repeat: ImageRepeat.repeat,
+                                  image: AssetImage(
+                                    "assets/images/texture_5.png",
+                                  ),
+                                  fit: BoxFit.none,
+                                  opacity: 0.1,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.25),
+                                    blurRadius: 40,
+                                  ),
+                                ],
+                              ),
+                              alignment: Alignment.topCenter,
+                              child: PartContent(storyId: storyId, info: info),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -335,7 +353,11 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
   @override
   Widget build(BuildContext context) {
     final info = widget.info;
-    final b = context.read<StoryBloc>().state.bundles[widget.storyId]!;
+    final b = context
+        .read<StoryBloc>()
+        .state
+        .bundles[widget.storyId];
+    if (b == null) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

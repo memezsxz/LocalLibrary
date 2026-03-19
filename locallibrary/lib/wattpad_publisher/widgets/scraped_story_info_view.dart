@@ -5,8 +5,10 @@ import 'package:flutter_svg/svg.dart';
 import '../../core/exstentions/image.dart';
 import '../../core/theme/app_palette.dart';
 import '../../dependency_ingection.dart';
+import '../bloc/scrape_comments_bloc.dart';
 import '../bloc/scrape_part_bloc.dart';
 import '../datasource.dart';
+import '../models/models.dart';
 import '../models/server_models.dart';
 import '../screens/dashboard.dart';
 import '../widgets/input_bars.dart';
@@ -15,8 +17,9 @@ import 'scraped_part_row.dart';
 
 class ScrapedStoryInfo extends StatelessWidget {
   final ScrapeStoryRes res;
+  final StoryBundle? bundle;
 
-  const ScrapedStoryInfo({super.key, required this.res});
+  const ScrapedStoryInfo({super.key, required this.res, this.bundle});
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +166,12 @@ class ScrapedStoryInfo extends StatelessWidget {
                 ),
               ],
             ),
-            ScrapedPartLinks(res: res),
+            ScrapedPartLinks(
+              res: res,
+              downloadedParts: {
+                for (final p in bundle?.parts ?? []) p.wattId: p,
+              },
+            ),
           ],
         ),
       ),
@@ -172,9 +180,14 @@ class ScrapedStoryInfo extends StatelessWidget {
 }
 
 class ScrapedPartLinks extends StatefulWidget {
-  const ScrapedPartLinks({super.key, required this.res});
+  const ScrapedPartLinks({
+    super.key,
+    required this.res,
+    this.downloadedParts = const {},
+  });
 
   final ScrapeStoryRes res;
+  final Map<String, Part> downloadedParts;
 
   @override
   State<ScrapedPartLinks> createState() => _ScrapedPartLinksState();
@@ -182,17 +195,21 @@ class ScrapedPartLinks extends StatefulWidget {
 
 class _ScrapedPartLinksState extends State<ScrapedPartLinks> {
   late final List<ScrapePartBloc> _blocs;
+  late final List<ScrapeCommentsBloc> _commentBlocs;
   late final List<ValueNotifier<bool>> _expansionNotifiers;
+  late final int _storyId;
+  late final AppApiDataSource _api;
 
   @override
   void initState() {
     super.initState();
-    final storyId = widget.res.story.story.storyId;
+    _storyId = widget.res.story.story.storyId;
+    _api = sl.get<AppApiDataSource>();
     _blocs = widget.res.partLinks
-        .map(
-          (_) =>
-              ScrapePartBloc(api: sl.get<AppApiDataSource>(), storyId: storyId),
-        )
+        .map((_) => ScrapePartBloc(api: _api, storyId: _storyId))
+        .toList();
+    _commentBlocs = widget.res.partLinks
+        .map((_) => ScrapeCommentsBloc(api: _api, storyId: _storyId))
         .toList();
     _expansionNotifiers = List.generate(
       widget.res.partLinks.length,
@@ -203,6 +220,7 @@ class _ScrapedPartLinksState extends State<ScrapedPartLinks> {
   @override
   void dispose() {
     for (final bloc in _blocs) bloc.close();
+    for (final bloc in _commentBlocs) bloc.close();
     for (final notifier in _expansionNotifiers) notifier.dispose();
     super.dispose();
   }
@@ -220,7 +238,12 @@ class _ScrapedPartLinksState extends State<ScrapedPartLinks> {
           ScrapedPartRow(
             partLink: widget.res.partLinks[i],
             bloc: _blocs[i],
+            commentsBloc: _commentBlocs[i],
             expansionNotifier: _expansionNotifiers[i],
+            storyId: _storyId,
+            api: _api,
+            downloadedPart:
+                widget.downloadedParts[widget.res.partLinks[i].wattId],
           ),
       ],
     );

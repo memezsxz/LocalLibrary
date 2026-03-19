@@ -52,22 +52,6 @@ class Tag {
   Map<String, dynamic> toJson() => _$TagToJson(this);
 }
 
-/// Avoids clashing with Flutter's [Image] class.
-@JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
-class DbImage {
-  final int imageId;
-  final String uuid;
-  final String? url;
-  final String? path;
-
-  DbImage({required this.imageId, required this.uuid, this.url, this.path});
-
-  factory DbImage.fromJson(Map<String, dynamic> json) =>
-      _$DbImageFromJson(json);
-
-  Map<String, dynamic> toJson() => _$DbImageToJson(this);
-}
-
 @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
 class Author {
   final int authorId;

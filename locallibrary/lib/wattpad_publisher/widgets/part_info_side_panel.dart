@@ -48,6 +48,7 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
         // Not in cache? (e.g., direct link) → fetch it now.
         if (bundle == null && !loading && error == null) {
           context.read<StoryBloc>().add(StoryRequested(widget.storyId));
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (bundle == null && loading) {
@@ -147,7 +148,7 @@ class _PartInfoSidePanelStoryInfo extends StatelessWidget {
   }) : b = bundle;
 
   final int storyId;
-  final DbImage? image;
+  final Media? image;
   final StoryBundle b;
 
   @override
@@ -165,12 +166,7 @@ class _PartInfoSidePanelStoryInfo extends StatelessWidget {
               clipBehavior: Clip.antiAliasWithSaveLayer,
               child: LocalImage.relative(
                 storageRoot: "/Users/meme/Desktop/storage",
-                storyWattId: context
-                    .read<StoryBloc>()
-                    .state
-                    .bundles[storyId]!
-                    .story
-                    .wattId,
+                storyWattId: b.story.wattId,
                 relativePath: image!.path!, // Todo: handle no path
                 height: MediaQuery.of(context).size.height / 4,
               ),

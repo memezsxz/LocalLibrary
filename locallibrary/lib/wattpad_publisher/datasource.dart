@@ -390,6 +390,44 @@ class AppApiDataSource {
         });
   }
 
+  Stream<ScrapeEvent> streamScrapeComments({
+    required String partUrl,
+    required int storyId,
+    bool clearOutput = false,
+    Map<String, String>? extraHeaders,
+  }) {
+    final headers = <String, String>{
+      'Accept': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Content-Type': 'application/json',
+      if (extraHeaders != null) ...extraHeaders,
+    };
+
+    final body = {
+      'url': partUrl,
+      'story_id': storyId,
+      'clear_output': clearOutput,
+    };
+
+    final url = _uri('/app/scrape/comments/stream').toString();
+
+    final base = SSEClient.subscribeToSSE(
+      method: SSERequestType.POST,
+      url: url,
+      header: headers,
+      body: body,
+    );
+
+    return base
+        .where((m) => (m.data ?? '').isNotEmpty)
+        .map((m) => ScrapeEvent(m.event ?? 'message', m.data!))
+        .asyncExpand((evt) async* {
+          for (final piece in _splitNdjsonOrConcatenated(evt.payload)) {
+            yield ScrapeEvent(evt.name, piece);
+          }
+        });
+  }
+
   /// Splits NDJSON/newline or concatenated `{...}{...}` JSON into individual JSON strings.
   Iterable<String> _splitNdjsonOrConcatenated(String s) sync* {
     for (final line in const LineSplitter().convert(s)) {
@@ -527,6 +565,43 @@ class AppApiDataSource {
     final body = _decodeBodyString(res);
     final decoded = jsonDecode(body);
     return ApiPage<Comment>(items: _parseComments(decoded));
+  }
+
+  /// GET /app/stories/:story_id/parts/:part_id/paragraphs/count
+  Future<int> getPartParagraphsCount({
+    required int storyId,
+    required int partId,
+  }) async {
+    final res = await _safeGet(
+      _uri('/app/stories/$storyId/parts/$partId/paragraphs/count'),
+    );
+    return _parseCount(res);
+  }
+
+  /// GET /app/stories/:story_id/parts/:part_id/comments/count
+  Future<int> getPartCommentsCount({
+    required int storyId,
+    required int partId,
+  }) async {
+    final res = await _safeGet(
+      _uri('/app/stories/$storyId/parts/$partId/comments/count'),
+    );
+    return _parseCount(res);
+  }
+
+  int _parseCount(http.Response res) {
+    final decoded = jsonDecode(_decodeBodyString(res));
+    if (decoded is int) return decoded;
+    if (decoded is num) return decoded.toInt();
+    if (decoded is Map) {
+      final v = decoded['count'] ?? decoded['total'];
+      if (v is num) return v.toInt();
+    }
+    throw ApiException(
+      'Unexpected count response: $decoded',
+      statusCode: res.statusCode,
+      uri: res.request?.url,
+    );
   }
 
   // streamScrapePartByIds({required int storyId, required int partId, required bool clearOutput}) {}

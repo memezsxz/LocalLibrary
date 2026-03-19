@@ -71,7 +71,7 @@ Future<void> main(List<String> args) async {
     } catch (_) {}
 
     final String initialRoute =
-        (payload['initialRoute'] as String?) ?? AppRoute.scrapeInitLocation;
+        (payload['initialRoute'] as String?) ?? AppRoute.homeRoute;
 
     final AppRouterMode mode = switch (payload['router_mode']) {
       final String s when s == AppRouterMode.subScrapeWindow.name =>
@@ -91,9 +91,7 @@ Future<void> main(List<String> args) async {
 
     runApp(
       MultiBlocProvider(
-        providers: [
-          BlocProvider<StoryBloc>(create: (_) => StoryBloc(api: sl()))
-        ],
+        providers: [BlocProvider<StoryBloc>(create: (_) => sl<StoryBloc>())],
         child: WindowCloseNotifier(
           parentId: parentId,
           child: MaterialApp.router(
@@ -117,9 +115,7 @@ Future<void> main(List<String> args) async {
         debugShowCheckedModeBanner: false,
         title: 'Local Library',
         theme: AppTheme.lightMode,
-        routerConfig: AppRoute.buildRouter(
-          initialLocation: AppRoute.scrapeInitLocation,
-        ),
+        routerConfig: AppRoute.buildRouter(),
       ),
     ),
   );

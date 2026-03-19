@@ -9,7 +9,7 @@ part of 'store_models.dart';
 StoryTxResult _$StoryTxResultFromJson(Map<String, dynamic> json) =>
     StoryTxResult(
       author: Author.fromJson(json['author'] as Map<String, dynamic>),
-      image: DbImage.fromJson(json['image'] as Map<String, dynamic>),
+      image: Media.fromJson(json['image'] as Map<String, dynamic>),
       story: Story.fromJson(json['story'] as Map<String, dynamic>),
       genre: Genre.fromJson(json['genre'] as Map<String, dynamic>),
       tags: (json['tags'] as List<dynamic>)

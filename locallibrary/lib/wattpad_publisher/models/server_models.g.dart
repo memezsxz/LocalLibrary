@@ -6,11 +6,26 @@ part of 'server_models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+BookMinimal _$BookMinimalFromJson(Map<String, dynamic> json) => BookMinimal(
+  storyId: (json['story_id'] as num).toInt(),
+  wattId: json['watt_id'] as String,
+  title: json['title'] as String,
+  image: Media.fromJson(json['medium'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$BookMinimalToJson(BookMinimal instance) =>
+    <String, dynamic>{
+      'medium': instance.image.toJson(),
+      'story_id': instance.storyId,
+      'title': instance.title,
+      'watt_id': instance.wattId,
+    };
+
 StoryBundle _$StoryBundleFromJson(Map<String, dynamic> json) => StoryBundle(
   story: Story.fromJson(json['story'] as Map<String, dynamic>),
-  image: json['image'] == null
+  image: json['medium'] == null
       ? null
-      : DbImage.fromJson(json['image'] as Map<String, dynamic>),
+      : Media.fromJson(json['medium'] as Map<String, dynamic>),
   genre: Genre.fromJson(json['genre'] as Map<String, dynamic>),
   author: Author.fromJson(json['author'] as Map<String, dynamic>),
   storyProgress: StoryProgress.fromJson(
@@ -30,7 +45,7 @@ StoryBundle _$StoryBundleFromJson(Map<String, dynamic> json) => StoryBundle(
 Map<String, dynamic> _$StoryBundleToJson(StoryBundle instance) =>
     <String, dynamic>{
       'story': instance.story.toJson(),
-      'image': instance.image?.toJson(),
+      'medium': instance.image?.toJson(),
       'genre': instance.genre.toJson(),
       'author': instance.author.toJson(),
       'story_progress': instance.storyProgress.toJson(),
@@ -65,9 +80,11 @@ Map<String, dynamic> _$PartFullInfoToJson(PartFullInfo instance) =>
 ScrapeStoryRes _$ScrapeStoryResFromJson(Map<String, dynamic> json) =>
     ScrapeStoryRes(
       story: StoryTxResult.fromJson(json['story'] as Map<String, dynamic>),
-      partLinks: (json['part_links'] as List<dynamic>)
-          .map((e) => PartLink.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      partLinks:
+          (json['part_links'] as List<dynamic>?)
+              ?.map((e) => PartLink.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
 
 Map<String, dynamic> _$ScrapeStoryResToJson(ScrapeStoryRes instance) =>

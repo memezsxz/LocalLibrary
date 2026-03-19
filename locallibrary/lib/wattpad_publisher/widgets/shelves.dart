@@ -212,11 +212,11 @@ class BookMinimalView extends StatelessWidget {
         if (snap.hasError) {
           // print("snap error: ${snap.error}");
 
+          print(snap.error);
           return _sizeContent(
             context,
             Padding(
               padding: const EdgeInsets.all(16),
-
               child: Text('Failed to load'),
             ),
           );

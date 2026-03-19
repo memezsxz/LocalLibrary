@@ -20,20 +20,6 @@ Map<String, dynamic> _$TagToJson(Tag instance) => <String, dynamic>{
   'updated_at': instance.updatedAt.toIso8601String(),
 };
 
-DbImage _$DbImageFromJson(Map<String, dynamic> json) => DbImage(
-  imageId: (json['image_id'] as num).toInt(),
-  uuid: json['uuid'] as String,
-  url: json['url'] as String?,
-  path: json['path'] as String?,
-);
-
-Map<String, dynamic> _$DbImageToJson(DbImage instance) => <String, dynamic>{
-  'image_id': instance.imageId,
-  'uuid': instance.uuid,
-  'url': instance.url,
-  'path': instance.path,
-};
-
 Author _$AuthorFromJson(Map<String, dynamic> json) => Author(
   authorId: (json['author_id'] as num).toInt(),
   name: json['name'] as String,
