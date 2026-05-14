@@ -6,10 +6,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../core/exstentions/image.dart';
-import '../../core/route/route.dart';
 import '../../core/theme/app_palette.dart';
-import '../bloc/part_bloc.dart';
 import '../bloc/story_bloc.dart';
+import '../cubit/navigation_cubit.dart';
 import '../models/models.dart';
 import '../models/server_models.dart';
 
@@ -31,10 +30,15 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
     if (current == null) return null;
     final idx = b.parts.indexWhere((p) => p.partId == current.partId);
     return idx >= 0 ? idx : null;
-  } // Retry until controller is attached, then scroll once
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery
+        .of(context)
+        .size
+        .width < 1200;
+
     return BlocBuilder<StoryBloc, StoryState>(
       buildWhen: (prev, next) =>
           prev.bundleFor(widget.storyId) != next.bundleFor(widget.storyId) ||
@@ -45,16 +49,13 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
         final loading = state.isLoading(widget.storyId);
         final error = state.errorFor(widget.storyId);
 
-        // Not in cache? (e.g., direct link) → fetch it now.
         if (bundle == null && !loading && error == null) {
           context.read<StoryBloc>().add(StoryRequested(widget.storyId));
           return const Center(child: CircularProgressIndicator());
         }
-
         if (bundle == null && loading) {
           return const Center(child: CircularProgressIndicator());
         }
-
         if (bundle == null && error != null) {
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -63,158 +64,115 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
         }
 
         final b = bundle!;
-
-        // _scheduleScrollTo(b);
         final targetIndex = _currentIndex(b);
-        return SizedBox(
-          height: double.infinity,
-          // color: Colors.amberAccent,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            // crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // story and author
-              Expanded(
-                flex: 2,
 
-                child: _PartInfoSidePanelStoryInfo(
-                  storyId: widget.storyId,
-                  image: b.image,
-                  bundle: b,
-                ),
-              ),
-              //
-              Expanded(
-                flex: 7,
+        return Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            // ── Header ──────────────────────────────────────────────────
+            if (!isMobile)
+              _DesktopHeader(storyId: widget.storyId, b: b)
+            else
+              _MobileHeader(storyId: widget.storyId, b: b),
 
-                child: ScrollablePositionedList.separated(
-                  itemScrollController: _itemScroll,
-                  itemPositionsListener: _positions,
-                  initialScrollIndex: targetIndex ?? 0,
-                  initialAlignment: 0.1,
-                  separatorBuilder: (context, index) => SizedBox(height: 5),
-                  itemCount: b.parts.length,
-                  itemBuilder: (ctx, i) {
-                    final part = b.parts[i];
-                    final isCurrentPart =
-                        b.currentPart != null &&
-                        b.currentPart!.partId == part.partId;
+            const Divider(height: 1),
 
-                    return _PartContainer(
-                      isCurrentPart: isCurrentPart,
-                      storyId: widget.storyId,
-                      part: part,
-                    );
-                  },
-                ),
+            // ── Parts list ──────────────────────────────────────────────
+            Expanded(
+              child: ScrollablePositionedList.separated(
+                itemScrollController: _itemScroll,
+                itemPositionsListener: _positions,
+                initialScrollIndex: targetIndex ?? 0,
+                initialAlignment: 0.1,
+                separatorBuilder: (_, __) => const SizedBox(height: 4),
+                itemCount: b.parts.length,
+                itemBuilder: (ctx, i) {
+                  final part = b.parts[i];
+                  final isCurrent =
+                      b.currentPart != null &&
+                          b.currentPart!.partId == part.partId;
+                  return _PartRow(
+                    isCurrentPart: isCurrent,
+                    storyId: widget.storyId,
+                    part: part,
+                  );
+                },
               ),
-              Expanded(
-                flex: 1,
-                child: Container(
-                  // padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        overlayColor: WidgetStatePropertyAll(
-                          AppPalette.transparent,
-                        ),
-                        onTap: () {
-                          print("load from web");
-                        },
-                        child: SvgPicture.asset(
-                          "assets/icons/reload_from_web_icon.svg",
-                          width: 35,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
   }
 }
 
-class _PartInfoSidePanelStoryInfo extends StatelessWidget {
-  const _PartInfoSidePanelStoryInfo({
-    required this.storyId,
-    required this.image,
-    required bundle,
-  }) : b = bundle;
+// ── Desktop header: image + title + author side by side ───────────────────────
+
+class _DesktopHeader extends StatelessWidget {
+  const _DesktopHeader({required this.storyId, required this.b});
 
   final int storyId;
-  final Media? image;
   final StoryBundle b;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    return Padding(
+      padding: const EdgeInsets.all(16),
       child: Row(
-        spacing: 10,
+        spacing: 12,
         children: [
           GestureDetector(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-              ),
-              clipBehavior: Clip.antiAliasWithSaveLayer,
+            onTap: () =>
+                context
+                    .read<NavigationCubit>()
+                    .push(NavigationStoryCubit(storyId: storyId)),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(5),
               child: LocalImage.relative(
                 storageRoot: "/Users/meme/Desktop/storage",
                 storyWattId: b.story.wattId,
-                relativePath: image!.path!, // Todo: handle no path
-                height: MediaQuery.of(context).size.height / 4,
+                relativePath: b.image!.path!,
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height / 5,
               ),
             ),
-
-            onTap: () {
-              goToStory(context, storyId);
-            },
           ),
           Expanded(
             child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                // Title (shrinks down but keeps up to 2 lines)
                 AutoSizeText(
                   b.story.title.trim(),
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleLarge,
                   maxLines: 4,
-                  minFontSize: 10,
+                  minFontSize: 12,
                   stepGranularity: 0.5,
                   overflow: TextOverflow.ellipsis,
-                  wrapWords: true,
-                  softWrap: true,
                 ),
-
-                const SizedBox(height: 6),
-
-                // Author line (single line, shrinks if tight)
+                const SizedBox(height: 4),
                 AutoSizeText.rich(
-                  TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: 'By ',
-                        style: TextStyle(color: Colors.black),
+                  TextSpan(children: [
+                    const TextSpan(
+                      text: 'By ',
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                    TextSpan(
+                      text: b.author.username,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
                       ),
-                      TextSpan(
-                        text: b.author.username,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () =>
-                              debugPrint('clicked ${b.author.username}'),
-                      ),
-                    ],
-                  ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () =>
+                            debugPrint('author: ${b.author.username}'),
+                    ),
+                  ]),
                   maxLines: 1,
                   minFontSize: 10,
                   overflow: TextOverflow.ellipsis,
@@ -229,8 +187,75 @@ class _PartInfoSidePanelStoryInfo extends StatelessWidget {
   }
 }
 
-class _PartContainer extends StatelessWidget {
-  const _PartContainer({
+// ── Mobile header: compact title row, no image ────────────────────────────────
+
+class _MobileHeader extends StatelessWidget {
+  const _MobileHeader({required this.storyId, required this.b});
+
+  final int storyId;
+  final StoryBundle b;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () =>
+          context
+              .read<NavigationCubit>()
+              .push(NavigationStoryCubit(storyId: storyId)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          spacing: 10,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LocalImage.relative(
+                storageRoot: "/Users/meme/Desktop/storage",
+                storyWattId: b.story.wattId,
+                relativePath: b.image!.path!,
+                height: 56,
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    b.story.title.trim(),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleMedium,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    'By ${b.author.username}',
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(
+                      color: AppPalette.primaryLight,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: AppPalette.primaryLight, size: 18),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Part row ──────────────────────────────────────────────────────────────────
+
+class _PartRow extends StatelessWidget {
+  const _PartRow({
     required this.isCurrentPart,
     required this.storyId,
     required this.part,
@@ -244,45 +269,47 @@ class _PartContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: isCurrentPart
-          ? AppPalette.primary.withOpacity(0.5)
-          : AppPalette.primaryLight.withOpacity(0.3),
+          ? AppPalette.primary.withOpacity(0.12)
+          : Colors.transparent,
       child: InkWell(
-        onTap: () {
-          context.read<PartBloc>().add(
-            PartFetchRequested(storyId: storyId, partId: part.partId),
-          );
-          // goToPart(ctx, b.story.storyId, part.partId);
-        },
+        onTap: () =>
+            context.read<NavigationCubit>().push(
+              NavigationPartCubit(storyId: storyId, partId: part.partId),
+            ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 40), // pick your min
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-            spacing: 10,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 20,
-                  ),
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: Row(
+              spacing: 8,
+              children: [
+                Expanded(
                   child: Text(
                     part.title,
                     softWrap: true,
-                    // wrapWords: true,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelMedium?.copyWith(fontSize: 16),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .labelMedium
+                        ?.copyWith(
+                      fontSize: 15,
+                      color: isCurrentPart
+                          ? AppPalette.primary
+                          : Colors.black,
+                      fontWeight: isCurrentPart
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
                   ),
                 ),
-              ),
-              if (isCurrentPart)
-                FittedBox(
-                  fit: BoxFit.fitHeight,
-                  child: SvgPicture.asset("assets/icons/current_part_icon.svg"),
-                ),
-            ],
+                if (isCurrentPart)
+                  SvgPicture.asset(
+                    'assets/icons/current_part_icon.svg',
+                    width: 16,
+                    color: AppPalette.primary,
+                  ),
+              ],
+            ),
           ),
         ),
       ),

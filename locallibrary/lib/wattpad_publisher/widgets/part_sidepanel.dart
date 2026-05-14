@@ -33,6 +33,8 @@ class SidePanelScaffold extends StatefulWidget {
 class SidePanelScaffoldState extends State<SidePanelScaffold> {
   bool _showControls = true;
   double _prevOffset = 0;
+  double _panelDragOffset = 0.0;
+  bool _isDraggingPanel = false;
 
   @override
   void initState() {
@@ -58,7 +60,11 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
   void _onScroll() {
     final sc = widget.scrollController;
     if (sc == null || !sc.hasClients) return;
-    final offset = sc.position.pixels;
+    final pos = sc.position;
+    // Ignore overscroll region — bounce-back would falsely flip _showControls
+    if (pos.pixels > pos.maxScrollExtent || pos.pixels < pos.minScrollExtent)
+      return;
+    final offset = pos.pixels;
     final goingDown = offset > _prevOffset;
     _prevOffset = offset;
     if (goingDown == _showControls) {
@@ -187,15 +193,19 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                 child: widget.content,
               ),
 
-              // slide-up panel
+              // slide-up panel with drag-to-close
               BlocBuilder<PartSidePanelCubit, PartSidePanelState>(
                 bloc: panelCubit,
                 builder: (context, state) {
                   final isOpen = state is! PartSidePanelNoneCubit;
+                  final bottom = isOpen ? -_panelDragOffset : -panelH;
+
                   return AnimatedPositioned(
-                    duration: const Duration(milliseconds: 280),
+                    duration: _isDraggingPanel
+                        ? Duration.zero
+                        : const Duration(milliseconds: 280),
                     curve: Curves.easeOutCubic,
-                    bottom: isOpen ? 0 : -panelH,
+                    bottom: bottom,
                     left: 0,
                     right: 0,
                     height: panelH,
@@ -210,9 +220,52 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                           top: Radius.circular(16),
                         ),
                         child: isOpen
-                            ? KeyedSubtree(
-                          key: ValueKey(_panelKey(state)),
-                          child: state.get(),
+                            ? Column(
+                          children: [
+                            // drag handle
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onVerticalDragUpdate: (d) {
+                                setState(() {
+                                  _isDraggingPanel = true;
+                                  _panelDragOffset =
+                                      (_panelDragOffset + d.delta.dy)
+                                          .clamp(0.0, panelH);
+                                });
+                              },
+                              onVerticalDragEnd: (d) {
+                                final vel = d.primaryVelocity ?? 0;
+                                final shouldClose = _panelDragOffset >
+                                    panelH * 0.3 ||
+                                    vel > 400;
+                                setState(() {
+                                  _isDraggingPanel = false;
+                                  _panelDragOffset = 0.0;
+                                });
+                                if (shouldClose) panelCubit.clear();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10),
+                                child: Center(
+                                  child: Container(
+                                    width: 40,
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.35),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: KeyedSubtree(
+                                key: ValueKey(_panelKey(state)),
+                                child: state.get(),
+                              ),
+                            ),
+                          ],
                         )
                             : const SizedBox.shrink(),
                       ),
