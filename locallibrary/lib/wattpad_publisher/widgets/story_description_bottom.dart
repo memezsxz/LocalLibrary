@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:locallibrary/core/exstentions/datetime.dart';
 
-import '../../core/route/route.dart';
 import '../../core/theme/app_palette.dart';
+import '../cubit/navigation_cubit.dart';
 import '../models/models.dart';
 import '../models/server_models.dart';
 
@@ -73,7 +74,12 @@ class StoryDescriptionBottom extends StatelessWidget {
 
                 return GestureDetector(
                   onTap: () {
-                    goToPart(context, storyBundle.story.storyId, p.partId);
+                    context.read<NavigationCubit>().push(
+                      NavigationPartCubit(
+                        storyId: storyBundle.story.storyId,
+                        partId: p.partId,
+                      ),
+                    );
                   },
                   child: Container(
                     // padding: EdgeInsets.symmetric( vertical: 10),

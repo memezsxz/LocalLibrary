@@ -41,10 +41,11 @@ class WDHome extends StatelessWidget {
             .indexWhere((s) => s.runtimeType == navState.runtimeType)
             .clamp(0, _screens.length - 1);
 
-        final hideNav = navState is NavigationStoryCubit;
+        final hideNav =
+            navState is NavigationStoryCubit || navState is NavigationPartCubit;
         final showScrape = navState is NavigationDashboardCubit;
 
-        final body = navState is NavigationStoryCubit
+        final body = hideNav
             ? navState.get()
             : SafeArea(
                 child: Padding(

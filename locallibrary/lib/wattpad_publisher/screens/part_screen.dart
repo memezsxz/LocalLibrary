@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -20,6 +19,7 @@ import '../../core/theme/theme.dart';
 import '../../dependency_ingection.dart';
 import '../bloc/comments_bloc.dart';
 import '../bloc/part_bloc.dart';
+import '../datasource.dart';
 import '../widgets/comment_icon.dart';
 import '../widgets/part_image_view.dart';
 import '../widgets/part_sidepanel.dart';
@@ -61,95 +61,408 @@ class PartScreen extends StatelessWidget {
   }
 }
 
-class _PartView extends StatelessWidget {
-  _PartView({required this.storyId});
-
-  final CarouselSliderController buttonCarouselController =
-      CarouselSliderController();
+class _PartView extends StatefulWidget {
+  const _PartView({required this.storyId});
 
   final int storyId;
 
   @override
+  State<_PartView> createState() => _PartViewState();
+}
+
+class _PartViewState extends State<_PartView>
+    with SingleTickerProviderStateMixin {
+  late final ScrollController _scrollController;
+  late final AnimationController _fadeCtrl;
+  final List<PartFullInfo> _parts = [];
+  bool _seeded = false;
+  bool _loadingNext = false;
+  bool _loadingPrev = false;
+
+  final ValueNotifier<double> _bottomOverscroll = ValueNotifier(0.0);
+  final ValueNotifier<double> _topOverscroll = ValueNotifier(0.0);
+
+  static const double _kThreshold = 300.0;
+  static const Duration _fadeDuration = Duration(milliseconds: 220);
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+    _fadeCtrl =
+        AnimationController(vsync: this, duration: _fadeDuration, value: 1.0);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _fadeCtrl.dispose();
+    _bottomOverscroll.dispose();
+    _topOverscroll.dispose();
+    super.dispose();
+  }
+
+  Future<void> _replaceWith(PartFullInfo info, {required bool toEnd}) async {
+    await _fadeCtrl.reverse();
+    if (!mounted) return;
+    setState(() =>
+    _parts
+      ..clear()
+      ..add(info));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.jumpTo(
+        toEnd ? _scrollController.position.maxScrollExtent : 0,
+      );
+    });
+    _fadeCtrl.forward();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+
+    final bottomOS = (pos.pixels - pos.maxScrollExtent).clamp(
+        0.0, double.infinity);
+    final topOS = (pos.minScrollExtent - pos.pixels).clamp(
+        0.0, double.infinity);
+
+    _bottomOverscroll.value = bottomOS;
+    _topOverscroll.value = topOS;
+
+    if (bottomOS >= _kThreshold && !_loadingNext) _loadNext();
+    if (topOS >= _kThreshold && !_loadingPrev) _loadPrev();
+  }
+
+  StoryBundle? _bundle() =>
+      context
+          .read<StoryBloc>()
+          .state
+          .bundles[widget.storyId];
+
+  Future<void> _loadNext() async {
+    final bundle = _bundle();
+    if (bundle == null || _parts.isEmpty) return;
+    final lastId = _parts.last.part.partId;
+    final idx = bundle.parts.indexWhere((p) => p.partId == lastId);
+    if (idx == -1 || idx >= bundle.parts.length - 1) return;
+    setState(() => _loadingNext = true);
+    try {
+      final info = await sl<AppApiDataSource>().getFullPartInfo(
+        storyId: widget.storyId,
+        partId: bundle.parts[idx + 1].partId,
+      );
+      if (!mounted) return;
+      await _replaceWith(info, toEnd: false);
+    } finally {
+      if (mounted) setState(() => _loadingNext = false);
+      _bottomOverscroll.value = 0;
+    }
+  }
+
+  Future<void> _loadPrev() async {
+    final bundle = _bundle();
+    if (bundle == null || _parts.isEmpty) return;
+    final firstId = _parts.first.part.partId;
+    final idx = bundle.parts.indexWhere((p) => p.partId == firstId);
+    if (idx <= 0) return;
+    setState(() => _loadingPrev = true);
+    try {
+      final info = await sl<AppApiDataSource>().getFullPartInfo(
+        storyId: widget.storyId,
+        partId: bundle.parts[idx - 1].partId,
+      );
+      if (!mounted) return;
+      await _replaceWith(info, toEnd: true);
+    } finally {
+      if (mounted) setState(() => _loadingPrev = false);
+      _topOverscroll.value = 0;
+    }
+  }
+
+  String? _adjacentTitle(StoryBundle bundle, int partId, int delta) {
+    final idx = bundle.parts.indexWhere((p) => p.partId == partId);
+    if (idx == -1) return null;
+    final adj = idx + delta;
+    if (adj < 0 || adj >= bundle.parts.length) return null;
+    return bundle.parts[adj].title;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PartBloc, PartState>(
-      builder: (context, partState) {
-        return BlocBuilder<StoryBloc, StoryState>(
-          builder: (context, storyState) {
-            final bundle = storyState.bundles[storyId];
+    return BlocListener<PartBloc, PartState>(
+      listener: (context, state) {
+        if (state is PartLoaded && !_seeded) {
+          _seeded = true;
+          setState(() {
+            _parts
+              ..clear()
+              ..add(state.info);
+          });
+        }
+      },
+      child: BlocBuilder<PartBloc, PartState>(
+        builder: (context, partState) {
+          return BlocBuilder<StoryBloc, StoryState>(
+            builder: (context, storyState) {
+              final bundle = storyState.bundles[widget.storyId];
 
-            if (partState is PartInitial ||
-                partState is PartLoading ||
-                bundle == null) {
-              return const Scaffold(
-                body: Center(child: Loader()),
-              );
-            }
+              if (_parts.isEmpty) {
+                if (partState is PartError) {
+                  return Scaffold(
+                    body: Center(
+                      child: Text(
+                          'Failed: ${(partState as PartError).message}'),
+                    ),
+                  );
+                }
+                return const Scaffold(body: Center(child: Loader()));
+              }
 
-            if (partState is PartError) {
+              final nextTitle = bundle != null
+                  ? _adjacentTitle(bundle, _parts.last.part.partId, 1)
+                  : null;
+              final prevTitle = bundle != null
+                  ? _adjacentTitle(bundle, _parts.first.part.partId, -1)
+                  : null;
+
               return Scaffold(
-                body: Center(
-                  child: Text('Failed: ${(partState as PartError).message}'),
-                ),
-              );
-            }
-
-            final info = (partState as PartLoaded).info;
-
-            return Scaffold(
-              backgroundColor: Colors.white,
-              body: SafeArea(
-                child: SidePanelScaffold(
-                  storyId: storyId,
-                  panelWidth: MediaQuery
-                      .of(context)
-                      .size
-                      .width / 4,
-                  dockSize: 40,
-                  content: CustomScrollView(
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width / 1.6,
-                              minHeight: MediaQuery
-                                  .sizeOf(context)
-                                  .height,
+                backgroundColor: Colors.white,
+                body: SafeArea(
+                  child: SidePanelScaffold(
+                    storyId: widget.storyId,
+                    panelWidth: MediaQuery
+                        .of(context)
+                        .size
+                        .width / 4,
+                    dockSize: 40,
+                    scrollController: _scrollController,
+                    content: FadeTransition(
+                      opacity: _fadeCtrl,
+                      child: Stack(
+                        children: [
+                          CustomScrollView(
+                            controller: _scrollController,
+                            physics: const BouncingScrollPhysics(
+                              parent: AlwaysScrollableScrollPhysics(),
                             ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppPalette.surfaceAlt,
-                                image: DecorationImage(
-                                  repeat: ImageRepeat.repeat,
-                                  image: AssetImage(
-                                    "assets/images/texture_5.png",
+                            slivers: [
+                              for (int i = 0; i < _parts.length; i++) ...[
+                                if (i > 0)
+                                  SliverToBoxAdapter(
+                                    child: _PartDivider(
+                                        title: _parts[i].part.title),
                                   ),
-                                  fit: BoxFit.none,
-                                  opacity: 0.1,
+                                SliverToBoxAdapter(
+                                  child: Align(
+                                    alignment: Alignment.topCenter,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width < 900
+                                            ? double.infinity
+                                            : MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width / 1.6,
+                                        minHeight: i == 0
+                                            ? MediaQuery
+                                            .sizeOf(context)
+                                            .height
+                                            : 0,
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: AppPalette.surfaceAlt,
+                                          image: const DecorationImage(
+                                            repeat: ImageRepeat.repeat,
+                                            image: AssetImage(
+                                                "assets/images/texture_5.png"),
+                                            fit: BoxFit.none,
+                                            opacity: 0.1,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(
+                                                  0.25),
+                                              blurRadius: 40,
+                                            ),
+                                          ],
+                                        ),
+                                        alignment: Alignment.topCenter,
+                                        child: PartContent(
+                                          storyId: widget.storyId,
+                                          info: _parts[i],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.25),
-                                    blurRadius: 40,
-                                  ),
-                                ],
-                              ),
-                              alignment: Alignment.topCenter,
-                              child: PartContent(storyId: storyId, info: info),
+                              ],
+                            ],
+                          ),
+                          if (prevTitle != null)
+                            Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              child: _PeekBar(
+                                overscroll: _topOverscroll,
+                                threshold: _kThreshold,
+                                title: prevTitle,
+                                loading: _loadingPrev,
+                                direction: _PeekDirection.top,
                             ),
                           ),
-                        ),
+                          if (nextTitle != null)
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: _PeekBar(
+                                overscroll: _bottomOverscroll,
+                                threshold: _kThreshold,
+                                title: nextTitle,
+                                loading: _loadingNext,
+                                direction: _PeekDirection.bottom,
+                              ),
+                            ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ── Part divider between loaded parts ─────────────────────────────────────────
+
+class _PartDivider extends StatelessWidget {
+  const _PartDivider({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Row(
+        children: [
+          const Expanded(child: Divider()),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              title,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .labelMedium
+                  ?.copyWith(
+                color: AppPalette.primaryLight,
+                fontFamily: 'Courier New',
               ),
-            );
-          },
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const Expanded(child: Divider()),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Overscroll peek bar ────────────────────────────────────────────────────────
+
+enum _PeekDirection { top, bottom }
+
+class _PeekBar extends StatelessWidget {
+  const _PeekBar({
+    super.key,
+    required this.overscroll,
+    required this.threshold,
+    required this.title,
+    required this.loading,
+    required this.direction,
+  });
+
+  final ValueNotifier<double> overscroll;
+  final double threshold;
+  final String title;
+  final bool loading;
+  final _PeekDirection direction;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<double>(
+      valueListenable: overscroll,
+      builder: (context, os, _) {
+        final h = (os * 0.5).clamp(0.0, 72.0);
+        if (h <= 0) return const SizedBox.shrink();
+        final progress = (os / threshold).clamp(0.0, 1.0);
+        final isTop = direction == _PeekDirection.top;
+
+        final row = Row(
+          children: [
+            Icon(
+              isTop ? Icons.arrow_upward : Icons.arrow_downward,
+              color: AppPalette.primary,
+              size: 14,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                title,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .labelSmall
+                    ?.copyWith(
+                  color: AppPalette.primary,
+                  fontFamily: 'Courier New',
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (loading)
+              const SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(strokeWidth: 1.5),
+              ),
+          ],
+        );
+
+        final bar = LinearProgressIndicator(
+          value: progress,
+          backgroundColor: AppPalette.primaryLight.withOpacity(0.15),
+          color: AppPalette.primary,
+          minHeight: 2,
+        );
+
+        return Container(
+          height: h,
+          color: AppPalette.surfaceAlt.withOpacity(0.95),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: Column(
+            mainAxisAlignment:
+            isTop ? MainAxisAlignment.end : MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: isTop
+                ? [row, const SizedBox(height: 4), bar]
+                : [bar, const SizedBox(height: 4), row],
+          ),
         );
       },
     );
@@ -209,7 +522,13 @@ class PartContent extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery
+            .of(context)
+            .size
+            .width * 0.03,
+        vertical: 30,
+      ),
       child: Column(
         // mainAxisAlignment: MainAxisAlignment.start,
         // mainAxisSize: MainAxisSize.max,

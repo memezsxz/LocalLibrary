@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:locallibrary/wattpad_publisher/widgets/input_bars.dart';
 
 import '../../core/exstentions/image.dart';
-import '../../core/route/route.dart';
 import '../../core/theme/app_palette.dart';
+import '../cubit/navigation_cubit.dart';
 import '../models/server_models.dart';
 import '../screens/story_screen.dart';
 
@@ -147,10 +148,16 @@ class _MobileStoryDescriptionTop extends StatelessWidget {
         BaseButton(
           label: story.storyProgress.progress == null ? "Read" : "Continue",
           onPressed: () async {
-            if (story.currentPart != null) {
-              goToPart(context, story.story.storyId, story.currentPart!.partId);
-            } else if (story.parts.isNotEmpty) {
-              goToPart(context, story.story.storyId, story.parts[0].partId);
+            final partId =
+                story.currentPart?.partId ??
+                    (story.parts.isNotEmpty ? story.parts[0].partId : null);
+            if (partId != null) {
+              context.read<NavigationCubit>().push(
+                NavigationPartCubit(
+                  storyId: story.story.storyId,
+                  partId: partId,
+                ),
+              );
             }
           },
         ),
@@ -350,16 +357,13 @@ class StoryDescrioptionTopLeft extends StatelessWidget {
           BaseButton(
             label: story.storyProgress.progress == null ? "Read" : "Continue",
             onPressed: () async {
-              if (story.currentPart != null) {
-                goToPart(
-                  context,
-                  story.story.storyId,
-                  story.currentPart!.partId,
+              final partId = story.currentPart?.partId ??
+                  (story.parts.isNotEmpty ? story.parts[0].partId : null);
+              if (partId != null) {
+                context.read<NavigationCubit>().push(
+                  NavigationPartCubit(
+                      storyId: story.story.storyId, partId: partId),
                 );
-              } else if (story.parts.isNotEmpty) {
-                goToPart(context, story.story.storyId, story.parts[0].partId);
-              } else {
-                // Todo: tell the user there are no parts in the story
               }
             },
           ),

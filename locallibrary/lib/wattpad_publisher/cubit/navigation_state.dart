@@ -50,3 +50,15 @@ final class NavigationStoryCubit extends NavigationScreenCubit {
     return StoryScreen(storyId: storyId);
   }
 }
+
+final class NavigationPartCubit extends NavigationScreenCubit {
+  final int storyId;
+  final int partId;
+
+  NavigationPartCubit({required this.storyId, required this.partId});
+
+  @override
+  Widget get() {
+    return PartScreen(storyId: storyId, partId: partId);
+  }
+}
