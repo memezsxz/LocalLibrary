@@ -124,7 +124,8 @@ class MySearchBar extends StatelessWidget {
       hintText: 'Search in My Library',
       leading: const Icon(Icons.search),
       shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      ),
       trailing: [
         IconButton(
           icon: const Icon(Icons.tune),
@@ -135,7 +136,9 @@ class MySearchBar extends StatelessWidget {
       onChanged: onChanged,
       constraints: const BoxConstraints(),
       overlayColor: WidgetStateProperty.all(Colors.transparent),
-
+      padding: WidgetStateProperty.all(
+        EdgeInsets.only(top: 2, bottom: 2, left: 10, right: 4),
+      ),
     );
   }
 }

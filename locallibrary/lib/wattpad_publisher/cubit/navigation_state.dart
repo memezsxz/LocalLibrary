@@ -24,3 +24,17 @@ final class NavigationNotificationsCubit extends NavigationScreenCubit {
     return Notifications();
   }
 }
+
+final class NavigationSettingsCubit extends NavigationScreenCubit {
+  @override
+  Widget get() {
+    return Settings();
+  }
+}
+
+final class NavigationScrapeCubit extends NavigationScreenCubit {
+  @override
+  Widget get() {
+    return Scrape();
+  }
+}

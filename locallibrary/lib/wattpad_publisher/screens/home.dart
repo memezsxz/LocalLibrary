@@ -12,6 +12,7 @@ const _navItems = [
     icon: Icons.notifications_outlined,
     selected: Icons.notifications,
   ),
+  (label: 'Settings', icon: Icons.settings_outlined, selected: Icons.settings),
 ];
 
 class WDHome extends StatelessWidget {
@@ -26,6 +27,8 @@ class WDHome extends StatelessWidget {
     NavigationDashboardCubit(),
     NavigationLibraryCubit(),
     NavigationNotificationsCubit(),
+    NavigationSettingsCubit(),
+    NavigationScrapeCubit(),
   ];
 
   @override
@@ -38,22 +41,39 @@ class WDHome extends StatelessWidget {
           (s) => s.runtimeType == navState.runtimeType,
         );
 
-        final body = Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: IndexedStack(
-            index: currentIndex,
-            children: [for (final screen in _screens) screen.get()],
+        final body = SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IndexedStack(
+              index: currentIndex,
+              children: [for (final screen in _screens) screen.get()],
+            ),
           ),
         );
 
         if (isDesktop) {
           return Scaffold(
+            floatingActionButton: navState is NavigationDashboardCubit
+                ? _scrape()
+                : null,
             body: Row(
               children: [
                 NavigationRail(
                   destinations: _navigationRailDestinations(),
                   selectedIndex: currentIndex,
                   onDestinationSelected: onTab,
+                  trailing: Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          // children: [_scrape(), _settings()],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
                 Expanded(child: body),
@@ -63,7 +83,11 @@ class WDHome extends StatelessWidget {
         }
 
         return Scaffold(
+          floatingActionButton: navState is NavigationDashboardCubit
+              ? _scrape()
+              : null,
           bottomNavigationBar: NavigationBar(
+            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
             destinations: _bottomNavigationBarDestinations(),
             selectedIndex: currentIndex,
             onDestinationSelected: onTab,
@@ -96,6 +120,22 @@ class WDHome extends StatelessWidget {
           ),
         )
         .toList();
+  }
+
+  // IconButton _settings() {
+  //   return    IconButton(
+  //     icon: const Icon(Icons.settings),
+  //     tooltip: 'Settings',
+  //     onPressed: () => {},
+  //   );
+  // }
+
+  FloatingActionButton _scrape() {
+    return FloatingActionButton.small(
+      tooltip: 'Scrape',
+      onPressed: () => {},
+      child: const Icon(Icons.add_box_sharp),
+    );
   }
 
   // Widget _buildTab(AppTab tab) => switch (tab) {

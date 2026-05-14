@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/screens/dashboard.dart';
 import 'package:locallibrary/wattpad_publisher/screens/library.dart';
 import 'package:locallibrary/wattpad_publisher/screens/notifications.dart';
+import 'package:locallibrary/wattpad_publisher/screens/settings.dart';
+
+import '../screens/scrape.dart';
 
 part 'navigation_state.dart';
 

@@ -89,22 +89,25 @@ class _DashboardState extends State<Dashboard> {
     return Column(
       spacing: 10,
       children: [
-        MySearchBar(),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 5),
+          child: MySearchBar(),
+        ),
         // the list
         Expanded(
           child: RefreshIndicator(
             onRefresh: _reload,
             child: GridView.builder(
               controller: _scroll,
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
               physics: const AlwaysScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: bookSize.maxExtent(),
                 // max book width — auto-fits columns
                 childAspectRatio: 0.6,
                 // book cover ratio
-                crossAxisSpacing: 40,
-                mainAxisSpacing: 40,
+                crossAxisSpacing: 25,
+                mainAxisSpacing: 25,
               ),
               itemCount: _storyIds.length + (_hasMore || _loading ? 1 : 0),
               itemBuilder: (context, i) {
