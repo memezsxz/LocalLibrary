@@ -48,54 +48,67 @@ class _StoryView extends StatelessWidget {
 
         final story = (state as StoryLoaded).bundle;
 
-        return Scaffold(
-          appBar: AppBar(
-            leading: BackButton(
-              onPressed: () => context.read<NavigationCubit>().pop(),
-            ),
-          ),
-          body: SingleChildScrollView(
-            clipBehavior: Clip.none,
-            child: Container(
-              color: Colors.white,
-              child: Stack(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(top: topSize),
-                    width: double.infinity,
-                    decoration: const BoxDecoration(color: AppPalette.surface),
-                    child: ContentContainer(
-                      margin: EdgeInsets.symmetric(
-                        vertical: marginH,
-                        horizontal: marginW,
-                      ),
-                      child: StoryDescriptionBottom(storyBundle: story),
-                    ),
-                  ),
-                  // Top card with drop shadow
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
-                          blurRadius: 43,
-                          offset: const Offset(0, 4),
+        return SafeArea(
+          child: Scaffold(
+            body: Stack(
+              children: [
+                SingleChildScrollView(
+                  clipBehavior: Clip.none,
+                  child: Container(
+                    color: Colors.white,
+                    child: Stack(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(top: topSize),
+                          width: double.infinity,
+                          decoration: const BoxDecoration(
+                            color: AppPalette.surface,
+                          ),
+                          child: ContentContainer(
+                            margin: EdgeInsets.symmetric(
+                              vertical: marginH,
+                              horizontal: marginW,
+                            ),
+                            child: StoryDescriptionBottom(storyBundle: story),
+                          ),
+                        ),
+                        // Top card with drop shadow
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.25),
+                                blurRadius: 43,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          width: double.infinity,
+                          height: topSize,
+                          child: StoryDescriptionTop(
+                            margin: EdgeInsets.symmetric(
+                              vertical: marginH,
+                              horizontal: marginW,
+                            ),
+                            story: story,
+                          ),
                         ),
                       ],
                     ),
-                    width: double.infinity,
-                    height: topSize,
-                    child: StoryDescriptionTop(
-                      margin: EdgeInsets.symmetric(
-                        vertical: marginH,
-                        horizontal: marginW,
-                      ),
-                      story: story,
-                    ),
                   ),
-                ],
-              ),
+                ),
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: FloatingActionButton(
+                    heroTag: 'back',
+                    mini: true,
+                    onPressed: () => context.read<NavigationCubit>().pop(),
+                    child: const Icon(Icons.arrow_back),
+                  ),
+                ),
+              ],
             ),
           ),
         );
