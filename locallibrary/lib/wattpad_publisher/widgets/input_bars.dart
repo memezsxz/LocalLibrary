@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/theme/app_palette.dart';
 import 'dashed_line.dart';
@@ -113,65 +112,30 @@ class GrayContainer extends StatelessWidget {
 }
 
 class MySearchBar extends StatelessWidget {
-  const MySearchBar({super.key});
+  final VoidCallback? onAdvancedSearch;
+  final ValueChanged<String>? onChanged;
+
+  const MySearchBar({super.key, this.onAdvancedSearch, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return WhiteContainer(
-      withDash: true,
-      children: [
-        BaseButton(label: "Shelves", onPressed: () {}),
-        BaseButton(label: "All Books", onPressed: () {}),
-        Expanded(
-          child: GrayContainer(
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    print("preform search");
-                  },
-                  child: SvgPicture.asset(
-                    "assets/icons/search_icon.svg",
-                    width: 16,
-                  ),
-                ),
-                SizedBox(width: 7),
-                Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: "Search in My library",
-                      isDense: true,
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                      hintStyle: TextStyle(
-                        color: AppPalette.gray,
-                        fontSize: 15,
-                      ),
-                    ),
-                    cursorWidth: 2.0,
-                    cursorHeight: 18.0,
-                    cursorRadius: const Radius.circular(3),
-                    style: TextStyle(fontSize: 15, color: AppPalette.primary),
-                    // TODO: convert the cursor icon to an ink pen icon
-                  ),
-                ),
-                Spacer(),
-                GestureDetector(
-                  onTap: () {
-                    print("change color and show advance options");
-                  },
-                  child: SvgPicture.asset(
-                    "assets/icons/advance_search_icon.svg",
-                    width: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
+    // TODO: add search anchor
+    return SearchBar(
+      hintText: 'Search in My Library',
+      leading: const Icon(Icons.search),
+      shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
+      trailing: [
+        IconButton(
+          icon: const Icon(Icons.tune),
+          tooltip: 'Advanced search',
+          onPressed: onAdvancedSearch,
         ),
       ],
+      onChanged: onChanged,
+      constraints: const BoxConstraints(),
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+
     );
   }
 }
