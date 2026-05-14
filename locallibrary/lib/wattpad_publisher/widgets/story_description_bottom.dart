@@ -84,16 +84,12 @@ class StoryDescriptionBottom extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         SizedBox(width: padding + 0.0),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 5,
-                          children: [
-                            ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth:
-                                    MediaQuery.of(context).size.width * 0.4,
-                              ),
-                              child: Text(
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 5,
+                            children: [
+                              Text(
                                 p.title.trim(),
                                 style: Theme.of(context).textTheme.labelLarge
                                     ?.copyWith(
@@ -104,28 +100,30 @@ class StoryDescriptionBottom extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            if (isCurrentPart)
-                              Text(
-                                "${storyBundle.storyProgress.progress! * 100}% Complete",
-                                style: Theme.of(context).textTheme.labelLarge
-                                    ?.copyWith(
-                                      color: AppPalette.primary,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Courier New',
-                                      fontSize: 14,
-                                    ),
-                              ),
-                          ],
+                              if (isCurrentPart)
+                                Text(
+                                  "${storyBundle.storyProgress.progress! * 100}% Complete",
+                                  style: Theme.of(context).textTheme.labelLarge
+                                      ?.copyWith(
+                                        color: AppPalette.primary,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Courier New',
+                                        fontSize: 14,
+                                      ),
+                                ),
+                            ],
+                          ),
                         ),
-                        Spacer(),
                         Text(
                           p.datePublished.showDateInOwnFormat(),
                           style: Theme.of(context).textTheme.labelLarge
                               ?.copyWith(
                                 color: Colors.black,
                                 fontFamily: 'Courier New',
-                                fontSize: 18,
+                                fontSize:
+                                    MediaQuery.of(context).size.width < 600
+                                    ? 12
+                                    : 18,
                               ),
                         ),
                         if (isCurrentPart) SizedBox(width: padding / 2),

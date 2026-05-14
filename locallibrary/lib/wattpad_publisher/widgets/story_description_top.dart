@@ -21,6 +21,17 @@ class StoryDescriptionTop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
+    if (isMobile) {
+      return Container(
+        margin: margin,
+        color: Colors.white,
+        width: double.infinity,
+        child: _MobileStoryDescriptionTop(story: story),
+      );
+    }
+
     return ContentContainer(
       margin: margin,
       width: double.infinity,
@@ -51,6 +62,99 @@ class StoryDescriptionTop extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _MobileStoryDescriptionTop extends StatelessWidget {
+  const _MobileStoryDescriptionTop({required this.story});
+
+  final StoryBundle story;
+
+  static const double _iconW = 32;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: Container(
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+              ),
+              child: LocalImage.relative(
+                storageRoot: "/Users/meme/Desktop/storage",
+                storyWattId: story.story.wattId,
+                relativePath: story.image!.path!,
+                width: double.infinity,
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        StoryDescrioptionTopCenter(story: story),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            GestureDetector(
+              onTap: () => print("show author info"),
+              child: Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(100)),
+                ),
+                child: Image.asset(
+                  "assets/images/author_image.png",
+                  width: _iconW,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => print("load from web"),
+              child: SvgPicture.asset(
+                "assets/icons/reload_from_web_icon.svg",
+                width: _iconW,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => print("export"),
+              child: SvgPicture.asset(
+                "assets/icons/export_icon.svg",
+                width: _iconW,
+              ),
+            ),
+            VerticalDivider(
+              color: AppPalette.primaryLight.withOpacity(0.5),
+              thickness: 2,
+              width: 16,
+            ),
+            GestureDetector(
+              onTap: () => print("load from file"),
+              child: SvgPicture.asset(
+                "assets/icons/reload_from_file.svg",
+                width: _iconW,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        BaseButton(
+          label: story.storyProgress.progress == null ? "Read" : "Continue",
+          onPressed: () async {
+            if (story.currentPart != null) {
+              goToPart(context, story.story.storyId, story.currentPart!.partId);
+            } else if (story.parts.isNotEmpty) {
+              goToPart(context, story.story.storyId, story.parts[0].partId);
+            }
+          },
+        ),
+      ],
     );
   }
 }

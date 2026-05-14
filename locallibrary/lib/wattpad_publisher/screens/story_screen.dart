@@ -29,9 +29,11 @@ class _StoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final marginW = MediaQuery.of(context).size.width / 7;
-    final marginH = MediaQuery.of(context).size.width / 20;
-    final topSize = MediaQuery.of(context).size.height / 1.5;
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < 600;
+    final marginW = isMobile ? 16.0 : size.width / 7;
+    final marginH = isMobile ? 12.0 : size.width / 20;
+    final topSize = size.height / 1.5;
 
     return BlocBuilder<StoryBloc, StoryState>(
       builder: (context, state) {
@@ -47,6 +49,65 @@ class _StoryView extends StatelessWidget {
         }
 
         final story = (state as StoryLoaded).bundle;
+
+        if (isMobile) {
+          return SafeArea(
+            child: Scaffold(
+              body: Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.25),
+                                blurRadius: 43,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: StoryDescriptionTop(
+                            margin: EdgeInsets.fromLTRB(
+                              marginW,
+                              marginH + 56,
+                              marginW,
+                              marginH,
+                            ),
+                            story: story,
+                          ),
+                        ),
+                        Container(
+                          color: AppPalette.surface,
+                          child: ContentContainer(
+                            margin: EdgeInsets.symmetric(
+                              vertical: marginH,
+                              horizontal: marginW,
+                            ),
+                            child: StoryDescriptionBottom(storyBundle: story),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    top: 16,
+                    left: 16,
+                    child: FloatingActionButton(
+                      heroTag: 'back',
+                      mini: true,
+                      onPressed: () => context.read<NavigationCubit>().pop(),
+                      child: const Icon(Icons.arrow_back),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
 
         return SafeArea(
           child: Scaffold(
