@@ -182,21 +182,15 @@ class _PartInfoSidePanelStoryInfo extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Title (shrinks down but keeps up to 2 lines)
-                SizedBox(
-                  width: double.infinity,
-                  height: MediaQuery.of(context).size.height / 10,
-                  child: AutoSizeText(
-                    b.story.title.trim(),
-                    style: Theme.of(context).textTheme.titleMedium,
-                    maxLines: 4,
-                    minFontSize: 10,
-                    // how small it’s allowed to g
-                    stepGranularity: 0.5,
-                    // smoother steps when shrinking
-                    overflow: TextOverflow.ellipsis,
-                    wrapWords: true,
-                    softWrap: true,
-                  ),
+                AutoSizeText(
+                  b.story.title.trim(),
+                  style: Theme.of(context).textTheme.titleMedium,
+                  maxLines: 4,
+                  minFontSize: 10,
+                  stepGranularity: 0.5,
+                  overflow: TextOverflow.ellipsis,
+                  wrapWords: true,
+                  softWrap: true,
                 ),
 
                 const SizedBox(height: 6),
