@@ -1,70 +1,105 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../core/theme/app_palette.dart';
-import '../widgets/aside.dart';
-import '../widgets/content_router.dart';
-import '../widgets/gradient_backdrop.dart';
-import '../widgets/inner_shadow_gradient_pane.dart';
-import '../widgets/nav_bar.dart';
-import '../widgets/rounded_content_outer.dart';
-import '../widgets/shadowed_panel.dart';
-import '../widgets/single_window_activator_button.dart';
-import '../widgets/two_pane_row.dart';
+import '../cubit/navigation_cubit.dart';
+
+const _navItems = [
+  (label: 'Home', icon: Icons.home_outlined, selected: Icons.home),
+  (label: 'Library', icon: Icons.book_outlined, selected: Icons.book),
+  (
+    label: 'Notifications',
+    icon: Icons.notifications_outlined,
+    selected: Icons.notifications,
+  ),
+];
 
 class WDHome extends StatelessWidget {
   const WDHome({super.key});
 
+  static final isDesktop =
+      defaultTargetPlatform == TargetPlatform.macOS ||
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux;
+
+  static final _screens = [
+    NavigationDashboardCubit(),
+    NavigationLibraryCubit(),
+    NavigationNotificationsCubit(),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final marginW = MediaQuery.of(context).size.width / 20;
-    final sideSize = MediaQuery.of(context).size.width / 5.5;
+    return BlocBuilder<NavigationCubit, NavigationScreenCubit>(
+      builder: (context, navState) {
+        void onTab(int i) =>
+            context.read<NavigationCubit>().changeContent(_screens[i]);
+        final currentIndex = _screens.indexWhere(
+          (s) => s.runtimeType == navState.runtimeType,
+        );
 
-    return GradientBackdrop(
-      // keep your original background gradient
-      // gradient: const LinearGradient(
-      //   colors: [Colors.white, AppPalette.secondary],
-      //   begin: Alignment.topLeft,
-      //   end: Alignment.bottomRight,
-      // ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: ShadowedPanel(
-          margin: EdgeInsets.all(marginW),
-          radius: const BorderRadius.all(Radius.circular(25)),
-          shadow: const [
-            BoxShadow(
-              color: AppPalette.mainShadow,
-              offset: Offset(-1, 6),
-              blurRadius: 34.6,
-              spreadRadius: -5,
-            ),
-          ],
-          child: TwoPaneRow(
-            // sidebar (keeps your Aside + NavBar.defaults)
-            sidebar: Aside(
-              width: sideSize,
-              top: NavBar.defaults(),
-              // bottom: const SizedBox.shrink(),
-              bottom: SizedBox(
-                width: MediaQuery.of(context).size.width / 2,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    SingleWindowActivatorButton.settings(1),
-                    SingleWindowActivatorButton.scrape(),
-                  ],
+        final body = IndexedStack(
+          index: currentIndex,
+          children: [for (final screen in _screens) screen.get()],
+        );
+
+        if (isDesktop) {
+          return Scaffold(
+            body: Row(
+              children: [
+                NavigationRail(
+                  destinations: _navigationRailDestinations(),
+                  selectedIndex: currentIndex,
+                  onDestinationSelected: onTab,
                 ),
-              ),
+                const VerticalDivider(thickness: 1, width: 1),
+                Expanded(child: body),
+              ],
             ),
+          );
+        }
 
-            // main content area (rounded outer, inner gradient + inner shadow)
-            content: const RoundedContentOuter(
-              child: InnerShadowGradientPane(child: ContentRouter()),
-            ),
+        return Scaffold(
+          bottomNavigationBar: NavigationBar(
+            destinations: _bottomNavigationBarDestinations(),
+            selectedIndex: currentIndex,
+            onDestinationSelected: onTab,
           ),
-        ),
-      ),
+          body: body,
+        );
+      },
     );
   }
+
+  List<NavigationRailDestination> _navigationRailDestinations() {
+    return _navItems
+        .map(
+          (i) => NavigationRailDestination(
+            icon: Icon(i.icon),
+            selectedIcon: Icon(i.selected),
+            label: Text(i.label),
+          ),
+        )
+        .toList();
+  }
+
+  List<NavigationDestination> _bottomNavigationBarDestinations() {
+    return _navItems
+        .map(
+          (i) => NavigationDestination(
+            icon: Icon(i.icon),
+            selectedIcon: Icon(i.selected),
+            label: i.label,
+          ),
+        )
+        .toList();
+  }
+
+  // Widget _buildTab(AppTab tab) => switch (tab) {
+  //   HomeTab() => const HomeScreen(),
+  //   StoryTab(:final storyId) => StoryScreen(storyId: storyId),
+  //   ScrapeTab() => const ScrapeStoryScreen(),
+  //   NotificationsTab() => const NotificationsScreen(),
+  //   SettingsTab() => const SettingsScreen(),
+  // };
 }
