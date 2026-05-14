@@ -37,64 +37,89 @@ class WDHome extends StatelessWidget {
       builder: (context, navState) {
         void onTab(int i) =>
             context.read<NavigationCubit>().changeContent(_screens[i]);
-        final currentIndex = _screens.indexWhere(
-          (s) => s.runtimeType == navState.runtimeType,
-        );
+        final currentIndex = _screens
+            .indexWhere((s) => s.runtimeType == navState.runtimeType)
+            .clamp(0, _screens.length - 1);
 
-        final body = SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: IndexedStack(
-              index: currentIndex,
-              children: [for (final screen in _screens) screen.get()],
-            ),
-          ),
-        );
+        final hideNav = navState is NavigationStoryCubit;
+        final showScrape = navState is NavigationDashboardCubit;
+
+        final body = navState is NavigationStoryCubit
+            ? navState.get()
+            : SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: IndexedStack(
+                    index: currentIndex,
+                    children: [for (final screen in _screens) screen.get()],
+                  ),
+                ),
+              );
 
         if (isDesktop) {
-          return Scaffold(
-            floatingActionButton: navState is NavigationDashboardCubit
-                ? _scrape()
-                : null,
-            body: Row(
-              children: [
-                NavigationRail(
-                  destinations: _navigationRailDestinations(),
-                  selectedIndex: currentIndex,
-                  onDestinationSelected: onTab,
-                  trailing: Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          // children: [_scrape(), _settings()],
-                        ),
-                      ),
+          return _desktopBody(currentIndex, body, showScrape, hideNav, onTab);
+        }
+        return _mobileBody(currentIndex, body, showScrape, hideNav, onTab);
+      },
+    );
+  }
+
+  Widget _desktopBody(
+    int currentIndex,
+    Widget body,
+    bool showScrape,
+    bool hideNav,
+    ValueChanged<int> onTab,
+  ) {
+    final nav = [];
+    return Scaffold(
+      floatingActionButton: showScrape ? _scrape() : null,
+      body: Row(
+        children: [
+          if (!hideNav)
+            NavigationRail(
+              destinations: _navigationRailDestinations(),
+              selectedIndex: currentIndex,
+              onDestinationSelected: onTab,
+              trailing: Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      // children: [_scrape(), _settings()],
                     ),
                   ),
                 ),
-                const VerticalDivider(thickness: 1, width: 1),
-                Expanded(child: body),
-              ],
+              ),
             ),
-          );
-        }
+          if (!hideNav) const VerticalDivider(thickness: 1, width: 1),
+          Expanded(child: body),
+        ],
+      ),
+    );
+  }
 
-        return Scaffold(
-          floatingActionButton: navState is NavigationDashboardCubit
-              ? _scrape()
-              : null,
-          bottomNavigationBar: NavigationBar(
-            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-            destinations: _bottomNavigationBarDestinations(),
-            selectedIndex: currentIndex,
-            onDestinationSelected: onTab,
-          ),
-          body: body,
-        );
-      },
+  Widget _mobileBody(
+    int currentIndex,
+    Widget body,
+    bool showScrape,
+    bool hideNav,
+    ValueChanged<int> onTab,
+  ) {
+    return Scaffold(
+      floatingActionButton: showScrape ? _scrape() : null,
+      bottomNavigationBar: hideNav
+          ? null
+          : NavigationBar(
+              labelBehavior:
+                  NavigationDestinationLabelBehavior.onlyShowSelected,
+              destinations: _bottomNavigationBarDestinations(),
+              selectedIndex: currentIndex,
+              onDestinationSelected: onTab,
+            ),
+      body: body,
     );
   }
 
@@ -121,14 +146,6 @@ class WDHome extends StatelessWidget {
         )
         .toList();
   }
-
-  // IconButton _settings() {
-  //   return    IconButton(
-  //     icon: const Icon(Icons.settings),
-  //     tooltip: 'Settings',
-  //     onPressed: () => {},
-  //   );
-  // }
 
   FloatingActionButton _scrape() {
     return FloatingActionButton.small(

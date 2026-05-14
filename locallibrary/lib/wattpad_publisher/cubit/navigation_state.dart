@@ -1,4 +1,5 @@
 part of 'navigation_cubit.dart';
+
 @immutable
 sealed class NavigationScreenCubit {
   Widget get();
@@ -36,5 +37,16 @@ final class NavigationScrapeCubit extends NavigationScreenCubit {
   @override
   Widget get() {
     return Scrape();
+  }
+}
+
+final class NavigationStoryCubit extends NavigationScreenCubit {
+  final int storyId;
+
+  NavigationStoryCubit({required this.storyId});
+
+  @override
+  Widget get() {
+    return StoryScreen(storyId: storyId);
   }
 }

@@ -4,6 +4,7 @@ import 'package:locallibrary/wattpad_publisher/screens/dashboard.dart';
 import 'package:locallibrary/wattpad_publisher/screens/library.dart';
 import 'package:locallibrary/wattpad_publisher/screens/notifications.dart';
 import 'package:locallibrary/wattpad_publisher/screens/settings.dart';
+import 'package:locallibrary/wattpad_publisher/screens/story_screen.dart';
 
 import '../screens/scrape.dart';
 

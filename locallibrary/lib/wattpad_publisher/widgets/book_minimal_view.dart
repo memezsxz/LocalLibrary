@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inner_shadow/flutter_inner_shadow.dart';
 import 'package:locallibrary/core/theme/app_palette.dart';
+import 'package:locallibrary/wattpad_publisher/cubit/navigation_cubit.dart';
 
 import '../../core/exstentions/image.dart';
 import '../../dependency_ingection.dart';
-import '../bloc/windows_bloc.dart';
 import '../datasource.dart';
 import '../models/server_models.dart';
 
@@ -41,9 +42,9 @@ class _BookMinimalViewState extends State<BookMinimalView> {
         final book = snap.data!;
 
         return GestureDetector(
-          onTap: () => sl.get<WindowsBloc>().add(
-            OpenWindowRequested.story(widget.storyId),
-          ),
+          onTap: () =>
+              context.read<NavigationCubit>().changeContent(
+                  NavigationStoryCubit(storyId: widget.storyId)),
           child: Stack(
             fit: StackFit.expand,
             children: [
