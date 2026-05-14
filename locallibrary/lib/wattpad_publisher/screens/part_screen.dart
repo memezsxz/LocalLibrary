@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -34,9 +35,8 @@ class PartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<StoryBloc>(
-          create: (_) =>
-          sl<StoryBloc>()
+        BlocProvider<StoryBloc>.value(
+          value: sl<StoryBloc>()
             ..add(StoryRequested(storyId)),
         ),
 
@@ -82,7 +82,15 @@ class _PartViewState extends State<_PartView>
   final ValueNotifier<double> _bottomOverscroll = ValueNotifier(0.0);
   final ValueNotifier<double> _topOverscroll = ValueNotifier(0.0);
 
-  static const double _kThreshold = 300.0;
+  static const double _kThresholdDesktop = 200.0;
+  static const double _kThresholdMobile = 150.0;
+
+  static bool get _isDesktop =>
+      defaultTargetPlatform == TargetPlatform.macOS ||
+          defaultTargetPlatform == TargetPlatform.windows ||
+          defaultTargetPlatform == TargetPlatform.linux;
+
+  double get _kThreshold => _isDesktop ? _kThresholdDesktop : _kThresholdMobile;
   static const Duration _fadeDuration = Duration(milliseconds: 220);
 
   @override
@@ -493,11 +501,11 @@ class PartContent extends StatelessWidget {
             relativePath: info.image!.path!,
             width: double.infinity,
             // height: 220,
-            fit: BoxFit.fitWidth,
+            fit: BoxFit.contain,
           ),
         );
       } else if (info.image!.url != null) {
-        partImages.add(Image.network(info.image!.url!, fit: BoxFit.fitWidth));
+        partImages.add(Image.network(info.image!.url!, fit: BoxFit.contain));
       }
     }
 

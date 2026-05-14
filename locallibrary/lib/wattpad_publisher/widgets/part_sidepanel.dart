@@ -221,11 +221,11 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                 },
               ),
 
-              // FAB back button — hides on scroll down
+              // FAB back button — hides on scroll up, top-left
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeOut,
-                bottom: _showControls ? 16 : -(fabSize + 16),
+                top: _showControls ? 16 : -(fabSize + 16),
                 left: 16,
                 child: FloatingActionButton.small(
                   heroTag: 'back',
@@ -291,12 +291,11 @@ class _Dock extends StatelessWidget {
         return Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            // top group: 3 action buttons
-            AnimatedSize(
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.linear,
+            // center group: 3 action buttons
+            Expanded(
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   _DockBtn(
                     size: size,
@@ -335,8 +334,6 @@ class _Dock extends StatelessWidget {
                 ],
               ),
             ),
-
-            const Spacer(),
 
             // back button at the very bottom
             _DockBtn(
@@ -468,7 +465,8 @@ class _MobileNavBar extends StatelessWidget {
             ],
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 16,
             children: [
               _NavBtn(
                 iconPath: "assets/icons/parts_icon.svg",

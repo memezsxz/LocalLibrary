@@ -45,8 +45,8 @@ void initDI() {
 
   sl.registerFactory<PartBloc>(() => PartBloc(api: sl<AppApiDataSource>()));
 
-  sl.registerLazySingleton<PartSidePanelCubit>(() => PartSidePanelCubit());
-  sl.registerLazySingleton<CommentsBloc>(
+  sl.registerFactory<PartSidePanelCubit>(() => PartSidePanelCubit());
+  sl.registerFactory<CommentsBloc>(
     () => CommentsBloc(api: sl<AppApiDataSource>()),
   );
 
