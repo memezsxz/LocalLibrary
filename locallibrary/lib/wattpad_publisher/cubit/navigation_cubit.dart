@@ -12,10 +12,21 @@ part 'navigation_state.dart';
 
 class NavigationCubit extends Cubit<NavigationScreenCubit> {
   NavigationCubit() : super(NavigationDashboardCubit());
+  final List<NavigationScreenCubit> _stack = [];
 
   void changeContent(NavigationScreenCubit state) {
-    // print(state.toString());
+    _stack.add(state);
     emit(state);
+  }
+
+  void push(NavigationScreenCubit screen) {
+    _stack.add(state);
+    emit(screen);
+  }
+
+  void pop() {
+    if (_stack.isEmpty) return;
+    emit(_stack.removeLast());
   }
 }
 

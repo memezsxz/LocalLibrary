@@ -42,9 +42,9 @@ class _BookMinimalViewState extends State<BookMinimalView> {
         final book = snap.data!;
 
         return GestureDetector(
-          onTap: () =>
-              context.read<NavigationCubit>().changeContent(
-                  NavigationStoryCubit(storyId: widget.storyId)),
+          onTap: () => context.read<NavigationCubit>().push(
+            NavigationStoryCubit(storyId: widget.storyId),
+          ),
           child: Stack(
             fit: StackFit.expand,
             children: [
