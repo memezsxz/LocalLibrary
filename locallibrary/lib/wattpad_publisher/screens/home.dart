@@ -38,9 +38,12 @@ class WDHome extends StatelessWidget {
           (s) => s.runtimeType == navState.runtimeType,
         );
 
-        final body = IndexedStack(
-          index: currentIndex,
-          children: [for (final screen in _screens) screen.get()],
+        final body = Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: IndexedStack(
+            index: currentIndex,
+            children: [for (final screen in _screens) screen.get()],
+          ),
         );
 
         if (isDesktop) {

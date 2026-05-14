@@ -5,8 +5,8 @@ import 'package:flutter/material.dart'
     show Text, Center, Scaffold, BuildContext, Widget, TextAlign;
 import 'package:go_router/go_router.dart';
 
+import '../../wattpad_publisher/screens/dashboard.dart';
 import '../../wattpad_publisher/screens/home.dart';
-import '../../wattpad_publisher/screens/library.dart';
 import '../../wattpad_publisher/screens/notifications.dart';
 import '../../wattpad_publisher/screens/part_screen.dart';
 import '../../wattpad_publisher/screens/scrape_story_screen.dart';
@@ -48,7 +48,7 @@ class AppRoute {
             GoRoute(
               name: 'library',
               path: libraryRoute, // → /library
-              builder: (context, state) => const Library(),
+              builder: (context, state) => const Dashboard(),
             ),
             GoRoute(
               name: 'notifications',

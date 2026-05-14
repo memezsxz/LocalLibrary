@@ -4,13 +4,13 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../core/exstentions/image.dart';
 import '../../core/theme/app_palette.dart';
+import '../../core/utils/clip.dart';
 import '../../dependency_ingection.dart';
 import '../bloc/scrape_comments_bloc.dart';
 import '../bloc/scrape_part_bloc.dart';
 import '../datasource.dart';
 import '../models/models.dart';
 import '../models/server_models.dart';
-import '../screens/dashboard.dart';
 import '../widgets/input_bars.dart';
 import '../widgets/story_description_bottom.dart';
 import 'scraped_part_row.dart';

@@ -8,6 +8,7 @@ import 'package:locallibrary/wattpad_publisher/bloc/scrape_story_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/story_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/windows_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/cubit/part_side_panel_cubit.dart';
+import 'package:locallibrary/wattpad_publisher/cubit/settings_cubit.dart';
 
 import 'core/secrets/app_secrets.dart';
 import 'wattpad_publisher/datasource.dart';
@@ -47,6 +48,10 @@ void initDI() {
   sl.registerLazySingleton<PartSidePanelCubit>(() => PartSidePanelCubit());
   sl.registerLazySingleton<CommentsBloc>(
     () => CommentsBloc(api: sl<AppApiDataSource>()),
+  );
+
+  sl.registerLazySingleton<SettingsCubit>(
+        () => SettingsCubit(),
   );
 
   sl.registerLazySingleton<ScrapeStoryBloc>(
