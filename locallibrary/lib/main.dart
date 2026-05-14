@@ -6,7 +6,8 @@ import 'package:locallibrary/core/route/route.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/windows_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/cubit/navigation_cubit.dart';
 
-import 'core/theme/theme.dart';
+import 'core/theme/new_theme.dart';
+import 'core/theme/util.dart';
 import 'dependency_ingection.dart';
 
 class WindowCloseNotifier extends StatefulWidget {
@@ -51,15 +52,29 @@ Future<void> main(List<String> args) async {
 
   sl.get<WindowsBloc>();
 
-  runApp(
-    MultiBlocProvider(
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    TextTheme textTheme = createTextTheme(context, "Bellefair", "Elsie");
+    // final brightness = View.of(context).platformDispatcher.platformBrightness;
+    final brightness = Brightness.light;
+
+    MaterialTheme theme = MaterialTheme(textTheme);
+    return MultiBlocProvider(
       providers: [BlocProvider(create: (_) => NavigationCubit())],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         title: 'Local Library',
-        theme: AppTheme.lightMode,
+        theme: brightness == Brightness.light
+            ? theme.lightMediumContrast()
+            : theme.dark(),
         routerConfig: AppRoute.buildRouter(),
       ),
-    ),
-  );
+    );
+  }
 }
