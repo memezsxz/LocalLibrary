@@ -56,7 +56,7 @@ final class NavigationScrapeStoryCubit extends NavigationScreenCubit {
   }
 }
 
-ffinal class NavigationPartCubit extends NavigationScreenCubit {
+final class NavigationPartCubit extends NavigationScreenCubit {
   final int storyId;
   final int partId;
 
