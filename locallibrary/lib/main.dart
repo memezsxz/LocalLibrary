@@ -2,8 +2,6 @@ import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:locallibrary/core/route/route.dart';
-import 'package:locallibrary/wattpad_publisher/bloc/windows_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/cubit/navigation_cubit.dart';
 
 import 'core/theme/new_theme.dart';
@@ -50,7 +48,7 @@ Future<void> main(List<String> args) async {
   //   }
   // } catch (_) {}
 
-  sl.get<WindowsBloc>();
+  // sl.get<WindowsBloc>();
 
   runApp(MyApp());
 }
@@ -73,7 +71,7 @@ class MyApp extends StatelessWidget {
         theme: brightness == Brightness.light
             ? theme.lightMediumContrast()
             : theme.dark(),
-        routerConfig: AppRoute.buildRouter(),
+        // routerConfig: AppRoute.buildRouter(),
       ),
     );
   }

@@ -6,7 +6,6 @@ import 'package:locallibrary/wattpad_publisher/bloc/comments_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/part_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/scrape_story_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/story_bloc.dart';
-import 'package:locallibrary/wattpad_publisher/bloc/windows_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/cubit/part_side_panel_cubit.dart';
 import 'package:locallibrary/wattpad_publisher/cubit/settings_cubit.dart';
 
@@ -58,9 +57,9 @@ void initDI() {
     () => ScrapeStoryBloc(api: sl<AppApiDataSource>()),
   );
 
-  sl.registerLazySingleton<WindowsBloc>(
-        () => WindowsBloc(),
-  );
+  // sl.registerLazySingleton<WindowsBloc>(
+  //       () => WindowsBloc(),
+  // );
   // sl<Dio>().interceptors.add(LogInterceptor(
   //     request: true, requestBody: true, responseBody: true, error: true));
 }
