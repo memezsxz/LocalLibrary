@@ -36,7 +36,7 @@ final class NavigationSettingsCubit extends NavigationScreenCubit {
 final class NavigationScrapeCubit extends NavigationScreenCubit {
   @override
   Widget get() {
-    return Scrape();
+    return const ScrapeStoryScreen();
   }
 }
 

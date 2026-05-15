@@ -49,6 +49,14 @@ abstract class BaseScrapeBloc<TRes>
     _done = null;
   }
 
+  void reset() {
+    _sseSub?.cancel();
+    _sseSub = null;
+    _done?.complete(null);
+    _done = null;
+    emit(BaseScrapeState<TRes>());
+  }
+
   void _onInputChanged(InputChanged e, Emitter<BaseScrapeState<TRes>> emit) {
     final norm = e.v.trim(); // or your custom normalizer
     emit(

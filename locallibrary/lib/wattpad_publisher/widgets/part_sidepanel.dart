@@ -203,7 +203,7 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
     final panelH = MediaQuery
         .of(context)
         .size
-        .height * 0.45;
+        .height * 0.75;
     const navH = 60.0;
     const fabSize = 40.0;
 

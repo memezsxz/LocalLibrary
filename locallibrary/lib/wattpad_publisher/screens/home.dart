@@ -39,10 +39,12 @@ class WDHome extends StatelessWidget {
             context.read<NavigationCubit>().changeContent(_screens[i]);
         final currentIndex = _screens
             .indexWhere((s) => s.runtimeType == navState.runtimeType)
-            .clamp(0, _screens.length - 1);
+            .clamp(0, _navItems.length - 1);
 
         final hideNav =
-            navState is NavigationStoryCubit || navState is NavigationPartCubit;
+            navState is NavigationStoryCubit ||
+            navState is NavigationPartCubit ||
+            navState is NavigationScrapeCubit;
         final showScrape = navState is NavigationDashboardCubit;
 
         final body = hideNav
@@ -58,14 +60,28 @@ class WDHome extends StatelessWidget {
               );
 
         if (isDesktop) {
-          return _desktopBody(currentIndex, body, showScrape, hideNav, onTab);
+          return _desktopBody(
+            context,
+            currentIndex,
+            body,
+            showScrape,
+            hideNav,
+            onTab,
+          );
         }
-        return _mobileBody(currentIndex, body, showScrape, hideNav, onTab);
+        return _mobileBody(
+          context,
+          currentIndex,
+          body,
+          showScrape,
+          hideNav,
+          onTab,
+        );
       },
     );
   }
 
-  Widget _desktopBody(
+  Widget _desktopBody(BuildContext context,
     int currentIndex,
     Widget body,
     bool showScrape,
@@ -74,7 +90,7 @@ class WDHome extends StatelessWidget {
   ) {
     final nav = [];
     return Scaffold(
-      floatingActionButton: showScrape ? _scrape() : null,
+      floatingActionButton: showScrape ? _scrape(context) : null,
       body: Row(
         children: [
           if (!hideNav)
@@ -102,7 +118,7 @@ class WDHome extends StatelessWidget {
     );
   }
 
-  Widget _mobileBody(
+  Widget _mobileBody(BuildContext context,
     int currentIndex,
     Widget body,
     bool showScrape,
@@ -110,7 +126,7 @@ class WDHome extends StatelessWidget {
     ValueChanged<int> onTab,
   ) {
     return Scaffold(
-      floatingActionButton: showScrape ? _scrape() : null,
+      floatingActionButton: showScrape ? _scrape(context) : null,
       bottomNavigationBar: hideNav
           ? null
           : NavigationBar(
@@ -148,10 +164,11 @@ class WDHome extends StatelessWidget {
         .toList();
   }
 
-  FloatingActionButton _scrape() {
+  FloatingActionButton _scrape(BuildContext context) {
     return FloatingActionButton.small(
       tooltip: 'Scrape',
-      onPressed: () => {},
+      onPressed: () =>
+          context.read<NavigationCubit>().push(NavigationScrapeCubit()),
       child: const Icon(Icons.add_box_sharp),
     );
   }

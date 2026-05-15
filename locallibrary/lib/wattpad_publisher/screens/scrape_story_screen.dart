@@ -3,25 +3,34 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locallibrary/wattpad_publisher/bloc/base_scrape_bloc.dart';
 
 import '../../core/commen/clipboard.dart';
+import '../../core/exstentions/scrape_status.dart';
 import '../../core/theme/app_palette.dart';
-import '../../core/theme/theme.dart';
 import '../../dependency_ingection.dart';
 import '../bloc/scrape_story_bloc.dart';
+import '../cubit/navigation_cubit.dart';
 import '../datasource.dart';
 import '../modals/logs_modal.dart';
 import '../models/server_models.dart';
-import '../widgets/inner_shadow_gradient_pane.dart';
-import '../widgets/input_bars.dart';
-import '../widgets/rounded_content_outer.dart';
 import '../widgets/scraped_story_info_view.dart';
-import '../widgets/split_filled_button.dart';
 
 class ScrapeStoryScreen extends StatelessWidget {
   const ScrapeStoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: _ScrapeStoryView());
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.read<NavigationCubit>().pop(),
+        ),
+        title: const Text('Add Story'),
+        centerTitle: false,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
+      body: _ScrapeStoryView(),
+    );
   }
 }
 
@@ -39,184 +48,225 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _prefillFromClipboard(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
+        _prefillFromClipboard());
+  }
+
+  @override
+  void dispose() {
+    _urlCtrl.dispose();
+    sl.get<ScrapeStoryBloc>().reset();
+    super.dispose();
   }
 
   Future<void> _prefillFromClipboard() async {
     final bloc = sl.get<ScrapeStoryBloc>();
-
-    // Don’t overwrite if user or state already has something
-    if (_urlCtrl.text.trim().isNotEmpty || bloc.state.input.trim().isNotEmpty) {
+    if (_urlCtrl.text
+        .trim()
+        .isNotEmpty || bloc.state.input
+        .trim()
+        .isNotEmpty) {
       return;
     }
-
     final raw = (await ClipboardService().getFromClipboard())?.trim() ?? '';
     if (raw.isEmpty) return;
-
-    final msg = validateStoryUrlMessage(raw);
-    if (msg != null) return; // not a Wattpad story link
-
-    final url = raw;
-    _urlCtrl.text = url;
-    bloc.add(InputChanged(url));
+    if (validateStoryUrlMessage(raw) != null) return;
+    _urlCtrl.text = raw;
+    bloc.add(InputChanged(raw));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/images/texture_5.png"),
-          fit: BoxFit.cover,
-          opacity: 0.04,
-        ),
-      ),
-      child:
-          // Main content and BLoC wiring
-          BlocConsumer<ScrapeStoryBloc, BaseScrapeState<ScrapeStoryRes>>(
-            bloc: sl.get<ScrapeStoryBloc>(),
-            listenWhen: (prev, next) =>
-                prev.errorMessage != next.errorMessage ||
-                prev.status != next.status ||
-                prev.result != next.result,
-            listener: (context, state) async {
-              if (state.status == ScrapeStatus.connecting) {
-                setState(() => _bundle = null);
-              }
-              if (state.status == ScrapeStatus.done && state.result != null) {
-                final storyId = state.result!.story.story.storyId;
-                try {
-                  final bundle = await sl
-                      .get<AppApiDataSource>()
-                      .getFullStoryInfo(storyId);
-                  if (mounted) setState(() => _bundle = bundle);
-                } catch (_) {}
-              }
+    return BlocConsumer<ScrapeStoryBloc, BaseScrapeState<ScrapeStoryRes>>(
+      bloc: sl.get<ScrapeStoryBloc>(),
+      listenWhen: (prev, next) =>
+      prev.errorMessage != next.errorMessage ||
+          prev.status != next.status ||
+          prev.result != next.result,
+      listener: (context, state) async {
+        if (state.status == ScrapeStatus.connecting) {
+          setState(() => _bundle = null);
+        }
+        if (state.status == ScrapeStatus.done && state.result != null) {
+          final storyId = state.result!.story.story.storyId;
+          try {
+            final bundle =
+            await sl.get<AppApiDataSource>().getFullStoryInfo(storyId);
+            if (mounted) setState(() => _bundle = bundle);
+          } catch (_) {}
+        }
+      },
+      buildWhen: (prev, next) =>
+      prev.input != next.input ||
+          prev.inputHint != next.inputHint ||
+          prev.errorMessage != next.errorMessage ||
+          prev.status != next.status,
+      builder: (context, state) {
+        if (state.status == ScrapeStatus.done && state.result != null) {
+          return SizedBox.expand(
+            child: ScrapedStoryInfo(res: state.result!, bundle: _bundle),
+          );
+        }
 
-          // 1) Show errors as a toast/snackbar (side-effect)
-          if (state.errorMessage != null &&
-              state.errorMessage!.isNotEmpty) {}
-
-              // // 2) React to status changes if you want to navigate/side-effect
-              // switch (state.status) {
-              //   case ScrapeStatus.done:
-              //     // e.g., open story window or move to next step
-              //     // final storyId = state.result?.story?.id as int?; // adapt if available
-              //     // if (storyId != null) context.go('/stories/$storyId');
-              //     break;
-              //   default:
-              //     break;
-              // }
-            },
-
-            // Rebuild UI for URL / error / status / timeline changes
-        buildWhen: (prev, next) =>
-        prev.input != next.input ||
-            prev.inputHint != next.inputHint ||
-            prev.errorMessage != next.errorMessage ||
-            prev.status != next.status,
-
-            builder: (context, state) {
-              return RoundedContentOuter(
-                child: InnerShadowGradientPane(
-                  child:
-                      (state.status == ScrapeStatus.done &&
-                          state.result != null)
-                      ? SizedBox.expand(
-                        child: ScrapedStoryInfo(
-                            res: state.result!, bundle: _bundle),
-                        )
-                      : Column(
-                          mainAxisSize: MainAxisSize.max,
-                          // mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 16,
-                          children: [
-                            // Header
-                            Text(
-                              "Add Story",
-                              style: AppTheme.lightMode.textTheme.titleLarge
-                                  ?.copyWith(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-
-                            // URL input
-                  UrlWidget(
+        return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 16,
+                children: [
+                  TextField(
                     controller: _urlCtrl
                       ..text = state.input
                       ..selection = TextSelection.fromPosition(
                         TextPosition(offset: state.input.length),
                       ),
                     onChanged: (v) =>
-                        sl.get<ScrapeStoryBloc>().add(
-                          InputChanged(v),
-                        ),
-                    onSubmit: () =>
-                        sl.get<ScrapeStoryBloc>().add(
-                          StartRequested(),
-                        ),
-                    onPasteRequested: () async {
-                      final data = await ClipboardService()
-                          .getFromClipboard();
-                      final txt = data?.trim() ?? '';
-                      if (txt.isEmpty) return;
-                      final url = txt;
-                      _urlCtrl.text = url;
-                      sl.get<ScrapeStoryBloc>().add(
-                        InputChanged(url),
-                      );
-                    },
+                        sl.get<ScrapeStoryBloc>().add(InputChanged(v)),
+                    onSubmitted: (_) =>
+                        sl.get<ScrapeStoryBloc>().add(StartRequested()),
+                    decoration: InputDecoration(
+                      hintText: 'https://www.wattpad.com/story/...',
+                      hintStyle: TextStyle(color: AppPalette.gray),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            tooltip: 'Paste',
+                            icon: const Icon(Icons.content_paste, size: 18),
+                            onPressed: () async {
+                              final data =
+                              await ClipboardService().getFromClipboard();
+                              final txt = data?.trim() ?? '';
+                              if (txt.isEmpty) return;
+                              _urlCtrl.text = txt;
+                              sl.get<ScrapeStoryBloc>().add(InputChanged(txt));
+                            },
+                          ),
+                          IconButton(
+                            tooltip: 'Go',
+                            icon: const Icon(Icons.arrow_forward, size: 18),
+                            onPressed: () =>
+                                sl.get<ScrapeStoryBloc>().add(StartRequested()),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-
-                            // Soft hint while typing (not red)
-                            if (state.inputHint != null &&
-                                state.inputHint!.isNotEmpty)
-                              Text(
-                                state.inputHint!,
-                                style: TextStyle(color: AppPalette.error),
-                              ),
-
-                            // Top-container error (explicit, not TextField error)
+                  if (state.inputHint != null && state.inputHint!.isNotEmpty)
+                    Text(
+                      state.inputHint!,
+                      style: TextStyle(color: AppPalette.error),
+                    ),
                   if (state.errorMessage != null &&
                       state.errorMessage!.isNotEmpty)
                     Text(
                       state.errorMessage!,
                       style: TextStyle(color: AppPalette.error),
                     ),
+                  Center(child: _ScrapeActions(
+                    status: state.status,
+                    onStart: () =>
+                        sl.get<ScrapeStoryBloc>().add(StartRequested()),
+                    onViewLogs: () =>
+                        WidgetsBinding.instance
+                            .addPostFrameCallback((_) =>
+                            openScrapeEventsModal<ScrapeStoryRes>(
+                              context: context,
+                              bloc: sl.get<ScrapeStoryBloc>(),
+                            )),
+                    onCancel: () =>
+                        sl.get<ScrapeStoryBloc>().add(CancelRequested()),
+                    onReset: () => sl.get<ScrapeStoryBloc>().reset(),
+                  )
+                  )
+                ]
+            )
+        );
+      },
+    );
+  }
+}
 
-                            // Actions row
-                            // if (showButton)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              spacing: 10,
-                              children: [
-                                SplitFilledButton(
-                                  status: state.status,
-                                  onPrimaryTap: () {
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback((_) {
-                                          openScrapeEventsModal<ScrapeStoryRes>(
-                                            context: context,
-                                            bloc: sl.get<ScrapeStoryBloc>(),
-                                          );
-                                        });
-                                  },
-                                  onSecondary: () => sl
-                                      .get<ScrapeStoryBloc>()
-                                      .add(CancelRequested()),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+class _ScrapeActions extends StatelessWidget {
+  const _ScrapeActions({
+    required this.status,
+    required this.onStart,
+    required this.onViewLogs,
+    required this.onCancel,
+    required this.onReset,
+  });
+
+  final ScrapeStatus status;
+  final VoidCallback onStart;
+  final VoidCallback onViewLogs;
+  final VoidCallback onCancel;
+  final VoidCallback onReset;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 220),
+      child: switch (status) {
+        ScrapeStatus.idle =>
+            FilledButton.icon(
+              key: const ValueKey('idle'),
+              onPressed: onStart,
+              icon: status.indicator,
+              label: const Text('Scrape'),
+            ),
+        ScrapeStatus.connecting || ScrapeStatus.streaming =>
+            Row(
+              key: const ValueKey('active'),
+              mainAxisSize: MainAxisSize.min,
+              spacing: 8,
+              children: [
+                FilledButton.icon(
+                  onPressed: onViewLogs,
+                  icon: status.indicator,
+                  label: const Text('View Logs'),
                 ),
-              );
-            },
-          ),
+                OutlinedButton(
+                  onPressed: onCancel,
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+        ScrapeStatus.done =>
+            Row(
+              key: const ValueKey('done'),
+              mainAxisSize: MainAxisSize.min,
+              spacing: 8,
+              children: [
+                FilledButton.icon(
+                  onPressed: onViewLogs,
+                  icon: status.indicator,
+                  label: const Text('View Logs'),
+                ),
+                TextButton(
+                  onPressed: onReset,
+                  child: const Text('Start Over'),
+                ),
+              ],
+            ),
+        ScrapeStatus.error =>
+            Row(
+              key: const ValueKey('error'),
+              mainAxisSize: MainAxisSize.min,
+              spacing: 8,
+              children: [
+                FilledButton.icon(
+                  onPressed: onViewLogs,
+                  icon: status.indicator,
+                  label: const Text('View Logs'),
+                ),
+                TextButton(
+                  onPressed: onReset,
+                  child: const Text('Try Again'),
+                ),
+              ],
+            ),
+      },
     );
   }
 }
