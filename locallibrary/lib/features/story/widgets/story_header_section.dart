@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../core/common/widgets/base_button.dart';
 import '../../../core/extensions/image.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
-import '../../library/widgets/search_input_bar.dart';
+import '../../library/cubit/navigation_state.dart';
 import '../models/story_dto.dart';
 import '../screens/story_screen.dart';
 
@@ -153,7 +154,7 @@ class _MobileStoryDescriptionTop extends StatelessWidget {
                     (story.parts.isNotEmpty ? story.parts[0].partId : null);
             if (partId != null) {
               context.read<NavigationCubit>().push(
-                NavigationPartCubit(
+                NavigationPartState(
                   storyId: story.story.storyId,
                   partId: partId,
                 ),
@@ -361,7 +362,7 @@ class StoryDescrioptionTopLeft extends StatelessWidget {
                   (story.parts.isNotEmpty ? story.parts[0].partId : null);
               if (partId != null) {
                 context.read<NavigationCubit>().push(
-                  NavigationPartCubit(
+                  NavigationPartState(
                       storyId: story.story.storyId, partId: partId),
                 );
               }

@@ -6,6 +6,7 @@ import '../../../core/common/clipboard.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../dependency_injection.dart';
 import '../../library/cubit/navigation_cubit.dart';
+import '../../library/cubit/navigation_state.dart';
 import '../bloc/base_scrape_bloc.dart';
 import '../bloc/scrape_story_bloc.dart';
 import '../models/story_dto.dart';
@@ -98,12 +99,12 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
           if (widget.isSheet) {
             final nav = context.read<NavigationCubit>();
             Navigator.of(context).popUntil((route) => route.isFirst);
-            nav.push(NavigationScrapeStoryCubit(
+            nav.push(NavigationScrapeStoryState(
               storyId: res.story.story.storyId,
               scrapeRes: res,
             ));
           } else {
-            context.read<NavigationCubit>().push(NavigationScrapeStoryCubit(
+            context.read<NavigationCubit>().push(NavigationScrapeStoryState(
               storyId: res.story.story.storyId,
               scrapeRes: res,
             ));

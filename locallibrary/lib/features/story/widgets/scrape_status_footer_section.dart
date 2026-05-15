@@ -9,6 +9,7 @@ import '../../../core/theme/app_palette.dart';
 import '../../../dependency_injection.dart';
 import '../../comments/bloc/scrape_comments_bloc.dart';
 import '../../library/cubit/navigation_cubit.dart';
+import '../../library/cubit/navigation_state.dart';
 import '../../part/bloc/scrape_part_bloc.dart';
 import '../bloc/base_scrape_bloc.dart';
 import '../models/story_dto.dart';
@@ -773,7 +774,7 @@ class _ScrapeModeTocRowExpandedState extends State<_ScrapeModeTocRowExpanded> {
                       if (widget.localPart != null)
                         OutlinedButton.icon(
                           onPressed: () => context.read<NavigationCubit>().push(
-                            NavigationPartCubit(
+                            NavigationPartState(
                               storyId: widget.storyId,
                               partId: widget.localPart!.partId,
                             ),

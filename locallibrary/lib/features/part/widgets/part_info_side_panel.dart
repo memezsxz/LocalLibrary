@@ -7,6 +7,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../../core/extensions/image.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
+import '../../library/cubit/navigation_state.dart';
 import '../../story/bloc/story_bloc.dart';
 import '../../story/models/story_dto.dart';
 import '../../story/models/story_models.dart';
@@ -151,7 +152,7 @@ class _DesktopHeader extends StatelessWidget {
             onTap: () =>
                 context
                     .read<NavigationCubit>()
-                    .push(NavigationStoryCubit(storyId: storyId)),
+                    .push(NavigationStoryState(storyId: storyId)),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: LocalImage.relative(
@@ -227,7 +228,7 @@ class _MobileHeader extends StatelessWidget {
       onTap: () =>
           context
               .read<NavigationCubit>()
-              .push(NavigationStoryCubit(storyId: storyId)),
+              .push(NavigationStoryState(storyId: storyId)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
@@ -300,7 +301,7 @@ class _PartRow extends StatelessWidget {
       child: InkWell(
         onTap: () =>
             context.read<NavigationCubit>().push(
-              NavigationPartCubit(storyId: storyId, partId: part.partId),
+              NavigationPartState(storyId: storyId, partId: part.partId),
             ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 44),

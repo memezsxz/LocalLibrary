@@ -1,71 +1,69 @@
-part of 'navigation_cubit.dart';
+import 'package:flutter/material.dart';
+import 'package:locallibrary/features/part/screens/part_screen.dart';
+import 'package:locallibrary/features/settings/screens/settings.dart';
+import 'package:locallibrary/features/story/models/story_dto.dart';
+import 'package:locallibrary/features/story/screens/scrape_story_view_screen.dart';
+import 'package:locallibrary/features/story/screens/story_screen.dart';
+
+import '../screens/dashboard.dart';
+import '../screens/library.dart';
+import '../screens/notifications.dart';
 
 @immutable
-sealed class NavigationScreenCubit {
-  Widget get();
+sealed class NavigationState {
+  Widget build();
 }
 
-final class NavigationDashboardCubit extends NavigationScreenCubit {
+final class NavigationDashboardState extends NavigationState {
   @override
-  Widget get() {
-    return Dashboard();
-  }
+  Widget build() => Dashboard();
 }
 
-final class NavigationLibraryCubit extends NavigationScreenCubit {
+final class NavigationLibraryState extends NavigationState {
   @override
-  Widget get() {
-    return Library();
-  }
+  Widget build() => Library();
 }
 
-final class NavigationNotificationsCubit extends NavigationScreenCubit {
+final class NavigationNotificationsState extends NavigationState {
   @override
-  Widget get() {
-    return Notifications();
-  }
+  Widget build() => Notifications();
 }
 
-final class NavigationSettingsCubit extends NavigationScreenCubit {
+final class NavigationSettingsState extends NavigationState {
   @override
-  Widget get() {
-    return Settings();
-  }
+  Widget build() => Settings();
 }
 
-final class NavigationStoryCubit extends NavigationScreenCubit {
+final class NavigationStoryState extends NavigationState {
   final int storyId;
 
-  NavigationStoryCubit({required this.storyId});
+  NavigationStoryState({required this.storyId});
 
   @override
-  Widget get() {
-    return StoryScreen(storyId: storyId);
-  }
+  Widget build() => StoryScreen(storyId: storyId);
 }
 
-final class NavigationScrapeStoryCubit extends NavigationScreenCubit {
+final class NavigationScrapeStoryState extends NavigationState {
   final int storyId;
   final ScrapeStoryRes scrapeRes;
 
-  NavigationScrapeStoryCubit({required this.storyId, required this.scrapeRes});
+  NavigationScrapeStoryState({required this.storyId, required this.scrapeRes});
 
   @override
-  Widget get() {
-    return ScrapeStoryViewScreen(storyId: storyId, scrapeRes: scrapeRes);
-  }
+  Widget build() =>
+      ScrapeStoryViewScreen(storyId: storyId, scrapeRes: scrapeRes);
 }
 
-final class NavigationPartCubit extends NavigationScreenCubit {
+final class NavigationPartState extends NavigationState {
   final int storyId;
   final int partId;
 
-  NavigationPartCubit({required this.storyId, required this.partId});
+  NavigationPartState({required this.storyId, required this.partId});
 
   @override
-  Widget get() {
-    return PartScreen(key: ValueKey('part_${storyId}_$partId'),
-        storyId: storyId,
-        partId: partId);
-  }
+  Widget build() => PartScreen(
+    key: ValueKey('part_${storyId}_$partId'),
+    storyId: storyId,
+    partId: partId,
+  );
 }

@@ -1,27 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../part/screens/part_screen.dart';
-import '../../settings/screens/settings.dart';
-import '../../story/models/story_dto.dart';
-import '../../story/screens/scrape_story_view_screen.dart';
-import '../../story/screens/story_screen.dart';
-import '../screens/dashboard.dart';
-import '../screens/library.dart';
-import '../screens/notifications.dart';
+import 'navigation_state.dart';
 
-part 'navigation_state.dart';
+class NavigationCubit extends Cubit<NavigationState> {
+  NavigationCubit() : super(NavigationDashboardState());
 
-class NavigationCubit extends Cubit<NavigationScreenCubit> {
-  NavigationCubit() : super(NavigationDashboardCubit());
-  final List<NavigationScreenCubit> _stack = [];
+  final List<NavigationState> _stack = [];
 
-  void changeContent(NavigationScreenCubit state) {
+  void changeContent(NavigationState state) {
     _stack.add(state);
     emit(state);
   }
 
-  void push(NavigationScreenCubit screen) {
+  void push(NavigationState screen) {
     _stack.add(state);
     emit(screen);
   }
@@ -31,4 +22,3 @@ class NavigationCubit extends Cubit<NavigationScreenCubit> {
     emit(_stack.removeLast());
   }
 }
-

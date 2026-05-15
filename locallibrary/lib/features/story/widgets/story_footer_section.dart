@@ -5,6 +5,7 @@ import 'package:locallibrary/core/extensions/datetime.dart';
 
 import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
+import '../../library/cubit/navigation_state.dart';
 import '../models/story_dto.dart';
 import '../models/story_models.dart';
 
@@ -75,7 +76,7 @@ class StoryDescriptionBottom extends StatelessWidget {
                 return GestureDetector(
                   onTap: () {
                     context.read<NavigationCubit>().push(
-                      NavigationPartCubit(
+                      NavigationPartState(
                         storyId: storyBundle.story.storyId,
                         partId: p.partId,
                       ),

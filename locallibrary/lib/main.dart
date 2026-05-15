@@ -7,7 +7,7 @@ import 'core/theme/new_theme.dart';
 import 'core/theme/util.dart';
 import 'dependency_injection.dart';
 import 'features/library/cubit/navigation_cubit.dart';
-import 'features/library/screens/home.dart';
+import 'features/library/screens/app_shell.dart';
 
 class WindowCloseNotifier extends StatefulWidget {
   final int parentId;
@@ -72,7 +72,7 @@ class MyApp extends StatelessWidget {
         theme: brightness == Brightness.light
             ? theme.lightMediumContrast()
             : theme.dark(),
-        home: const WDHome(),
+        home: const AppShell(),
       ),
     );
   }

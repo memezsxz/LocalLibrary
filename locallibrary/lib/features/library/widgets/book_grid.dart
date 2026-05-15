@@ -3,7 +3,7 @@ import 'package:locallibrary/dependency_injection.dart';
 import 'package:locallibrary/features/story/models/book_size.dart';
 
 import '../../settings/cubit/settings_cubit.dart';
-import 'book_minimal_view.dart';
+import 'book_cover_card.dart';
 
 class BookGrid extends StatefulWidget {
   final Future<List<int>> Function(int limit, int offset) fetch;
@@ -99,7 +99,7 @@ class _BookGridState extends State<BookGrid> {
         itemBuilder: (context, i) {
           if (i >= _storyIds.length)
             return const Center(child: CircularProgressIndicator());
-          return BookMinimalView(storyId: _storyIds[i]);
+          return BookCoverCard(storyId: _storyIds[i]);
         },
       ),
     );
