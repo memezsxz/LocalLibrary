@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_inner_shadow/flutter_inner_shadow.dart';
-import 'package:locallibrary/core/theme/app_palette.dart';
 import 'package:locallibrary/features/library/cubit/navigation_state.dart';
 
 import '../../../core/datasource.dart';
 import '../../../core/extensions/image.dart';
 import '../../../dependency_injection.dart';
-import '../../story/models/book_cover_model.dart';
+import '../../story/models/domain/book_cover_model.dart';
 import '../cubit/navigation_cubit.dart';
+import 'book_progress_bar.dart';
 
 class BookMinimalView extends StatefulWidget {
   final int storyId;
@@ -70,35 +69,6 @@ class _BookMinimalViewState extends State<BookMinimalView> {
           ),
         );
       },
-    );
-  }
-}
-
-class BookProgressBar extends StatelessWidget {
-  final double progress;
-
-  const BookProgressBar({super.key, this.progress = 0});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 5,
-      child: InnerShadow(
-        shadows: [
-          Shadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 2,
-            offset: Offset(0, 1),
-          ),
-        ],
-        child: LinearProgressIndicator(
-          color: AppPalette.primaryLight,
-          value: progress,
-          backgroundColor: AppPalette.primaryExtraLight,
-          borderRadius: BorderRadius.all(Radius.circular(2)),
-        ),
-      ),
     );
   }
 }

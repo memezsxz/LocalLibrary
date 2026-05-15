@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:locallibrary/core/theme/app_palette.dart';
+import 'package:locallibrary/features/story/models/domain/story_enums.dart';
 
 import '../../comments/bloc/comments_bloc.dart';
 import '../../comments/widgets/comments_paragraph_view.dart';
 import '../../story/bloc/story_bloc.dart';
-import '../../story/models/story_model.dart';
+import '../../story/models/domain/comment_model.dart';
+import '../../story/models/domain/part_model.dart';
 import '../bloc/part_bloc.dart';
-import '../cubit/part_side_panel_cubit.dart';
+import 'comment_list_item.dart';
+import 'comments_paragraph_nav_arrow.dart';
+
+export 'comment_list_item.dart';
+export 'comments_paragraph_nav_arrow.dart';
 
 class CommentsPanel extends StatefulWidget {
   const CommentsPanel({super.key, required this.storyId, this.paragraph});
@@ -332,165 +336,6 @@ class _CommentsPanelState extends State<CommentsPanel> {
   }
 }
 
-class CommentListItem extends StatelessWidget {
-  const CommentListItem({
-    super.key,
-    required this.comment,
-    required this.depth,
-    required this.isRoot,
-    required this.isExpanded,
-    required this.loadingChildren,
-    required this.textDirection,
-    required this.onToggleReplies,
-    this.isByAuthor = false,
-  });
-
-  final Comment comment;
-  final int depth;
-  final bool isRoot;
-  final bool isExpanded;
-  final bool loadingChildren;
-  final TextDirection textDirection;
-  final VoidCallback onToggleReplies;
-  final bool isByAuthor;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = comment;
-
-    return Padding(
-      // indent children to show hierarchy
-      padding: EdgeInsetsDirectional.only(start: depth * 18.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF2D2D2D).withOpacity(0.1),
-          borderRadius: const BorderRadius.all(
-            Radius.circular(8),
-          ).copyWith(topLeft: const Radius.circular(3)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // comment
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text.rich(
-                        TextSpan(
-                          text: c.userName,
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(
-                                color: AppPalette.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                          children: isByAuthor
-                              ? [
-                                  TextSpan(
-                                    text: ' (Author)',
-                                    style: TextStyle(
-                                      color: AppPalette.primaryLight,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                ]
-                              : const [],
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textDirection: TextDirection.ltr,
-                      ),
-                      Html(
-                        data: "<p>${c.text}</p>",
-                        style: {
-                          "p": Style(
-                            margin: Margins.zero,
-                            padding: HtmlPaddings.zero,
-                            lineHeight: LineHeight.rem(1.4),
-                            fontSize: FontSize.medium,
-                            color: Colors.black,
-                            direction: textDirection,
-                          ),
-                        },
-                      ),
-
-                      // tiny loader under a root while its replies load
-                      if (isRoot && isExpanded && loadingChildren)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 6),
-                          child: SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                //  likes + replies icon
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Visibility(
-                      visible: c.likes > 0,
-                      maintainSize: true,
-                      maintainAnimation: true,
-                      maintainState: true,
-                      child: Column(
-                        children: [
-                          SvgPicture.asset("assets/icons/heart_icon.svg"),
-                          Text(
-                            (c.likes < 1000) ? "${c.likes}" : "\u221E",
-                            style: Theme.of(context).textTheme.labelMedium
-                                ?.copyWith(
-                                  color: const Color(0xFFDB2F2F),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (isRoot && (c.repliesCount) > 0 && (c.likes) > 0)
-                      const SizedBox(height: 10),
-                    if (isRoot && (c.repliesCount) > 0)
-                      Column(
-                        children: [
-                          InkWell(
-                            onTap: onToggleReplies,
-                            child: SvgPicture.asset(
-                              "assets/icons/commet_replies_icon.svg",
-                            ),
-                          ),
-                          Text(
-                            (c.repliesCount < 1000)
-                                ? "${c.repliesCount}"
-                                : "\u221E",
-                            style: Theme.of(context).textTheme.labelMedium
-                                ?.copyWith(
-                                  color: AppPalette.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ],
-            ),
-        ),
-      ),
-    );
-  }
-}
-
 class _NoScrollbarBehavior extends MaterialScrollBehavior {
   const _NoScrollbarBehavior();
 
@@ -504,84 +349,3 @@ class _NoScrollbarBehavior extends MaterialScrollBehavior {
     return child;
   }
 }
-
-enum NavDir { prev, next }
-
-class CommentsParagraphNavArrow extends StatelessWidget {
-  const CommentsParagraphNavArrow({
-    super.key,
-    required this.dir,
-    required this.storyId,
-    required this.current,
-    required this.iconAsset,
-    this.disabledOpacity = 0.35,
-  });
-
-  final NavDir dir;
-  final int storyId;
-  final Paragraph current;
-  final String iconAsset;
-  final double disabledOpacity;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<PartBloc, PartState>(
-      builder: (context, state) {
-        if (state is! PartLoaded) {
-          return const SizedBox.shrink();
-        }
-
-        final paragraphs = state.info.paragraphs;
-        final currIdx = paragraphs.indexWhere(
-              (x) => x.paragraphId == current.paragraphId,
-        );
-
-        Paragraph? target;
-        if (dir == NavDir.prev) {
-          for (int i = (currIdx < 0 ? paragraphs.length - 1 : currIdx - 1);
-          i >= 0;
-          i--) {
-            final q = paragraphs[i];
-            if ((q.commentsCount ?? 0) > 0) {
-              target = q;
-              break;
-            }
-          }
-        } else {
-          for (int i = (currIdx < 0 ? 0 : currIdx + 1);
-          i < paragraphs.length;
-          i++) {
-            final q = paragraphs[i];
-            if ((q.commentsCount ?? 0) > 0) {
-              target = q;
-              break;
-            }
-          }
-        }
-
-        final hasTarget = target != null;
-
-        return IgnorePointer(
-          ignoring: !hasTarget,
-          child: Opacity(
-            opacity: hasTarget ? 1.0 : disabledOpacity,
-            child: GestureDetector(
-              onTap: () {
-                final next = target;
-                if (next == null) return;
-                context.read<PartSidePanelCubit>().changeContent(
-                  PartSidePanelCommentsCubit(
-                    storyId: storyId,
-                    paragraph: next,
-                  ),
-                );
-              },
-              child: SvgPicture.asset(iconAsset),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-

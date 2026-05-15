@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:locallibrary/dependency_injection.dart';
-import 'package:locallibrary/features/story/models/book_size.dart';
+import 'package:locallibrary/features/story/models/enum/book_size.dart';
 
 import '../../settings/cubit/settings_cubit.dart';
 import 'book_cover_card.dart';

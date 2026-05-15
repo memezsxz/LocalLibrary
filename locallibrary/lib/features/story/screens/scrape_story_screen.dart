@@ -10,7 +10,7 @@ import '../../library/cubit/navigation_state.dart';
 import '../bloc/base_scrape_event.dart';
 import '../bloc/base_scrape_state.dart';
 import '../bloc/scrape_story_bloc.dart';
-import '../models/story_dto.dart';
+import '../models/dto/scrape_story_res.dart';
 import '../utils/scrape_url_utils.dart';
 import '../widgets/scrape_logs_dialog.dart';
 

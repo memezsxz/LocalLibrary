@@ -1,4 +1,4 @@
-import '../models/logs.dart';
+import '../models/scrape/scrape_event_model.dart';
 
 enum ScrapeStatus { idle, connecting, streaming, done, error }
 

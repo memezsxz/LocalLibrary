@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import '../../../core/datasource.dart';
-import '../models/logs.dart';
-import '../models/story_dto.dart';
+import '../models/dto/scrape_story_res.dart';
+import '../models/scrape/scrape_event_model.dart';
 import '../utils/scrape_json_utils.dart';
 import '../utils/scrape_url_utils.dart';
 import 'base_scrape_bloc.dart';

@@ -11,8 +11,8 @@ import '../../library/cubit/navigation_state.dart';
 import '../../story/bloc/story_bloc.dart';
 import '../../story/bloc/story_event.dart';
 import '../../story/bloc/story_state.dart';
-import '../../story/models/story_dto.dart';
-import '../../story/models/story_model.dart';
+import '../../story/models/domain/part_model.dart';
+import '../../story/models/dto/story_bundle.dart';
 
 class PartInfoSidePanel extends StatefulWidget {
   const PartInfoSidePanel({super.key, required this.storyId});

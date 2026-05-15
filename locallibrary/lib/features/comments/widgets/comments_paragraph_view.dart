@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 
 import '../../../core/theme/app_palette.dart';
-import '../../story/models/story_model.dart';
+import '../../story/models/domain/part_model.dart';
+import '../../story/models/domain/story_enums.dart';
 
 class CommentsParagraphView extends StatelessWidget {
   const CommentsParagraphView({super.key, required this.p});

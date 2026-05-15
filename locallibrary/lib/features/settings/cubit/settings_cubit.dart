@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../story/models/book_size.dart';
+import '../../story/models/enum/book_size.dart';
 
 part 'settings_state.dart';
 

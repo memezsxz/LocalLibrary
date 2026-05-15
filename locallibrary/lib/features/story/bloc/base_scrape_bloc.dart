@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 
-import '../models/logs.dart';
+import '../models/scrape/scrape_event_model.dart';
 import 'base_scrape_event.dart';
 import 'base_scrape_state.dart';
 

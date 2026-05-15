@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:locallibrary/features/part/screens/part_screen.dart';
 import 'package:locallibrary/features/settings/screens/settings.dart';
-import 'package:locallibrary/features/story/models/story_dto.dart';
 import 'package:locallibrary/features/story/screens/scrape_story_view_screen.dart';
 import 'package:locallibrary/features/story/screens/story_screen.dart';
 
+import '../../story/models/dto/scrape_story_res.dart';
 import '../screens/dashboard.dart';
 import '../screens/library.dart';
 import '../screens/notifications.dart';

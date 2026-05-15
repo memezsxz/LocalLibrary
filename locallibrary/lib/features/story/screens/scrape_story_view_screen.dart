@@ -5,7 +5,7 @@ import '../../../dependency_injection.dart';
 import '../bloc/story_bloc.dart';
 import '../bloc/story_event.dart';
 import '../bloc/story_state.dart';
-import '../models/story_dto.dart';
+import '../models/dto/scrape_story_res.dart';
 import '../widgets/scrape_status_footer_section.dart';
 import '../widgets/story_header_section.dart';
 import '../widgets/story_layout.dart';

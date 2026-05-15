@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../features/story/bloc/base_scrape_bloc.dart';
+import '../../features/story/bloc/base_scrape_state.dart';
 import '../theme/app_palette.dart';
 
 extension ScrapeStatusAssociation on ScrapeStatus {

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'logs.dart';
+part of 'scrape_event_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../models/story_model.dart';
+import '../models/domain/part_model.dart';
 
 @immutable
 sealed class StoryEvent {

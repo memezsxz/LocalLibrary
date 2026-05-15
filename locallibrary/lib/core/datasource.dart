@@ -22,9 +22,13 @@ import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
 import 'package:http/http.dart' as http;
 
-import '../features/story/models/logs.dart';
-import '../features/story/models/story_dto.dart';
-import '../features/story/models/story_models.dart';
+import '../features/story/models/domain/book_cover_model.dart';
+import '../features/story/models/domain/comment_model.dart';
+import '../features/story/models/domain/part_model.dart';
+import '../features/story/models/domain/story_model.dart';
+import '../features/story/models/dto/part_full_info.dart';
+import '../features/story/models/dto/story_bundle.dart';
+import '../features/story/models/scrape/scrape_event_model.dart';
 
 class ApiException implements Exception {
   final int? statusCode;

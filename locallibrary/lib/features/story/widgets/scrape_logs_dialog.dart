@@ -10,7 +10,7 @@ import '../../../core/common/widgets/loader.dart';
 import '../../../core/theme/app_palette.dart';
 import '../bloc/base_scrape_bloc.dart';
 import '../bloc/base_scrape_state.dart';
-import '../models/logs.dart';
+import '../models/scrape/scrape_event_model.dart';
 
 void openScrapeEventsModal<TRes>({
   required BuildContext context,

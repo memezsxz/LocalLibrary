@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../models/story_dto.dart';
+import '../models/dto/story_bundle.dart';
 
 @immutable
 abstract class StoryState {
