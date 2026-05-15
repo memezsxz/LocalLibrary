@@ -7,7 +7,7 @@ import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
 import '../models/story_dto.dart';
-import '../models/story_models.dart';
+import '../models/story_model.dart';
 
 class StoryDescriptionBottom extends StatelessWidget {
   const StoryDescriptionBottom({super.key, required this.storyBundle});

@@ -1,4 +1,4 @@
-part of 'base_scrape_bloc.dart';
+import 'package:meta/meta.dart';
 
 @immutable
 abstract class BaseScrapeEvent {}

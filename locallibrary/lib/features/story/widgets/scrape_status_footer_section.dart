@@ -12,10 +12,11 @@ import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
 import '../../part/bloc/scrape_part_bloc.dart';
 import '../bloc/base_scrape_bloc.dart';
+import '../bloc/base_scrape_event.dart';
+import '../bloc/base_scrape_state.dart';
 import '../models/story_dto.dart';
 import '../models/story_entity.dart';
-import '../models/story_models.dart';
-import '../models/story_parsed_dto.dart';
+import '../models/story_model.dart';
 import 'scrape_logs_dialog.dart';
 import 'story_footer_section.dart';
 

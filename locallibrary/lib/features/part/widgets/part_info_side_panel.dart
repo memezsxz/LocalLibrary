@@ -9,9 +9,10 @@ import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
 import '../../story/bloc/story_bloc.dart';
+import '../../story/bloc/story_event.dart';
+import '../../story/bloc/story_state.dart';
 import '../../story/models/story_dto.dart';
-import '../../story/models/story_models.dart';
-
+import '../../story/models/story_model.dart';
 
 class PartInfoSidePanel extends StatefulWidget {
   const PartInfoSidePanel({super.key, required this.storyId});
@@ -35,10 +36,7 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery
-        .of(context)
-        .size
-        .width < 1200;
+    final isMobile = MediaQuery.of(context).size.width < 1200;
 
     return BlocBuilder<StoryBloc, StoryState>(
       buildWhen: (prev, next) =>
@@ -116,7 +114,7 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
                     final part = b.parts[i];
                     final isCurrent =
                         b.currentPart != null &&
-                            b.currentPart!.partId == part.partId;
+                        b.currentPart!.partId == part.partId;
                     return _PartRow(
                       isCurrentPart: isCurrent,
                       storyId: widget.storyId,
@@ -149,20 +147,16 @@ class _DesktopHeader extends StatelessWidget {
         spacing: 12,
         children: [
           GestureDetector(
-            onTap: () =>
-                context
-                    .read<NavigationCubit>()
-                    .push(NavigationStoryState(storyId: storyId)),
+            onTap: () => context.read<NavigationCubit>().push(
+              NavigationStoryState(storyId: storyId),
+            ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: LocalImage.relative(
                 storageRoot: "/Users/meme/Desktop/storage",
                 storyWattId: b.story.wattId,
                 relativePath: b.image!.path!,
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height / 5,
+                height: MediaQuery.of(context).size.height / 5,
               ),
             ),
           ),
@@ -173,10 +167,7 @@ class _DesktopHeader extends StatelessWidget {
               children: [
                 AutoSizeText(
                   b.story.title.trim(),
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleLarge,
+                  style: Theme.of(context).textTheme.titleLarge,
                   maxLines: 4,
                   minFontSize: 12,
                   stepGranularity: 0.5,
@@ -184,22 +175,24 @@ class _DesktopHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 AutoSizeText.rich(
-                  TextSpan(children: [
-                    const TextSpan(
-                      text: 'By ',
-                      style: TextStyle(color: Colors.black54),
-                    ),
-                    TextSpan(
-                      text: b.author.username,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black54,
+                  TextSpan(
+                    children: [
+                      const TextSpan(
+                        text: 'By ',
+                        style: TextStyle(color: Colors.black54),
                       ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () =>
-                            debugPrint('author: ${b.author.username}'),
-                    ),
-                  ]),
+                      TextSpan(
+                        text: b.author.username,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black54,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () =>
+                              debugPrint('author: ${b.author.username}'),
+                      ),
+                    ],
+                  ),
                   maxLines: 1,
                   minFontSize: 10,
                   overflow: TextOverflow.ellipsis,
@@ -225,10 +218,9 @@ class _MobileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () =>
-          context
-              .read<NavigationCubit>()
-              .push(NavigationStoryState(storyId: storyId)),
+      onTap: () => context.read<NavigationCubit>().push(
+        NavigationStoryState(storyId: storyId),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
@@ -249,20 +241,13 @@ class _MobileHeader extends StatelessWidget {
                 children: [
                   Text(
                     b.story.title.trim(),
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     'By ${b.author.username}',
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: AppPalette.primaryLight,
                     ),
                     maxLines: 1,
@@ -299,10 +284,9 @@ class _PartRow extends StatelessWidget {
           ? AppPalette.primary.withOpacity(0.12)
           : Colors.transparent,
       child: InkWell(
-        onTap: () =>
-            context.read<NavigationCubit>().push(
-              NavigationPartState(storyId: storyId, partId: part.partId),
-            ),
+        onTap: () => context.read<NavigationCubit>().push(
+          NavigationPartState(storyId: storyId, partId: part.partId),
+        ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 44),
           child: Padding(
@@ -314,15 +298,9 @@ class _PartRow extends StatelessWidget {
                   child: Text(
                     part.title,
                     softWrap: true,
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .labelMedium
-                        ?.copyWith(
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       fontSize: 15,
-                      color: isCurrentPart
-                          ? AppPalette.primary
-                          : Colors.black,
+                      color: isCurrentPart ? AppPalette.primary : Colors.black,
                       fontWeight: isCurrentPart
                           ? FontWeight.w600
                           : FontWeight.normal,

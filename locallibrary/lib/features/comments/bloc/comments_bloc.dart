@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/datasource.dart';
-import '../../story/models/story_models.dart';
+import '../../story/models/story_model.dart';
 
 part 'comments_event.dart';
 part 'comments_state.dart';

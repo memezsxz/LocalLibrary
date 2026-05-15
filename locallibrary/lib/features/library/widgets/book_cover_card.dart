@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:locallibrary/features/story/models/book_cover_model.dart';
 
 import '../../../core/datasource.dart';
 import '../../../core/extensions/image.dart';
 import '../../../dependency_injection.dart';
-import '../../story/models/story_dto.dart';
 import '../cubit/navigation_cubit.dart';
 import '../cubit/navigation_state.dart';
 import 'book_progress_bar.dart';

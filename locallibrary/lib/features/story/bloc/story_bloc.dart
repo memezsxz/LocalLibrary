@@ -1,12 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:locallibrary/core/datasource.dart';
-import 'package:meta/meta.dart';
 
-import '../models/story_dto.dart';
-import '../models/story_models.dart';
-
-part 'story_event.dart';
-part 'story_state.dart';
+import 'story_event.dart';
+import 'story_state.dart';
 
 class StoryBloc extends Bloc<StoryEvent, StoryState> {
   final AppApiDataSource api;
@@ -18,8 +14,10 @@ class StoryBloc extends Bloc<StoryEvent, StoryState> {
     on<StoryCurrentPartChanged>(_onCurrentPartChanged);
   }
 
-  Future<void> _onStoryRequested(StoryRequested e,
-      Emitter<StoryState> emit,) async {
+  Future<void> _onStoryRequested(
+    StoryRequested e,
+    Emitter<StoryState> emit,
+  ) async {
     // Cached?
     final cached = state.bundleFor(e.storyId);
     if (cached != null && !e.force) {
@@ -73,8 +71,10 @@ class StoryBloc extends Bloc<StoryEvent, StoryState> {
     }
   }
 
-  Future<void> _onPrefetch(StoriesPrefetchRequested e,
-      Emitter<StoryState> emit,) async {
+  Future<void> _onPrefetch(
+    StoriesPrefetchRequested e,
+    Emitter<StoryState> emit,
+  ) async {
     for (final id in e.storyIds) {
       add(StoryRequested(id));
     }

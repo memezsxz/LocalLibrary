@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../dependency_injection.dart';
 import '../bloc/story_bloc.dart';
+import '../bloc/story_event.dart';
+import '../bloc/story_state.dart';
 import '../models/story_dto.dart';
 import '../widgets/scrape_status_footer_section.dart';
 import '../widgets/story_header_section.dart';
-import 'story_screen.dart';
+import '../widgets/story_layout.dart';
 
 /// Story screen in scrape mode.
 ///

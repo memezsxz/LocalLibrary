@@ -8,7 +8,7 @@ import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
 import '../models/story_dto.dart';
-import '../screens/story_screen.dart';
+import 'story_layout.dart';
 
 class StoryDescriptionTop extends StatelessWidget {
   const StoryDescriptionTop({
@@ -49,15 +49,15 @@ class StoryDescriptionTop extends StatelessWidget {
               children: [
                 SizedBox(
                   width: w * 0.3,
-                  child: StoryDescrioptionTopLeft(story: story),
+                  child: StoryDescriptionTopLeft(story: story),
                 ),
                 SizedBox(
                   width: w * 0.6,
-                  child: StoryDescrioptionTopCenter(story: story),
+                  child: StoryDescriptionTopCenter(story: story),
                 ),
                 SizedBox(
                   width: w * 0.1,
-                  child: StoryDescrioptionTopRight(story: story),
+                  child: StoryDescriptionTopRight(story: story),
                 ),
               ],
             ),
@@ -99,7 +99,7 @@ class _MobileStoryDescriptionTop extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        StoryDescrioptionTopCenter(story: story),
+        StoryDescriptionTopCenter(story: story),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -167,8 +167,8 @@ class _MobileStoryDescriptionTop extends StatelessWidget {
   }
 }
 
-class StoryDescrioptionTopRight extends StatelessWidget {
-  const StoryDescrioptionTopRight({super.key, required this.story});
+class StoryDescriptionTopRight extends StatelessWidget {
+  const StoryDescriptionTopRight({super.key, required this.story});
 
   final StoryBundle story;
   final double w = 35;
@@ -232,8 +232,8 @@ class StoryDescrioptionTopRight extends StatelessWidget {
   }
 }
 
-class StoryDescrioptionTopCenter extends StatelessWidget {
-  const StoryDescrioptionTopCenter({super.key, required this.story});
+class StoryDescriptionTopCenter extends StatelessWidget {
+  const StoryDescriptionTopCenter({super.key, required this.story});
 
   final StoryBundle story;
 
@@ -321,8 +321,8 @@ class StoryData extends StatelessWidget {
   }
 }
 
-class StoryDescrioptionTopLeft extends StatelessWidget {
-  const StoryDescrioptionTopLeft({super.key, required this.story});
+class StoryDescriptionTopLeft extends StatelessWidget {
+  const StoryDescriptionTopLeft({super.key, required this.story});
 
   final StoryBundle story;
 

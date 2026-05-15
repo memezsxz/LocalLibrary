@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../../../core/common/widgets/loader.dart';
 import '../../../core/theme/app_palette.dart';
 import '../bloc/base_scrape_bloc.dart';
+import '../bloc/base_scrape_state.dart';
 import '../models/logs.dart';
 
 void openScrapeEventsModal<TRes>({

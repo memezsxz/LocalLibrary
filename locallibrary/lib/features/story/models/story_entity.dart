@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import 'story_models.dart';
+import 'story_model.dart';
 
 part 'story_entity.g.dart';
 

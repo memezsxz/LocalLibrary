@@ -1,4 +1,6 @@
-part of 'story_bloc.dart';
+import 'package:meta/meta.dart';
+
+import '../models/story_model.dart';
 
 @immutable
 sealed class StoryEvent {
@@ -9,12 +11,14 @@ sealed class StoryEvent {
 class StoryRequested extends StoryEvent {
   final int storyId;
   final bool force;
+
   const StoryRequested(this.storyId, {this.force = false});
 }
 
 /// Warm the cache with many IDs (each goes through StoryRequested).
 class StoriesPrefetchRequested extends StoryEvent {
   final List<int> storyIds;
+
   const StoriesPrefetchRequested(this.storyIds);
 }
 

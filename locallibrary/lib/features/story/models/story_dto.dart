@@ -1,30 +1,25 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:locallibrary/features/story/models/story_entity.dart';
-import 'package:locallibrary/features/story/models/story_parsed_dto.dart';
 
-import 'story_models.dart';
+import 'story_model.dart';
 
 part 'story_dto.g.dart';
 
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
-class BookMinimal {
-  @JsonKey(name: 'medium')
-  Media image;
-  int storyId;
-  String title;
+class PartLink {
+  @JsonKey(fromJson: _asNonEmptyString)
   final String wattId;
+  final String? url;
+  final String? title;
 
-  BookMinimal({
-    required this.storyId,
-    required this.wattId,
-    required this.title,
-    required this.image,
-  });
+  const PartLink({required this.wattId, this.url, this.title});
 
-  factory BookMinimal.fromJson(Map<String, dynamic> json) =>
-      _$BookMinimalFromJson(json);
+  factory PartLink.fromJson(Map<String, dynamic> json) =>
+      _$PartLinkFromJson(json);
 
-  Map<String, dynamic> toJson() => _$BookMinimalToJson(this);
+  Map<String, dynamic> toJson() => _$PartLinkToJson(this);
+
+  static String _asNonEmptyString(Object? v) => v?.toString() ?? '';
 }
 
 /// Represents the compound response you showed:

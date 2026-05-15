@@ -6,20 +6,17 @@ part of 'story_dto.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-BookMinimal _$BookMinimalFromJson(Map<String, dynamic> json) => BookMinimal(
-  storyId: (json['story_id'] as num).toInt(),
-  wattId: json['watt_id'] as String,
-  title: json['title'] as String,
-  image: Media.fromJson(json['medium'] as Map<String, dynamic>),
+PartLink _$PartLinkFromJson(Map<String, dynamic> json) => PartLink(
+  wattId: PartLink._asNonEmptyString(json['watt_id']),
+  url: json['url'] as String?,
+  title: json['title'] as String?,
 );
 
-Map<String, dynamic> _$BookMinimalToJson(BookMinimal instance) =>
-    <String, dynamic>{
-      'medium': instance.image.toJson(),
-      'story_id': instance.storyId,
-      'title': instance.title,
-      'watt_id': instance.wattId,
-    };
+Map<String, dynamic> _$PartLinkToJson(PartLink instance) => <String, dynamic>{
+  'watt_id': instance.wattId,
+  'url': instance.url,
+  'title': instance.title,
+};
 
 StoryBundle _$StoryBundleFromJson(Map<String, dynamic> json) => StoryBundle(
   story: Story.fromJson(json['story'] as Map<String, dynamic>),

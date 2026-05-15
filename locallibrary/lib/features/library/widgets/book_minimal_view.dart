@@ -7,7 +7,7 @@ import 'package:locallibrary/features/library/cubit/navigation_state.dart';
 import '../../../core/datasource.dart';
 import '../../../core/extensions/image.dart';
 import '../../../dependency_injection.dart';
-import '../../story/models/story_dto.dart';
+import '../../story/models/book_cover_model.dart';
 import '../cubit/navigation_cubit.dart';
 
 class BookMinimalView extends StatefulWidget {
