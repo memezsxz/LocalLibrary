@@ -11,12 +11,12 @@ import '../../comments/bloc/scrape_comments_bloc.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../part/bloc/scrape_part_bloc.dart';
 import '../bloc/base_scrape_bloc.dart';
-import '../models/models.dart';
-import '../models/server_models.dart';
-import '../models/server_parsed_json_models.dart';
-import '../models/store_models.dart';
-import 'logs_modal.dart';
-import 'story_description_bottom.dart';
+import '../models/story_dto.dart';
+import '../models/story_entity.dart';
+import '../models/story_models.dart';
+import '../models/story_parsed_dto.dart';
+import 'scrape_logs_dialog.dart';
+import 'story_footer_section.dart';
 
 /// Bottom section for [ScrapeStoryViewScreen].
 ///

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'server_models.dart';
+part of 'story_dto.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

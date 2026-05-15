@@ -5,7 +5,7 @@ import '../../../core/datasource.dart';
 import '../../../dependency_injection.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import '../widgets/book_minimal_view.dart';
-import '../widgets/input_bars.dart';
+import '../widgets/search_input_bar.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});

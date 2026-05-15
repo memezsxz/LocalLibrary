@@ -23,8 +23,8 @@ import 'package:flutter_client_sse/flutter_client_sse.dart';
 import 'package:http/http.dart' as http;
 
 import '../features/story/models/logs.dart';
-import '../features/story/models/models.dart';
-import '../features/story/models/server_models.dart';
+import '../features/story/models/story_dto.dart';
+import '../features/story/models/story_models.dart';
 
 class ApiException implements Exception {
   final int? statusCode;

@@ -5,8 +5,8 @@ import '../../../core/theme/app_palette.dart';
 import '../../../dependency_injection.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../bloc/story_bloc.dart';
-import '../widgets/story_description_bottom.dart';
-import '../widgets/story_description_top.dart';
+import '../widgets/story_footer_section.dart';
+import '../widgets/story_header_section.dart';
 
 class StoryScreen extends StatelessWidget {
   final int storyId;

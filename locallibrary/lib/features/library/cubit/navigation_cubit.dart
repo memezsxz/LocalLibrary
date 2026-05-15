@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../part/screens/part_screen.dart';
 import '../../settings/screens/settings.dart';
-import '../../story/models/server_models.dart';
+import '../../story/models/story_dto.dart';
 import '../../story/screens/scrape_story_view_screen.dart';
 import '../../story/screens/story_screen.dart';
 import '../screens/dashboard.dart';

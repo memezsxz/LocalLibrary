@@ -6,7 +6,7 @@ import 'package:locallibrary/core/theme/app_palette.dart';
 import '../../../core/datasource.dart';
 import '../../../core/extensions/image.dart';
 import '../../../dependency_injection.dart';
-import '../../story/models/server_models.dart';
+import '../../story/models/story_dto.dart';
 import '../cubit/navigation_cubit.dart';
 
 class BookMinimalView extends StatefulWidget {

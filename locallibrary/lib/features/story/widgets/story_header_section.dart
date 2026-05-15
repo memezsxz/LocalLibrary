@@ -5,8 +5,8 @@ import 'package:flutter_svg/svg.dart';
 import '../../../core/extensions/image.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
-import '../../library/widgets/input_bars.dart';
-import '../models/server_models.dart';
+import '../../library/widgets/search_input_bar.dart';
+import '../models/story_dto.dart';
 import '../screens/story_screen.dart';
 
 class StoryDescriptionTop extends StatelessWidget {

@@ -1,8 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import 'models.dart';
+import 'story_models.dart';
 
-part 'store_models.g.dart';
+part 'story_entity.g.dart';
+
 
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
 class StoryTxResult {

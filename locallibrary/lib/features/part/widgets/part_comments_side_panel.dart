@@ -7,7 +7,7 @@ import 'package:locallibrary/core/theme/app_palette.dart';
 import '../../comments/bloc/comments_bloc.dart';
 import '../../comments/widgets/comments_paragraph_view.dart';
 import '../../story/bloc/story_bloc.dart';
-import '../../story/models/models.dart';
+import '../../story/models/story_models.dart';
 import '../bloc/part_bloc.dart';
 import '../cubit/part_side_panel_cubit.dart';
 

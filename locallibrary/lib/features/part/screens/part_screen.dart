@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:locallibrary/features/story/models/models.dart';
+import 'package:locallibrary/features/story/models/story_models.dart';
 import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
@@ -19,11 +19,11 @@ import '../../../dependency_injection.dart';
 import '../../comments/bloc/comments_bloc.dart';
 import '../../comments/widgets/comment_icon.dart';
 import '../../story/bloc/story_bloc.dart';
-import '../../story/models/server_models.dart';
+import '../../story/models/story_dto.dart';
 import '../bloc/part_bloc.dart';
 import '../cubit/part_side_panel_cubit.dart';
 import '../widgets/part_image_view.dart';
-import '../widgets/part_sidepanel.dart';
+import '../widgets/part_side_panel.dart';
 
 class PartScreen extends StatelessWidget {
   final int storyId;

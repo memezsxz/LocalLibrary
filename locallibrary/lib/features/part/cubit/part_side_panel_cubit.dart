@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../story/models/models.dart';
+import '../../story/models/story_models.dart';
 import '../widgets/part_comments_side_panel.dart';
 import '../widgets/part_info_side_panel.dart';
 

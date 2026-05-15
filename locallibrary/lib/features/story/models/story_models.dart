@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:json_annotation/json_annotation.dart';
 
-part 'models.g.dart';
+part 'story_models.g.dart';
 
 // ---------- Enums ----------
 

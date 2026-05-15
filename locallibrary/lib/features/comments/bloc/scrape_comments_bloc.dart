@@ -4,7 +4,7 @@ import '../../../core/datasource.dart';
 import '../../story/bloc/base_scrape_bloc.dart';
 import '../../story/bloc/scrape_story_bloc.dart';
 import '../../story/models/logs.dart';
-import '../../story/models/store_models.dart';
+import '../../story/models/story_entity.dart';
 
 class ScrapeCommentsBloc extends BaseScrapeBloc<PartTxResult> {
   final AppApiDataSource api;

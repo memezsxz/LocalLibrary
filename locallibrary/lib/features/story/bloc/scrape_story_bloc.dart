@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/datasource.dart';
 import '../models/logs.dart';
-import '../models/server_models.dart';
+import '../models/story_dto.dart';
 import 'base_scrape_bloc.dart';
 
 part 'scrape_story_event.dart';

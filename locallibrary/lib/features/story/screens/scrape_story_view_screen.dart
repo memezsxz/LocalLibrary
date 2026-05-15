@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../dependency_injection.dart';
 import '../bloc/story_bloc.dart';
-import '../models/server_models.dart';
-import '../widgets/scrape_description_bottom.dart';
-import '../widgets/story_description_top.dart';
+import '../models/story_dto.dart';
+import '../widgets/scrape_status_footer_section.dart';
+import '../widgets/story_header_section.dart';
 import 'story_screen.dart';
 
 /// Story screen in scrape mode.

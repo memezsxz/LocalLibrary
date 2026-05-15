@@ -1,10 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:locallibrary/features/story/models/server_parsed_json_models.dart';
-import 'package:locallibrary/features/story/models/store_models.dart';
+import 'package:locallibrary/features/story/models/story_entity.dart';
+import 'package:locallibrary/features/story/models/story_parsed_dto.dart';
 
-import 'models.dart';
+import 'story_models.dart';
 
-part 'server_models.g.dart';
+part 'story_dto.g.dart';
 
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
 class BookMinimal {

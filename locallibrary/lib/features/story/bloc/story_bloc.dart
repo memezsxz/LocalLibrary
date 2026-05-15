@@ -2,8 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:locallibrary/core/datasource.dart';
 import 'package:meta/meta.dart';
 
-import '../models/models.dart';
-import '../models/server_models.dart';
+import '../models/story_dto.dart';
+import '../models/story_models.dart';
 
 part 'story_event.dart';
 part 'story_state.dart';

@@ -8,8 +8,8 @@ import '../../../dependency_injection.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../bloc/base_scrape_bloc.dart';
 import '../bloc/scrape_story_bloc.dart';
-import '../models/server_models.dart';
-import '../widgets/logs_modal.dart';
+import '../models/story_dto.dart';
+import '../widgets/scrape_logs_dialog.dart';
 
 /// Full-page route variant — used by GoRouter (e.g. desktop sub-window).
 class ScrapeStoryScreen extends StatelessWidget {

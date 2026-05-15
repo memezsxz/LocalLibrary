@@ -8,8 +8,8 @@ import '../../../core/extensions/image.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../story/bloc/story_bloc.dart';
-import '../../story/models/models.dart';
-import '../../story/models/server_models.dart';
+import '../../story/models/story_dto.dart';
+import '../../story/models/story_models.dart';
 
 
 class PartInfoSidePanel extends StatefulWidget {

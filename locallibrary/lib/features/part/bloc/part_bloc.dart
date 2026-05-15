@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:locallibrary/core/datasource.dart';
 import 'package:meta/meta.dart';
 
-import '../../story/models/server_models.dart';
+import '../../story/models/story_dto.dart';
 
 @immutable
 sealed class PartEvent {

@@ -5,8 +5,8 @@ import 'package:locallibrary/core/extensions/datetime.dart';
 
 import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
-import '../models/models.dart';
-import '../models/server_models.dart';
+import '../models/story_dto.dart';
+import '../models/story_models.dart';
 
 class StoryDescriptionBottom extends StatelessWidget {
   const StoryDescriptionBottom({super.key, required this.storyBundle});
