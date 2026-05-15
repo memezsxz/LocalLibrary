@@ -6,8 +6,9 @@ import 'package:locallibrary/wattpad_publisher/screens/notifications.dart';
 import 'package:locallibrary/wattpad_publisher/screens/settings.dart';
 import 'package:locallibrary/wattpad_publisher/screens/story_screen.dart';
 
+import '../models/server_models.dart';
 import '../screens/part_screen.dart';
-import '../screens/scrape_story_screen.dart';
+import '../screens/scrape_story_view_screen.dart';
 
 part 'navigation_state.dart';
 

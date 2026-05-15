@@ -8,11 +8,10 @@ import '../../core/theme/app_palette.dart';
 import '../../dependency_ingection.dart';
 import '../bloc/scrape_story_bloc.dart';
 import '../cubit/navigation_cubit.dart';
-import '../datasource.dart';
 import '../modals/logs_modal.dart';
 import '../models/server_models.dart';
-import '../widgets/scraped_story_info_view.dart';
 
+/// Full-page route variant — used by GoRouter (e.g. desktop sub-window).
 class ScrapeStoryScreen extends StatelessWidget {
   const ScrapeStoryScreen({super.key});
 
@@ -20,22 +19,36 @@ class ScrapeStoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.read<NavigationCubit>().pop(),
-        ),
         title: const Text('Add Story'),
         centerTitle: false,
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      body: _ScrapeStoryView(),
+      body: const _ScrapeStoryView(isSheet: false),
     );
   }
 }
 
+void showScrapeSheet(BuildContext context) {
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useRootNavigator: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (_) =>
+        BlocProvider.value(
+          value: context.read<NavigationCubit>(),
+          child: const _ScrapeStoryView(isSheet: true),
+        ),
+  );
+}
+
 class _ScrapeStoryView extends StatefulWidget {
-  const _ScrapeStoryView();
+  const _ScrapeStoryView({required this.isSheet});
+
+  final bool isSheet;
 
   @override
   State<_ScrapeStoryView> createState() => _ScrapeStoryViewState();
@@ -43,7 +56,6 @@ class _ScrapeStoryView extends StatefulWidget {
 
 class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
   final _urlCtrl = TextEditingController();
-  StoryBundle? _bundle;
 
   @override
   void initState() {
@@ -79,21 +91,23 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
   Widget build(BuildContext context) {
     return BlocConsumer<ScrapeStoryBloc, BaseScrapeState<ScrapeStoryRes>>(
       bloc: sl.get<ScrapeStoryBloc>(),
-      listenWhen: (prev, next) =>
-      prev.errorMessage != next.errorMessage ||
-          prev.status != next.status ||
-          prev.result != next.result,
-      listener: (context, state) async {
-        if (state.status == ScrapeStatus.connecting) {
-          setState(() => _bundle = null);
-        }
+      listenWhen: (prev, next) => prev.status != next.status,
+      listener: (context, state) {
         if (state.status == ScrapeStatus.done && state.result != null) {
-          final storyId = state.result!.story.story.storyId;
-          try {
-            final bundle =
-            await sl.get<AppApiDataSource>().getFullStoryInfo(storyId);
-            if (mounted) setState(() => _bundle = bundle);
-          } catch (_) {}
+          final res = state.result!;
+          if (widget.isSheet) {
+            final nav = context.read<NavigationCubit>();
+            Navigator.of(context).pop();
+            nav.push(NavigationScrapeStoryCubit(
+              storyId: res.story.story.storyId,
+              scrapeRes: res,
+            ));
+          } else {
+            context.read<NavigationCubit>().push(NavigationScrapeStoryCubit(
+              storyId: res.story.story.storyId,
+              scrapeRes: res,
+            ));
+          }
         }
       },
       buildWhen: (prev, next) =>
@@ -102,86 +116,106 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
           prev.errorMessage != next.errorMessage ||
           prev.status != next.status,
       builder: (context, state) {
-        if (state.status == ScrapeStatus.done && state.result != null) {
-          return SizedBox.expand(
-            child: ScrapedStoryInfo(res: state.result!, bundle: _bundle),
-          );
-        }
-
+        final isSheet = widget.isSheet;
+        final bottomInset = isSheet ? MediaQuery
+            .of(context)
+            .viewInsets
+            .bottom : 0.0;
         return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 16,
-                children: [
-                  TextField(
-                    controller: _urlCtrl
-                      ..text = state.input
-                      ..selection = TextSelection.fromPosition(
-                        TextPosition(offset: state.input.length),
-                      ),
-                    onChanged: (v) =>
-                        sl.get<ScrapeStoryBloc>().add(InputChanged(v)),
-                    onSubmitted: (_) =>
-                        sl.get<ScrapeStoryBloc>().add(StartRequested()),
-                    decoration: InputDecoration(
-                      hintText: 'https://www.wattpad.com/story/...',
-                      hintStyle: TextStyle(color: AppPalette.gray),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            tooltip: 'Paste',
-                            icon: const Icon(Icons.content_paste, size: 18),
-                            onPressed: () async {
-                              final data =
-                              await ClipboardService().getFromClipboard();
-                              final txt = data?.trim() ?? '';
-                              if (txt.isEmpty) return;
-                              _urlCtrl.text = txt;
-                              sl.get<ScrapeStoryBloc>().add(InputChanged(txt));
-                            },
-                          ),
-                          IconButton(
-                            tooltip: 'Go',
-                            icon: const Icon(Icons.arrow_forward, size: 18),
-                            onPressed: () =>
-                                sl.get<ScrapeStoryBloc>().add(StartRequested()),
-                          ),
-                        ],
-                      ),
+          padding: EdgeInsets.fromLTRB(
+              24, isSheet ? 0 : 16, 24, 24 + bottomInset),
+          child: Column(
+            mainAxisSize: isSheet ? MainAxisSize.min : MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 16,
+            children: [
+              if (isSheet) ...[
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  if (state.inputHint != null && state.inputHint!.isNotEmpty)
-                    Text(
-                      state.inputHint!,
-                      style: TextStyle(color: AppPalette.error),
-                    ),
-                  if (state.errorMessage != null &&
-                      state.errorMessage!.isNotEmpty)
-                    Text(
-                      state.errorMessage!,
-                      style: TextStyle(color: AppPalette.error),
-                    ),
-                  Center(child: _ScrapeActions(
-                    status: state.status,
-                    onStart: () =>
-                        sl.get<ScrapeStoryBloc>().add(StartRequested()),
-                    onViewLogs: () =>
-                        WidgetsBinding.instance
-                            .addPostFrameCallback((_) =>
+                ),
+                Text('Add Story', style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleLarge),
+              ],
+              TextField(
+                controller: _urlCtrl
+                  ..text = state.input
+                  ..selection = TextSelection.fromPosition(
+                    TextPosition(offset: state.input.length),
+                  ),
+                onChanged: (v) =>
+                    sl.get<ScrapeStoryBloc>().add(InputChanged(v)),
+                onSubmitted: (_) =>
+                    sl.get<ScrapeStoryBloc>().add(StartRequested()),
+                decoration: InputDecoration(
+                  hintText: 'https://www.wattpad.com/story/...',
+                  hintStyle: TextStyle(color: AppPalette.gray),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: 'Paste',
+                        icon: const Icon(Icons.content_paste, size: 18),
+                        onPressed: () async {
+                          final data =
+                              await ClipboardService().getFromClipboard();
+                          final txt = data?.trim() ?? '';
+                          if (txt.isEmpty) return;
+                          _urlCtrl.text = txt;
+                          sl.get<ScrapeStoryBloc>().add(InputChanged(txt));
+                        },
+                      ),
+                      IconButton(
+                        tooltip: 'Go',
+                        icon: const Icon(Icons.arrow_forward, size: 18),
+                        onPressed: () =>
+                            sl.get<ScrapeStoryBloc>().add(StartRequested()),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (state.inputHint != null && state.inputHint!.isNotEmpty)
+                Text(
+                  state.inputHint!,
+                  style: TextStyle(color: AppPalette.error),
+                ),
+              if (state.errorMessage != null && state.errorMessage!.isNotEmpty)
+                Text(
+                  state.errorMessage!,
+                  style: TextStyle(color: AppPalette.error),
+                ),
+              Center(
+                child: _ScrapeActions(
+                  status: state.status,
+                  onStart: () =>
+                      sl.get<ScrapeStoryBloc>().add(StartRequested()),
+                  onViewLogs: () =>
+                      WidgetsBinding.instance
+                          .addPostFrameCallback(
+                            (_) =>
                             openScrapeEventsModal<ScrapeStoryRes>(
                               context: context,
                               bloc: sl.get<ScrapeStoryBloc>(),
-                            )),
-                    onCancel: () =>
-                        sl.get<ScrapeStoryBloc>().add(CancelRequested()),
-                    onReset: () => sl.get<ScrapeStoryBloc>().reset(),
-                  )
-                  )
-                ]
-            )
+                            ),
+                      ),
+                  onCancel: () =>
+                      sl.get<ScrapeStoryBloc>().add(CancelRequested()),
+                  onReset: () => sl.get<ScrapeStoryBloc>().reset(),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );

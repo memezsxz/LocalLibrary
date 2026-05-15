@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/navigation_cubit.dart';
+import 'scrape_story_screen.dart';
 
 const _navItems = [
   (label: 'Home', icon: Icons.home_outlined, selected: Icons.home),
@@ -28,7 +29,6 @@ class WDHome extends StatelessWidget {
     NavigationLibraryCubit(),
     NavigationNotificationsCubit(),
     NavigationSettingsCubit(),
-    NavigationScrapeCubit(),
   ];
 
   @override
@@ -43,8 +43,8 @@ class WDHome extends StatelessWidget {
 
         final hideNav =
             navState is NavigationStoryCubit ||
-            navState is NavigationPartCubit ||
-            navState is NavigationScrapeCubit;
+            navState is NavigationScrapeStoryCubit ||
+            navState is NavigationPartCubit;
         final showScrape = navState is NavigationDashboardCubit;
 
         final body = hideNav
@@ -167,8 +167,7 @@ class WDHome extends StatelessWidget {
   FloatingActionButton _scrape(BuildContext context) {
     return FloatingActionButton.small(
       tooltip: 'Scrape',
-      onPressed: () =>
-          context.read<NavigationCubit>().push(NavigationScrapeCubit()),
+      onPressed: () => showScrapeSheet(context),
       child: const Icon(Icons.add_box_sharp),
     );
   }

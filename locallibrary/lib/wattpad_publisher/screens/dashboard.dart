@@ -17,18 +17,36 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   final _scroll = ScrollController();
 
-  // Fetch in multiples of 6 so shelves fill nicely (e.g., 30 = 5 shelves)
-  static const int _pageSize = 30;
+  int _pageSize = 30; // recalculated from screen size on first frame
+  bool _initialized = false;
 
   final List<int> _storyIds = [];
   int _offset = 0;
   bool _loading = false;
   bool _hasMore = true;
 
+  int _computePageSize(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final bookMaxExtent = sl<SettingsCubit>().state.bookSize.maxExtent();
+    final cols = (size.width / bookMaxExtent).ceil().clamp(1, 20);
+    final itemHeight = bookMaxExtent / 0.6;
+    final rows = (size.height / itemHeight).ceil().clamp(1, 20);
+    return (cols * rows * 2).clamp(10, 50);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _pageSize = _computePageSize(context);
+      _loadMore();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _loadMore();
     _scroll.addListener(() {
       if (_scroll.position.extentAfter < 600 && !_loading && _hasMore) {
         _loadMore();

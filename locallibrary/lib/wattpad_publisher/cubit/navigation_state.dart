@@ -33,13 +33,6 @@ final class NavigationSettingsCubit extends NavigationScreenCubit {
   }
 }
 
-final class NavigationScrapeCubit extends NavigationScreenCubit {
-  @override
-  Widget get() {
-    return const ScrapeStoryScreen();
-  }
-}
-
 final class NavigationStoryCubit extends NavigationScreenCubit {
   final int storyId;
 
@@ -51,7 +44,19 @@ final class NavigationStoryCubit extends NavigationScreenCubit {
   }
 }
 
-final class NavigationPartCubit extends NavigationScreenCubit {
+final class NavigationScrapeStoryCubit extends NavigationScreenCubit {
+  final int storyId;
+  final ScrapeStoryRes scrapeRes;
+
+  NavigationScrapeStoryCubit({required this.storyId, required this.scrapeRes});
+
+  @override
+  Widget get() {
+    return ScrapeStoryViewScreen(storyId: storyId, scrapeRes: scrapeRes);
+  }
+}
+
+ffinal class NavigationPartCubit extends NavigationScreenCubit {
   final int storyId;
   final int partId;
 
