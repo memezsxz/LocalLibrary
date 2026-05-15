@@ -80,12 +80,35 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
         .size
         .width < 1200;
 
-    return BlocListener<PartSidePanelCubit, PartSidePanelState>(
-      bloc: panelCubit,
-      listener: _onPanelStateChanged,
-      child: isMobile
-          ? _buildMobile(context, panelCubit)
-          : _buildDesktop(context, panelCubit),
+    return BlocListener<PartBloc, PartState>(
+      listenWhen: (prev, next) =>
+      next is PartLoaded && prev is PartLoaded
+          ? (prev as PartLoaded).info.part.partId !=
+          (next as PartLoaded).info.part.partId
+          : next is PartLoaded,
+      listener: (context, partState) {
+        final panelState = panelCubit.state;
+        if (panelState is! PartSidePanelCommentsCubit) return;
+        if (panelState.paragraph != null) {
+          // Was viewing paragraph comments — reset to part-level comments for new part.
+          // _onPanelStateChanged will fire and load the new part's comments.
+          panelCubit.changeContent(
+            PartSidePanelCommentsCubit(storyId: panelState.storyId),
+          );
+        } else {
+          context.read<CommentsBloc>().add(
+            LoadPartComments(
+                panelState.storyId, (partState as PartLoaded).info.part.partId),
+          );
+        }
+      },
+      child: BlocListener<PartSidePanelCubit, PartSidePanelState>(
+        bloc: panelCubit,
+        listener: _onPanelStateChanged,
+        child: isMobile
+            ? _buildMobile(context, panelCubit)
+            : _buildDesktop(context, panelCubit),
+      ),
     );
   }
 
@@ -127,6 +150,7 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
               height: double.infinity,
               duration: const Duration(milliseconds: 280),
               curve: Curves.easeOutCubic,
+              clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
@@ -138,13 +162,15 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
               ),
               child: panelW == 0
                   ? const SizedBox.shrink()
-                  : Material(
-                color: widget.panelBg,
-                elevation: 4,
-                child: KeyedSubtree(
-                  key: ValueKey(currentKey),
-                  child: LayoutBuilder(
-                    builder: (context, _) => state.get(),
+                  : OverflowBox(
+                minWidth: widget.panelWidth,
+                maxWidth: widget.panelWidth,
+                child: Material(
+                  color: widget.panelBg,
+                  elevation: 4,
+                  child: KeyedSubtree(
+                    key: ValueKey(currentKey),
+                    child: state.get(),
                   ),
                 ),
               ),

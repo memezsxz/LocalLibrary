@@ -22,3 +22,11 @@ class StoriesPrefetchRequested extends StoryEvent {
 class StoryCleared extends StoryEvent {
   const StoryCleared();
 }
+
+/// Update the in-memory currentPart for a story (e.g. after drag-navigation).
+class StoryCurrentPartChanged extends StoryEvent {
+  final int storyId;
+  final Part part;
+
+  const StoryCurrentPartChanged(this.storyId, this.part);
+}

@@ -76,6 +76,19 @@ class StoryBundle {
       _$StoryBundleFromJson(json);
 
   Map<String, dynamic> toJson() => _$StoryBundleToJson(this);
+
+  StoryBundle copyWith({Part? currentPart}) {
+    return StoryBundle(
+      story: story,
+      image: image,
+      genre: genre,
+      author: author,
+      storyProgress: storyProgress,
+      currentPart: currentPart ?? this.currentPart,
+      parts: parts,
+      tags: tags,
+    );
+  }
 }
 
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)

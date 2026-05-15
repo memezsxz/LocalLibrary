@@ -156,7 +156,10 @@ class _PartViewState extends State<_PartView>
     final lastId = _parts.last.part.partId;
     final idx = bundle.parts.indexWhere((p) => p.partId == lastId);
     if (idx == -1 || idx >= bundle.parts.length - 1) return;
-    setState(() => _loadingNext = true);
+    _loadingNext = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
     try {
       final info = await sl<AppApiDataSource>().getFullPartInfo(
         storyId: widget.storyId,
@@ -164,6 +167,8 @@ class _PartViewState extends State<_PartView>
       );
       if (!mounted) return;
       await _replaceWith(info, toEnd: false);
+      if (!mounted) return;
+      _syncBlocs(info);
     } finally {
       if (mounted) setState(() => _loadingNext = false);
       _bottomOverscroll.value = 0;
@@ -176,7 +181,10 @@ class _PartViewState extends State<_PartView>
     final firstId = _parts.first.part.partId;
     final idx = bundle.parts.indexWhere((p) => p.partId == firstId);
     if (idx <= 0) return;
-    setState(() => _loadingPrev = true);
+    _loadingPrev = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
     try {
       final info = await sl<AppApiDataSource>().getFullPartInfo(
         storyId: widget.storyId,
@@ -184,10 +192,19 @@ class _PartViewState extends State<_PartView>
       );
       if (!mounted) return;
       await _replaceWith(info, toEnd: true);
+      if (!mounted) return;
+      _syncBlocs(info);
     } finally {
       if (mounted) setState(() => _loadingPrev = false);
       _topOverscroll.value = 0;
     }
+  }
+
+  void _syncBlocs(PartFullInfo info) {
+    context.read<PartBloc>().add(PartDataProvided(info));
+    context.read<StoryBloc>().add(
+      StoryCurrentPartChanged(widget.storyId, info.part),
+    );
   }
 
   String? _adjacentTitle(StoryBundle bundle, int partId, int delta) {
@@ -209,6 +226,9 @@ class _PartViewState extends State<_PartView>
               ..clear()
               ..add(state.info);
           });
+          context.read<StoryBloc>().add(
+            StoryCurrentPartChanged(widget.storyId, state.info.part),
+          );
         }
       },
       child: BlocBuilder<PartBloc, PartState>(
@@ -416,7 +436,7 @@ class _PeekBar extends StatelessWidget {
       valueListenable: overscroll,
       builder: (context, os, _) {
         final h = (os * 0.5).clamp(0.0, 72.0);
-        if (h <= 0) return const SizedBox.shrink();
+        if (h < 8) return const SizedBox.shrink();
         final progress = (os / threshold).clamp(0.0, 1.0);
         final isTop = direction == _PeekDirection.top;
 
@@ -459,17 +479,25 @@ class _PeekBar extends StatelessWidget {
           minHeight: 2,
         );
 
-        return Container(
-          height: h,
-          color: AppPalette.surfaceAlt.withOpacity(0.95),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: Column(
-            mainAxisAlignment:
-            isTop ? MainAxisAlignment.end : MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: isTop
-                ? [row, const SizedBox(height: 4), bar]
-                : [bar, const SizedBox(height: 4), row],
+        return ClipRect(
+          child: SizedBox(
+            height: h,
+            child: OverflowBox(
+              minHeight: 0,
+              maxHeight: double.infinity,
+              alignment: isTop ? Alignment.bottomCenter : Alignment.topCenter,
+              child: Container(
+                color: AppPalette.surfaceAlt.withOpacity(0.95),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 6),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: isTop
+                      ? [row, const SizedBox(height: 4), bar]
+                      : [bar, const SizedBox(height: 4), row],
+                ),
+              ),
+            ),
           ),
         );
       },

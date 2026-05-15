@@ -370,8 +370,7 @@ class CommentListItem extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: IntrinsicHeight(
-            child: Row(
+          child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // comment
@@ -436,7 +435,7 @@ class CommentListItem extends StatelessWidget {
 
                 //  likes + replies icon
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Visibility(
                       visible: c.likes > 0,
@@ -486,7 +485,6 @@ class CommentListItem extends StatelessWidget {
                 ),
               ],
             ),
-          ),
         ),
       ),
     );

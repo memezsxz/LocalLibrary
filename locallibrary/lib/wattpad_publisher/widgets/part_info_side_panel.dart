@@ -2,7 +2,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../core/exstentions/image.dart';
@@ -66,40 +65,66 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
         final b = bundle!;
         final targetIndex = _currentIndex(b);
 
-        return Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            // ── Header ──────────────────────────────────────────────────
-            if (!isMobile)
-              _DesktopHeader(storyId: widget.storyId, b: b)
-            else
-              _MobileHeader(storyId: widget.storyId, b: b),
+        return BlocListener<StoryBloc, StoryState>(
+          listenWhen: (prev, next) {
+            final prevPart = prev
+                .bundleFor(widget.storyId)
+                ?.currentPart
+                ?.partId;
+            final nextPart = next
+                .bundleFor(widget.storyId)
+                ?.currentPart
+                ?.partId;
+            return prevPart != nextPart && nextPart != null;
+          },
+          listener: (context, state) {
+            final newBundle = state.bundleFor(widget.storyId);
+            if (newBundle == null) return;
+            final idx = _currentIndex(newBundle);
+            if (idx != null && _itemScroll.isAttached) {
+              _itemScroll.scrollTo(
+                index: idx,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                alignment: 0.1,
+              );
+            }
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              // ── Header ──────────────────────────────────────────────────
+              if (!isMobile)
+                _DesktopHeader(storyId: widget.storyId, b: b)
+              else
+                _MobileHeader(storyId: widget.storyId, b: b),
 
-            const Divider(height: 1),
+              const Divider(height: 1),
 
-            // ── Parts list ──────────────────────────────────────────────
-            Expanded(
-              child: ScrollablePositionedList.separated(
-                itemScrollController: _itemScroll,
-                itemPositionsListener: _positions,
-                initialScrollIndex: targetIndex ?? 0,
-                initialAlignment: 0.1,
-                separatorBuilder: (_, __) => const SizedBox(height: 4),
-                itemCount: b.parts.length,
-                itemBuilder: (ctx, i) {
-                  final part = b.parts[i];
-                  final isCurrent =
-                      b.currentPart != null &&
-                          b.currentPart!.partId == part.partId;
-                  return _PartRow(
-                    isCurrentPart: isCurrent,
-                    storyId: widget.storyId,
-                    part: part,
-                  );
-                },
+              // ── Parts list ──────────────────────────────────────────────
+              Expanded(
+                child: ScrollablePositionedList.separated(
+                  itemScrollController: _itemScroll,
+                  itemPositionsListener: _positions,
+                  initialScrollIndex: targetIndex ?? 0,
+                  initialAlignment: 0.1,
+                  separatorBuilder: (_, __) => const SizedBox(height: 4),
+                  itemCount: b.parts.length,
+                  itemBuilder: (ctx, i) {
+                    final part = b.parts[i];
+                    final isCurrent =
+                        b.currentPart != null &&
+                            b.currentPart!.partId == part.partId;
+                    return _PartRow(
+                      isCurrentPart: isCurrent,
+                      storyId: widget.storyId,
+                      part: part,
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -302,12 +327,6 @@ class _PartRow extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (isCurrentPart)
-                  SvgPicture.asset(
-                    'assets/icons/current_part_icon.svg',
-                    width: 16,
-                    color: AppPalette.primary,
-                  ),
               ],
             ),
           ),

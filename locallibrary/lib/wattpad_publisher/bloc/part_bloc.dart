@@ -1,8 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
-
 import 'package:locallibrary/wattpad_publisher/datasource.dart';
 import 'package:locallibrary/wattpad_publisher/models/server_models.dart'; // where PartFullInfo lives
+import 'package:meta/meta.dart';
 
 @immutable
 sealed class PartEvent {
@@ -18,6 +17,12 @@ class PartFetchRequested extends PartEvent {
 
 class PartLoadNextRequested extends PartEvent {
   const PartLoadNextRequested();
+}
+
+class PartDataProvided extends PartEvent {
+  final PartFullInfo info;
+
+  const PartDataProvided(this.info);
 }
 
 // STATES
@@ -49,6 +54,7 @@ class PartBloc extends Bloc<PartEvent, PartState> {
 
   PartBloc({required this.api}) : super(const PartInitial()) {
     on<PartFetchRequested>(_onFetch);
+    on<PartDataProvided>((e, emit) => emit(PartLoaded(e.info)));
   }
 
   Future<void> _onFetch(

@@ -59,6 +59,8 @@ final class NavigationPartCubit extends NavigationScreenCubit {
 
   @override
   Widget get() {
-    return PartScreen(storyId: storyId, partId: partId);
+    return PartScreen(key: ValueKey('part_${storyId}_$partId'),
+        storyId: storyId,
+        partId: partId);
   }
 }
