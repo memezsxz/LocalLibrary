@@ -2,11 +2,12 @@ import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:locallibrary/wattpad_publisher/cubit/navigation_cubit.dart';
 
 import 'core/theme/new_theme.dart';
 import 'core/theme/util.dart';
-import 'dependency_ingection.dart';
+import 'dependency_injection.dart';
+import 'features/library/cubit/navigation_cubit.dart';
+import 'features/library/screens/home.dart';
 
 class WindowCloseNotifier extends StatefulWidget {
   final int parentId;
@@ -65,13 +66,13 @@ class MyApp extends StatelessWidget {
     MaterialTheme theme = MaterialTheme(textTheme);
     return MultiBlocProvider(
       providers: [BlocProvider(create: (_) => NavigationCubit())],
-      child: MaterialApp.router(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Local Library',
         theme: brightness == Brightness.light
             ? theme.lightMediumContrast()
             : theme.dark(),
-        // routerConfig: AppRoute.buildRouter(),
+        home: const WDHome(),
       ),
     );
   }
