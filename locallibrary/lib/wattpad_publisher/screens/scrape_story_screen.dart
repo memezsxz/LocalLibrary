@@ -97,7 +97,7 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
           final res = state.result!;
           if (widget.isSheet) {
             final nav = context.read<NavigationCubit>();
-            Navigator.of(context).pop();
+            Navigator.of(context).popUntil((route) => route.isFirst);
             nav.push(NavigationScrapeStoryCubit(
               storyId: res.story.story.storyId,
               scrapeRes: res,
