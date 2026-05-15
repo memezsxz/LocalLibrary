@@ -608,6 +608,30 @@ class AppApiDataSource {
     );
   }
 
+  /// GET /languages
+  Future<List<String>> listAllLanguages() async {
+    final res = await _safeGet(_uri('/languages'));
+    final decoded = jsonDecode(_decodeBodyString(res));
+    final List raw = decoded is List ? decoded : [];
+    return raw.whereType<String>().toList();
+  }
+
+  /// GET /tags
+  Future<List<Tag>> listAllTags() async {
+    final res = await _safeGet(_uri('/tags'));
+    final decoded = jsonDecode(_decodeBodyString(res));
+    final List raw = decoded is List ? decoded : [];
+    return raw.whereType<Map<String, dynamic>>().map(Tag.fromJson).toList();
+  }
+
+  /// GET /genres
+  Future<List<Genre>> listAllGenres() async {
+    final res = await _safeGet(_uri('/genres'));
+    final decoded = jsonDecode(_decodeBodyString(res));
+    final List raw = decoded is List ? decoded : [];
+    return raw.whereType<Map<String, dynamic>>().map(Genre.fromJson).toList();
+  }
+
   // streamScrapePartByIds({required int storyId, required int partId, required bool clearOutput}) {}
 }
 
