@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/datasource.dart';
+import '../../../core/api/library_api_client.dart';
 import '../../../dependency_injection.dart';
 import '../cubit/search_cubit.dart';
 import '../cubit/search_state.dart';
@@ -52,8 +52,8 @@ class _DashboardBody extends StatelessWidget {
         Expanded(
           child: BookGrid(
             fetch: (limit, offset) async {
-              final stories = await sl<AppApiDataSource>()
-                  .listStories(limit: limit, offset: offset);
+              final stories = await sl<LibraryApiClient>()
+                  .listStories(limit, offset);
               return stories.map((s) => s.storyId).toList();
             },
           ),

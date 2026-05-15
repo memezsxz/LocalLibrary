@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
-import 'package:locallibrary/core/datasource.dart';
 
+import '../../../core/api/story_api_client.dart';
 import 'story_event.dart';
 import 'story_state.dart';
 
 class StoryBloc extends Bloc<StoryEvent, StoryState> {
-  final AppApiDataSource api;
+  final StoryApiClient api;
 
   StoryBloc({required this.api}) : super(const StoryInitial()) {
     on<StoryRequested>(_onStoryRequested);

@@ -3,7 +3,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 
-import 'core/datasource.dart';
+import 'core/api/library_api_client.dart';
+import 'core/api/scrape_service.dart';
+import 'core/api/story_api_client.dart';
 import 'core/secrets/app_secrets.dart';
 import 'features/comments/bloc/comments_bloc.dart';
 import 'features/part/bloc/part_bloc.dart';
@@ -22,7 +24,7 @@ void initDI() {
   sl.registerLazySingleton<Dio>(
     () => Dio(
       BaseOptions(
-        baseUrl: base, // <- single source of truth
+        baseUrl: base,
         connectTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
         headers: {'Accept': 'application/json'},
@@ -30,23 +32,27 @@ void initDI() {
     ),
   );
 
-  sl.registerLazySingleton<StoryRemoteDataSource>(
-    () => StoryRemoteDataSourceImpl(dio: sl<Dio>()),
+  sl.registerLazySingleton<StoryApiClient>(
+        () => StoryApiClient(sl<Dio>()),
   );
 
-  sl.registerLazySingleton<AppApiDataSource>(
-    () => AppApiDataSource(baseUrl: "http://127.0.0.1:5050"),
+  sl.registerLazySingleton<LibraryApiClient>(
+        () => LibraryApiClient(sl<Dio>()),
+  );
+
+  sl.registerLazySingleton<ScrapeService>(
+        () => ScrapeService(baseUrl: base),
   );
 
   sl.registerLazySingleton<StoryBloc>(
-    () => StoryBloc(api: sl<AppApiDataSource>()),
+        () => StoryBloc(api: sl<StoryApiClient>()),
   );
 
-  sl.registerFactory<PartBloc>(() => PartBloc(api: sl<AppApiDataSource>()));
+  sl.registerFactory<PartBloc>(() => PartBloc(api: sl<StoryApiClient>()));
 
   sl.registerFactory<PartSidePanelCubit>(() => PartSidePanelCubit());
   sl.registerFactory<CommentsBloc>(
-    () => CommentsBloc(api: sl<AppApiDataSource>()),
+        () => CommentsBloc(api: sl<StoryApiClient>()),
   );
 
   sl.registerLazySingleton<SettingsCubit>(
@@ -54,12 +60,6 @@ void initDI() {
   );
 
   sl.registerLazySingleton<ScrapeStoryBloc>(
-    () => ScrapeStoryBloc(api: sl<AppApiDataSource>()),
+        () => ScrapeStoryBloc(api: sl<ScrapeService>()),
   );
-
-  // sl.registerLazySingleton<WindowsBloc>(
-  //       () => WindowsBloc(),
-  // );
-  // sl<Dio>().interceptors.add(LogInterceptor(
-  //     request: true, requestBody: true, responseBody: true, error: true));
 }

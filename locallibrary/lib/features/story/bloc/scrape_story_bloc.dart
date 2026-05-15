@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../../../core/datasource.dart';
+import '../../../core/api/scrape_service.dart';
 import '../models/dto/scrape_story_res.dart';
 import '../models/scrape/scrape_event_model.dart';
 import '../utils/scrape_json_utils.dart';
@@ -10,7 +10,7 @@ import '../utils/scrape_url_utils.dart';
 import 'base_scrape_bloc.dart';
 
 class ScrapeStoryBloc extends BaseScrapeBloc<ScrapeStoryRes> {
-  final AppApiDataSource api;
+  final ScrapeService api;
 
   ScrapeStoryBloc({required this.api})
     : super(

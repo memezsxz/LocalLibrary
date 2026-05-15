@@ -1,14 +1,14 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../../core/datasource.dart';
+import '../../../core/api/story_api_client.dart';
 import '../../story/models/domain/comment_model.dart';
 
 part 'comments_event.dart';
 part 'comments_state.dart';
 
 class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
-  final AppApiDataSource api;
+  final StoryApiClient api;
   static const int _pageSize = 20;
 
   CommentsBloc({required this.api}) : super(CommentsData.initial()) {
@@ -60,8 +60,8 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
 
     try {
       final page = await api.fetchParagraphComments(
-        storyId: e.storyId,
-        paragraphId: e.paragraphId,
+        e.storyId,
+        e.paragraphId,
         limit: e.limit ?? _pageSize,
         offset: 0,
       );
@@ -120,8 +120,8 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
 
     try {
       final page = await api.fetchPartComments(
-        storyId: e.storyId,
-        partId: e.partId,
+        e.storyId,
+        e.partId,
         limit: e.limit ?? _pageSize,
         offset: 0,
       );
@@ -177,16 +177,16 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
       List<Comment> next;
       if (s.isParagraphMode) {
         final page = await api.fetchParagraphComments(
-          storyId: s.storyId,
-          paragraphId: s.paragraphId!,
+          s.storyId,
+          s.paragraphId!,
           limit: limit,
           offset: offset,
         );
         next = page.items; // <-- unwrap
       } else if (s.isPartMode) {
         final page = await api.fetchPartComments(
-          storyId: s.storyId,
-          partId: s.partId!,
+          s.storyId,
+          s.partId!,
           limit: limit,
           offset: offset,
         );
@@ -242,8 +242,8 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     try {
       final current = s.replies[id] ?? const <Comment>[];
       final page = await api.fetchCommentReplies(
-        storyId: s.storyId,
-        commentId: id,
+        s.storyId,
+        id,
         limit: e.limit ?? _pageSize,
         offset: current.length,
       );

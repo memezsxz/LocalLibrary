@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../../../core/datasource.dart';
+import '../../../core/api/scrape_service.dart';
 import '../../story/bloc/base_scrape_bloc.dart';
 import '../../story/models/dto/part_tx_result.dart';
 import '../../story/models/scrape/scrape_event_model.dart';
@@ -8,7 +8,7 @@ import '../../story/utils/scrape_json_utils.dart';
 import '../../story/utils/scrape_url_utils.dart';
 
 class ScrapeCommentsBloc extends BaseScrapeBloc<PartTxResult> {
-  final AppApiDataSource api;
+  final ScrapeService api;
   final int storyId;
 
   ScrapeCommentsBloc({required this.api, required this.storyId})

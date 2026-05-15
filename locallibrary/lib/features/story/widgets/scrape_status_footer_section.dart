@@ -4,7 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:locallibrary/core/extensions/scrape_status.dart';
 
-import '../../../core/datasource.dart';
+import '../../../core/api/scrape_service.dart';
+import '../../../core/api/story_api_client.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../dependency_injection.dart';
 import '../../comments/bloc/scrape_comments_bloc.dart';
@@ -46,7 +47,8 @@ class _ScrapeDescriptionBottomState extends State<ScrapeDescriptionBottom> {
   late final List<ScrapeCommentsBloc> _commentBlocs;
   late final List<ValueNotifier<bool>> _expansionNotifiers;
   late final Map<String, Part> _localByWattId;
-  final _api = sl.get<AppApiDataSource>();
+  final _api = sl.get<StoryApiClient>();
+  final _scrapeService = sl.get<ScrapeService>();
 
   bool _includeComments = false;
 
@@ -56,10 +58,10 @@ class _ScrapeDescriptionBottomState extends State<ScrapeDescriptionBottom> {
     _localByWattId = {for (final p in widget.bundle.parts) p.wattId: p};
     final storyId = widget.bundle.story.storyId;
     _blocs = widget.scrapeRes.partLinks
-        .map((_) => ScrapePartBloc(api: _api, storyId: storyId))
+        .map((_) => ScrapePartBloc(api: _scrapeService, storyId: storyId))
         .toList();
     _commentBlocs = widget.scrapeRes.partLinks
-        .map((_) => ScrapeCommentsBloc(api: _api, storyId: storyId))
+        .map((_) => ScrapeCommentsBloc(api: _scrapeService, storyId: storyId))
         .toList();
     _expansionNotifiers = List.generate(
       widget.scrapeRes.partLinks.length,
@@ -261,7 +263,7 @@ class _ScrapeModeToc extends StatelessWidget {
   final List<ScrapeCommentsBloc> commentBlocs;
   final List<ValueNotifier<bool>> expansionNotifiers;
   final int storyId;
-  final AppApiDataSource api;
+  final StoryApiClient api;
   final bool includeComments;
 
   const _ScrapeModeToc({
@@ -349,7 +351,7 @@ class _ScrapeModeTocRow extends ExpansionTile {
     required BaseScrapeBloc<PartTxResult> commentsBloc,
     required ValueNotifier<bool> expansionNotifier,
     required int storyId,
-    required AppApiDataSource api,
+    required StoryApiClient api,
     required bool includeComments,
   }) : super(
          key: key ?? ValueKey('scrape_toc_${partLink.wattId}'),
@@ -384,7 +386,7 @@ class _ScrapeModeTocRowHeader extends StatelessWidget {
   final BaseScrapeBloc<PartTxResult> commentsBloc;
   final ValueNotifier<bool> expansionNotifier;
   final int storyId;
-  final AppApiDataSource api;
+  final StoryApiClient api;
   final bool includeComments;
 
   const _ScrapeModeTocRowHeader({
@@ -612,7 +614,7 @@ class _ScrapeModeTocRowExpanded extends StatefulWidget {
   final ScrapePartBloc bloc;
   final BaseScrapeBloc<PartTxResult> commentsBloc;
   final int storyId;
-  final AppApiDataSource api;
+  final StoryApiClient api;
   final bool includeComments;
 
   const _ScrapeModeTocRowExpanded({
@@ -639,15 +641,9 @@ class _ScrapeModeTocRowExpandedState extends State<_ScrapeModeTocRowExpanded> {
     final part = widget.localPart;
     if (part != null) {
       _countsFuture = Future.wait([
-        widget.api.getPartParagraphsCount(
-          storyId: widget.storyId,
-          partId: part.partId,
-        ),
-        widget.api.getPartCommentsCount(
-          storyId: widget.storyId,
-          partId: part.partId,
-        ),
-      ]).then((r) => (r[0], r[1]));
+        widget.api.getPartParagraphsCount(widget.storyId, part.partId),
+        widget.api.getPartCommentsCount(widget.storyId, part.partId),
+      ]).then((r) => (r[0].count, r[1].count));
     }
   }
 

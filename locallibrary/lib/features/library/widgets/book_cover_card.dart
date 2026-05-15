@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/datasource.dart';
+import '../../../core/api/story_api_client.dart';
 import '../../../core/extensions/image.dart';
 import '../../../dependency_injection.dart';
 import '../../story/models/domain/book_cover_model.dart';
@@ -24,7 +24,7 @@ class _BookCoverCardState extends State<BookCoverCard> {
   @override
   void initState() {
     super.initState();
-    _future = sl<StoryRemoteDataSource>().fetchMinimal(storyId: widget.storyId);
+    _future = sl<StoryApiClient>().fetchMinimal(widget.storyId);
   }
 
   @override

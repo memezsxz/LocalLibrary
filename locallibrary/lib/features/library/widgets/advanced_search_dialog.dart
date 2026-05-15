@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/datasource.dart';
+import '../../../core/api/library_api_client.dart';
 import '../../../dependency_injection.dart';
 import '../../story/models/domain/genre_model.dart';
 import '../../story/models/domain/tag_model.dart';
@@ -104,7 +104,7 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
   }
 
   Future<void> _loadData() async {
-    final ds = sl<AppApiDataSource>();
+    final ds = sl<LibraryApiClient>();
     final results = await Future.wait([
       ds.listAllLanguages(),
       ds.listAllGenres(),

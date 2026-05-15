@@ -10,8 +10,8 @@ import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../core/api/story_api_client.dart';
 import '../../../core/common/widgets/loader.dart';
-import '../../../core/datasource.dart';
 import '../../../core/extensions/image.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/theme.dart';
@@ -164,9 +164,9 @@ class _PartViewState extends State<_PartView>
       if (mounted) setState(() {});
     });
     try {
-      final info = await sl<AppApiDataSource>().getFullPartInfo(
-        storyId: widget.storyId,
-        partId: bundle.parts[idx + 1].partId,
+      final info = await sl<StoryApiClient>().getFullPartInfo(
+        widget.storyId,
+        bundle.parts[idx + 1].partId,
       );
       if (!mounted) return;
       await _replaceWith(info, toEnd: false);
@@ -189,9 +189,9 @@ class _PartViewState extends State<_PartView>
       if (mounted) setState(() {});
     });
     try {
-      final info = await sl<AppApiDataSource>().getFullPartInfo(
-        storyId: widget.storyId,
-        partId: bundle.parts[idx - 1].partId,
+      final info = await sl<StoryApiClient>().getFullPartInfo(
+        widget.storyId,
+        bundle.parts[idx - 1].partId,
       );
       if (!mounted) return;
       await _replaceWith(info, toEnd: true);
