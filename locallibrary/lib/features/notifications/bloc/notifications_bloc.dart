@@ -14,6 +14,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     on<NotificationsLoadRequested>(_onLoad);
     on<NotificationsLoadMoreRequested>(_onLoadMore);
     on<NotificationMarkReadRequested>(_onMarkRead);
+    on<NotificationsMarkAllReadRequested>(_onMarkAllRead);
   }
 
   Future<void> _onLoad(
@@ -92,6 +93,35 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       await api.markAsRead(e.notificationId);
     } catch (_) {
       emit(s);
+    }
+  }
+
+  Future<void> _onMarkAllRead(
+    NotificationsMarkAllReadRequested e,
+    Emitter<NotificationsState> emit,
+  ) async {
+    final s = state;
+    if (s is! NotificationsData) return;
+
+    final unread = s.items.where((r) => !r.notification.isRead).toList();
+    if (unread.isEmpty) return;
+
+    emit(
+      s.copyWith(
+        items: s.items
+            .map(
+              (r) => r.notification.isRead
+                  ? r
+                  : r.copyWith(
+                      notification: r.notification.copyWith(isRead: true),
+                    ),
+            )
+            .toList(),
+      ),
+    );
+
+    for (final row in unread) {
+      api.markAsRead(row.notification.notificationId).catchError((_) {});
     }
   }
 }

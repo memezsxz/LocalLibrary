@@ -7,13 +7,13 @@ import '../../../core/api/notifications_api_client.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../dependency_injection.dart';
 import '../../comments/widgets/comments_paragraph_view.dart';
-import '../../notifications/bloc/notifications_bloc.dart';
-import '../../notifications/models/domain/notification_model.dart';
+import '../../library/cubit/navigation_cubit.dart';
+import '../../library/cubit/navigation_state.dart';
 import '../../part/widgets/comment_list_item.dart';
 import '../../story/models/domain/media_model.dart';
 import '../../story/models/domain/story_enums.dart';
-import '../cubit/navigation_cubit.dart';
-import '../cubit/navigation_state.dart';
+import '../bloc/notifications_bloc.dart';
+import '../models/domain/notification_model.dart';
 
 // ─── list item union ──────────────────────────────────────────────────────────
 
@@ -115,30 +115,58 @@ class _NotificationsViewState extends State<_NotificationsView> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment(value: false, label: Text('All')),
-              ButtonSegment(value: true, label: Text('Unread')),
-            ],
-            selected: {_unreadOnly},
-            onSelectionChanged: (s) => _setFilter(s.first),
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return AppPalette.primary;
-                }
-                return AppPalette.surfaceAlt;
-              }),
-              foregroundColor: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return AppPalette.textOnLight;
-                }
-                return AppPalette.textPrimary;
-              }),
-              side: const WidgetStatePropertyAll(
-                BorderSide(color: AppPalette.primaryLight),
+          child: Row(
+            children: [
+              SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment(value: false, label: Text('All')),
+                  ButtonSegment(value: true, label: Text('Unread')),
+                ],
+                selected: {_unreadOnly},
+                onSelectionChanged: (s) => _setFilter(s.first),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return AppPalette.primary;
+                    }
+                    return AppPalette.surfaceAlt;
+                  }),
+                  foregroundColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return AppPalette.textOnLight;
+                    }
+                    return AppPalette.textPrimary;
+                  }),
+                  side: const WidgetStatePropertyAll(
+                    BorderSide(color: AppPalette.primaryLight),
+                  ),
+                ),
               ),
-            ),
+              const Spacer(),
+              BlocBuilder<NotificationsBloc, NotificationsState>(
+                builder: (context, state) {
+                  if (state is! NotificationsData)
+                    return const SizedBox.shrink();
+                  final hasUnread = state.items.any(
+                    (r) => !r.notification.isRead,
+                  );
+                  if (!hasUnread) return const SizedBox.shrink();
+                  return TextButton(
+                    onPressed: () => context.read<NotificationsBloc>().add(
+                      NotificationsMarkAllReadRequested(),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppPalette.primary,
+                      textStyle: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    child: const Text('Mark all read'),
+                  );
+                },
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -287,12 +315,14 @@ class _NotificationCardState extends State<_NotificationCard> {
     final n = widget.row.notification;
     if (n.partId != null) {
       final isComment = n.notificationType == NotificationType.authorComment;
-      nav.push(NavigationPartState(
-        storyId: n.storyId,
-        partId: n.partId!,
-        targetParagraphId: isComment ? n.paragraphId : null,
-        targetCommentId: isComment ? n.commentId : null,
-      ));
+      nav.push(
+        NavigationPartState(
+          storyId: n.storyId,
+          partId: n.partId!,
+          targetParagraphId: isComment ? n.paragraphId : null,
+          targetCommentId: isComment ? n.commentId : null,
+        ),
+      );
     } else {
       nav.push(NavigationStoryState(storyId: n.storyId));
     }
@@ -545,9 +575,9 @@ class _NotificationCommentsViewState extends State<_NotificationCommentsView> {
     _future = sl<NotificationsApiClient>()
         .getCommentsThread(widget.notification.notificationId)
         .catchError((e, st) {
-      debugPrint('[NotificationThread] ERROR: $e\n$st');
-      throw e;
-    });
+          debugPrint('[NotificationThread] ERROR: $e\n$st');
+          throw e;
+        });
   }
 
   @override

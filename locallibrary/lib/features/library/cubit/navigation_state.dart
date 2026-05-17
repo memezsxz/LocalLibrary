@@ -4,10 +4,10 @@ import 'package:locallibrary/features/settings/screens/settings.dart';
 import 'package:locallibrary/features/story/screens/scrape_story_view_screen.dart';
 import 'package:locallibrary/features/story/screens/story_screen.dart';
 
+import '../../notifications/screens/notifications.dart';
 import '../../story/models/dto/scrape_story_res.dart';
 import '../screens/dashboard.dart';
 import '../screens/library.dart';
-import '../screens/notifications.dart';
 
 @immutable
 sealed class NavigationState {

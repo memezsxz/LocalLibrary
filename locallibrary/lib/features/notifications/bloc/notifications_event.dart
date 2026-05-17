@@ -15,3 +15,5 @@ class NotificationMarkReadRequested extends NotificationsEvent {
 
   NotificationMarkReadRequested(this.notificationId);
 }
+
+class NotificationsMarkAllReadRequested extends NotificationsEvent {}
