@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:locallibrary/dependency_injection.dart';
+import 'package:locallibrary/features/story/models/domain/book_cover_model.dart';
 import 'package:locallibrary/features/story/models/enum/book_size.dart';
 
 import '../../settings/cubit/settings_cubit.dart';
 import 'book_cover_card.dart';
 
 class BookGrid extends StatefulWidget {
-  final Future<List<int>> Function(int limit, int offset) fetch;
+  final Future<List<BookMinimal>> Function(int limit, int offset) fetch;
   final int pageSize;
 
   const BookGrid({super.key, required this.fetch, this.pageSize = 30});
@@ -17,7 +18,7 @@ class BookGrid extends StatefulWidget {
 
 class _BookGridState extends State<BookGrid> {
   final _scroll = ScrollController();
-  final List<int> _storyIds = [];
+  final List<BookMinimal> _books = [];
   int _offset = 0;
   bool _loading = false;
   bool _hasMore = true;
@@ -41,7 +42,7 @@ class _BookGridState extends State<BookGrid> {
 
   Future<void> _reload() async {
     setState(() {
-      _storyIds.clear();
+      _books.clear();
       _offset = 0;
       _hasMore = true;
     });
@@ -52,22 +53,20 @@ class _BookGridState extends State<BookGrid> {
     if (_loading || !_hasMore) return;
     setState(() => _loading = true);
     try {
-      final ids = await widget.fetch(widget.pageSize, _offset);
+      final page = await widget.fetch(widget.pageSize, _offset);
       if (!mounted) return;
-      if (ids.isEmpty) {
+      if (page.isEmpty) {
         setState(() => _hasMore = false);
       } else {
         setState(() {
-          _storyIds.addAll(ids);
-          _offset += ids.length;
-          _hasMore = ids.length == widget.pageSize;
+          _books.addAll(page);
+          _offset += page.length;
+          _hasMore = page.length == widget.pageSize;
         });
       }
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        _hasMore = false;
-      });
+      setState(() => _hasMore = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to load: $e'),
@@ -95,11 +94,12 @@ class _BookGridState extends State<BookGrid> {
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
         ),
-        itemCount: _storyIds.length + (_hasMore || _loading ? 1 : 0),
+        itemCount: _books.length + (_hasMore || _loading ? 1 : 0),
         itemBuilder: (context, i) {
-          if (i >= _storyIds.length)
+          if (i >= _books.length) {
             return const Center(child: CircularProgressIndicator());
-          return BookCoverCard(storyId: _storyIds[i]);
+          }
+          return BookCoverCard.fromBook(book: _books[i]);
         },
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import 'media_model.dart';
+import 'progress_model.dart';
 
 part 'book_cover_model.g.dart';
 
@@ -11,12 +12,14 @@ class BookMinimal {
   int storyId;
   String title;
   final String wattId;
+  final StoryProgress? storyProgress;
 
   BookMinimal({
     required this.storyId,
     required this.wattId,
     required this.title,
     required this.image,
+    this.storyProgress,
   });
 
   factory BookMinimal.fromJson(Map<String, dynamic> json) =>

@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../features/story/models/domain/book_cover_model.dart';
-import '../../features/story/models/domain/story_model.dart';
+import '../../features/story/models/domain/story_model.dart'; // Tag, Genre
 import 'dto/filter_stories_params.dart';
 
 part 'library_api_client.g.dart';
@@ -12,7 +12,7 @@ abstract class LibraryApiClient {
   factory LibraryApiClient(Dio dio, {String baseUrl}) = _LibraryApiClient;
 
   @GET('/stories')
-  Future<List<Story>> listStories(
+  Future<List<BookMinimal>> listStories(
     @Query('limit') int limit,
     @Query('offset') int offset,
   );

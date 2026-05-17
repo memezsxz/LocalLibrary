@@ -107,13 +107,8 @@ class _DashboardBodyState extends State<_DashboardBody> {
             builder: (_, state) {
               if (state.query.isEmpty && !state.hasActiveFilters) {
                 return BookGrid(
-                  fetch: (limit, offset) async {
-                    final stories = await sl<LibraryApiClient>().listStories(
-                      limit,
-                      offset,
-                    );
-                    return stories.map((s) => s.storyId).toList();
-                  },
+                  fetch: (limit, offset) =>
+                      sl<LibraryApiClient>().listStories(limit, offset),
                 );
               }
               return const SearchResultGrid();

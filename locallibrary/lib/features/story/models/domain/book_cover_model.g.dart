@@ -11,6 +11,9 @@ BookMinimal _$BookMinimalFromJson(Map<String, dynamic> json) => BookMinimal(
   wattId: json['watt_id'] as String,
   title: json['title'] as String,
   image: Media.fromJson(json['medium'] as Map<String, dynamic>),
+  storyProgress: json['story_progress'] == null
+      ? null
+      : StoryProgress.fromJson(json['story_progress'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$BookMinimalToJson(BookMinimal instance) =>
@@ -19,4 +22,5 @@ Map<String, dynamic> _$BookMinimalToJson(BookMinimal instance) =>
       'story_id': instance.storyId,
       'title': instance.title,
       'watt_id': instance.wattId,
+      'story_progress': instance.storyProgress?.toJson(),
     };

@@ -20,7 +20,7 @@ class _LibraryApiClient implements LibraryApiClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<List<Story>> listStories(int limit, int offset) async {
+  Future<List<BookMinimal>> listStories(int limit, int offset) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'limit': limit,
@@ -28,7 +28,7 @@ class _LibraryApiClient implements LibraryApiClient {
     };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Story>>(
+    final _options = _setStreamType<List<BookMinimal>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
         _dio.options,
@@ -39,10 +39,10 @@ class _LibraryApiClient implements LibraryApiClient {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Story> _value;
+    late List<BookMinimal> _value;
     try {
       _value = _result.data!
-          .map((dynamic i) => Story.fromJson(i as Map<String, dynamic>))
+          .map((dynamic i) => BookMinimal.fromJson(i as Map<String, dynamic>))
           .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);

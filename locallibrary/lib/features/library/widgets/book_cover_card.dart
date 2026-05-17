@@ -52,15 +52,16 @@ class _BookCoverCardState extends State<BookCoverCard> {
             relativePath: book.image.path!,
             fit: BoxFit.cover,
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Padding(
-              padding: const EdgeInsets.all(5),
-              child: BookProgressBar(progress: 0.5),
+          if ((book.storyProgress?.progress ?? 0) > 0)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: BookProgressBar(progress: book.storyProgress!.progress!),
+              ),
             ),
-          ),
         ],
       ),
     );
