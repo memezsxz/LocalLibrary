@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../core/api/library_api_client.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../../dependency_injection.dart';
 import '../models/dto/story_bundle.dart';
 import '../screens/scrape_story_screen.dart';
+import 'author_dialog.dart';
 
 class StoryDescriptionTopRight extends StatelessWidget {
   const StoryDescriptionTopRight({super.key, required this.story});
@@ -20,16 +23,13 @@ class StoryDescriptionTopRight extends StatelessWidget {
         spacing: 10,
         children: [
           GestureDetector(
-            onTap: () {
-              print("show author info");
-            },
-            child: Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(100)),
-              ),
-              child: Image.asset("assets/images/author_image.png", width: w),
+            onTap: () => showAuthorDialog(
+              context: context,
+              author: story.author,
+              fetchStories: (limit, offset) => sl<LibraryApiClient>()
+                  .getStoriesByAuthor(story.author.authorId, limit, offset),
             ),
+            child: AuthorAvatar(name: story.author.name, size: w),
           ),
           GestureDetector(
             onTap: () {

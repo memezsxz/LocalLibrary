@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../core/api/library_api_client.dart';
 import '../../../core/common/widgets/base_button.dart';
 import '../../../core/extensions/image.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../../dependency_injection.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
 import '../models/dto/story_bundle.dart';
 import '../screens/scrape_story_screen.dart';
+import 'author_dialog.dart';
 import 'story_description_top_center.dart';
 import 'story_description_top_left.dart';
 import 'story_description_top_right.dart';
@@ -112,17 +115,13 @@ class _MobileStoryDescriptionTop extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             GestureDetector(
-              onTap: () => print("show author info"),
-              child: Container(
-                clipBehavior: Clip.hardEdge,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(100)),
-                ),
-                child: Image.asset(
-                  "assets/images/author_image.png",
-                  width: _iconW,
-                ),
+              onTap: () => showAuthorDialog(
+                context: context,
+                author: story.author,
+                fetchStories: (limit, offset) => sl<LibraryApiClient>()
+                    .getStoriesByAuthor(story.author.authorId, limit, offset),
               ),
+              child: AuthorAvatar(name: story.author.name, size: _iconW),
             ),
             GestureDetector(
               onTap: () {
@@ -163,7 +162,7 @@ class _MobileStoryDescriptionTop extends StatelessWidget {
           onPressed: () async {
             final partId =
                 story.currentPart?.partId ??
-                    (story.parts.isNotEmpty ? story.parts[0].partId : null);
+                (story.parts.isNotEmpty ? story.parts[0].partId : null);
             if (partId != null) {
               context.read<NavigationCubit>().push(
                 NavigationPartState(

@@ -12,10 +12,12 @@ import 'book_progress_bar.dart';
 class BookCoverCard extends StatefulWidget {
   final int storyId;
   final BookMinimal? preloaded;
+  final VoidCallback? onTap;
 
-  const BookCoverCard({super.key, required this.storyId}) : preloaded = null;
+  const BookCoverCard({super.key, required this.storyId, this.onTap})
+    : preloaded = null;
 
-  BookCoverCard.fromBook({super.key, required BookMinimal book})
+  BookCoverCard.fromBook({super.key, required BookMinimal book, this.onTap})
     : storyId = book.storyId,
       preloaded = book;
 
@@ -36,9 +38,11 @@ class _BookCoverCardState extends State<BookCoverCard> {
 
   Widget _buildCard(BuildContext context, BookMinimal book) {
     return GestureDetector(
-      onTap: () => context.read<NavigationCubit>().push(
-        NavigationStoryState(storyId: widget.storyId),
-      ),
+      onTap:
+          widget.onTap ??
+          () => context.read<NavigationCubit>().push(
+            NavigationStoryState(storyId: widget.storyId),
+          ),
       child: Stack(
         fit: StackFit.expand,
         children: [

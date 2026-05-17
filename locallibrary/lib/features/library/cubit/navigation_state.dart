@@ -40,7 +40,7 @@ final class NavigationStoryState extends NavigationState {
   NavigationStoryState({required this.storyId});
 
   @override
-  Widget build() => StoryScreen(storyId: storyId);
+  Widget build() => StoryScreen(key: ValueKey(storyId), storyId: storyId);
 }
 
 final class NavigationScrapeStoryState extends NavigationState {
@@ -50,8 +50,11 @@ final class NavigationScrapeStoryState extends NavigationState {
   NavigationScrapeStoryState({required this.storyId, required this.scrapeRes});
 
   @override
-  Widget build() =>
-      ScrapeStoryViewScreen(storyId: storyId, scrapeRes: scrapeRes);
+  Widget build() => ScrapeStoryViewScreen(
+    key: ValueKey('scrape_$storyId'),
+    storyId: storyId,
+    scrapeRes: scrapeRes,
+  );
 }
 
 final class NavigationPartState extends NavigationState {

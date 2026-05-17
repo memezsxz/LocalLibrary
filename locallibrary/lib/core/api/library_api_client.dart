@@ -49,4 +49,11 @@ abstract class LibraryApiClient {
 
   @POST('/stories/search_filter')
   Future<List<BookMinimal>> searchFilter(@Body() FilterStoriesParams params);
+
+  @GET('/authors/{authorId}/stories')
+  Future<List<BookMinimal>> getStoriesByAuthor(
+    @Path('authorId') int authorId,
+    @Query('limit') int limit,
+    @Query('offset') int offset,
+  );
 }
