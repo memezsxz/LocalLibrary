@@ -9,15 +9,15 @@ import '../../../core/api/story_api_client.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../dependency_injection.dart';
 import '../../comments/bloc/scrape_comments_bloc.dart';
+import '../../comments/models/scrape_comments_result.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
 import '../../part/bloc/scrape_part_bloc.dart';
 import '../bloc/base_scrape_bloc.dart';
 import '../bloc/base_scrape_event.dart';
 import '../bloc/base_scrape_state.dart';
-import '../models/domain/part_model.dart';
+import '../models/dto/part_info.dart';
 import '../models/dto/part_link.dart';
-import '../models/dto/part_tx_result.dart';
 import '../models/dto/scrape_story_res.dart';
 import '../models/dto/story_bundle.dart';
 import 'scrape_logs_dialog.dart';
@@ -46,8 +46,7 @@ class _ScrapeDescriptionBottomState extends State<ScrapeDescriptionBottom> {
   late final List<ScrapePartBloc> _blocs;
   late final List<ScrapeCommentsBloc> _commentBlocs;
   late final List<ValueNotifier<bool>> _expansionNotifiers;
-  late final Map<String, Part> _localByWattId;
-  final _api = sl.get<StoryApiClient>();
+  late final Future<List<PartInfo>> _partsInfoFuture;
   final _scrapeService = sl.get<ScrapeService>();
 
   bool _includeComments = false;
@@ -55,8 +54,8 @@ class _ScrapeDescriptionBottomState extends State<ScrapeDescriptionBottom> {
   @override
   void initState() {
     super.initState();
-    _localByWattId = {for (final p in widget.bundle.parts) p.wattId: p};
     final storyId = widget.bundle.story.storyId;
+    _partsInfoFuture = sl.get<StoryApiClient>().getPartsInfo(storyId);
     _blocs = widget.scrapeRes.partLinks
         .map((_) => ScrapePartBloc(api: _scrapeService, storyId: storyId))
         .toList();
@@ -94,19 +93,17 @@ class _ScrapeDescriptionBottomState extends State<ScrapeDescriptionBottom> {
         _ScrapeAllBar(
           partLinks: widget.scrapeRes.partLinks,
           blocs: _blocs,
-          commentBlocs: _commentBlocs,
           includeComments: _includeComments,
           onIncludeCommentsChanged: (v) => setState(() => _includeComments = v),
         ),
         const SizedBox(height: 24),
         _ScrapeModeToc(
           partLinks: widget.scrapeRes.partLinks,
-          localByWattId: _localByWattId,
+          partsInfoFuture: _partsInfoFuture,
           blocs: _blocs,
           commentBlocs: _commentBlocs,
           expansionNotifiers: _expansionNotifiers,
           storyId: widget.bundle.story.storyId,
-          api: _api,
           includeComments: _includeComments,
         ),
       ],
@@ -121,14 +118,12 @@ class _ScrapeDescriptionBottomState extends State<ScrapeDescriptionBottom> {
 class _ScrapeAllBar extends StatefulWidget {
   final List<PartLink> partLinks;
   final List<ScrapePartBloc> blocs;
-  final List<ScrapeCommentsBloc> commentBlocs;
   final bool includeComments;
   final ValueChanged<bool> onIncludeCommentsChanged;
 
   const _ScrapeAllBar({
     required this.partLinks,
     required this.blocs,
-    required this.commentBlocs,
     required this.includeComments,
     required this.onIncludeCommentsChanged,
   });
@@ -157,25 +152,14 @@ class _ScrapeAllBarState extends State<_ScrapeAllBar> {
       }
 
       final bloc = widget.blocs[i];
-      final partDone = bloc.stream.firstWhere(
+      final partDoneFuture = bloc.stream.firstWhere(
         (s) => s.status == ScrapeStatus.done || s.status == ScrapeStatus.error,
       );
+      bloc.withComments = widget.includeComments;
       bloc.add(InputChanged(href));
       bloc.add(StartRequested());
-      await partDone;
+      await partDoneFuture;
       if (!mounted) return;
-
-      if (widget.includeComments) {
-        final commentsBloc = widget.commentBlocs[i];
-        final commentsDone = commentsBloc.stream.firstWhere(
-          (s) =>
-              s.status == ScrapeStatus.done || s.status == ScrapeStatus.error,
-        );
-        commentsBloc.add(InputChanged(href));
-        commentsBloc.add(StartRequested());
-        await commentsDone;
-        if (!mounted) return;
-      }
 
       setState(() => _doneCount++);
     }
@@ -258,22 +242,20 @@ class _ScrapeAllBarState extends State<_ScrapeAllBar> {
 
 class _ScrapeModeToc extends StatelessWidget {
   final List<PartLink> partLinks;
-  final Map<String, Part> localByWattId;
+  final Future<List<PartInfo>> partsInfoFuture;
   final List<ScrapePartBloc> blocs;
   final List<ScrapeCommentsBloc> commentBlocs;
   final List<ValueNotifier<bool>> expansionNotifiers;
   final int storyId;
-  final StoryApiClient api;
   final bool includeComments;
 
   const _ScrapeModeToc({
     required this.partLinks,
-    required this.localByWattId,
+    required this.partsInfoFuture,
     required this.blocs,
     required this.commentBlocs,
     required this.expansionNotifiers,
     required this.storyId,
-    required this.api,
     required this.includeComments,
   });
 
@@ -311,25 +293,32 @@ class _ScrapeModeToc extends StatelessWidget {
             ),
           ),
           const SizedBox(),
-          ExpansionTileList(
-            shrinkWrap: true,
-            primary: false,
-            physics: const NeverScrollableScrollPhysics(),
-            itemGapSize: 12,
-            expansionMode: ExpansionMode.atMostOne,
-            children: [
-              for (var i = 0; i < partLinks.length; i++)
-                _ScrapeModeTocRow(
-                  partLink: partLinks[i],
-                  localPart: localByWattId[partLinks[i].wattId],
-                  bloc: blocs[i],
-                  commentsBloc: commentBlocs[i],
-                  expansionNotifier: expansionNotifiers[i],
-                  storyId: storyId,
-                  api: api,
-                  includeComments: includeComments,
-                ),
-            ],
+          FutureBuilder<List<PartInfo>>(
+            future: partsInfoFuture,
+            builder: (context, snapshot) {
+              final localByWattId = {
+                for (final p in snapshot.data ?? <PartInfo>[]) p.wattId: p,
+              };
+              return ExpansionTileList(
+                shrinkWrap: true,
+                primary: false,
+                physics: const NeverScrollableScrollPhysics(),
+                itemGapSize: 12,
+                expansionMode: ExpansionMode.atMostOne,
+                children: [
+                  for (var i = 0; i < partLinks.length; i++)
+                    _ScrapeModeTocRow(
+                      partLink: partLinks[i],
+                      localPart: localByWattId[partLinks[i].wattId],
+                      bloc: blocs[i],
+                      commentsBloc: commentBlocs[i],
+                      expansionNotifier: expansionNotifiers[i],
+                      storyId: storyId,
+                      includeComments: includeComments,
+                    ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 10),
         ],
@@ -346,12 +335,11 @@ class _ScrapeModeTocRow extends ExpansionTile {
   _ScrapeModeTocRow({
     Key? key,
     required PartLink partLink,
-    required Part? localPart,
+    required PartInfo? localPart,
     required ScrapePartBloc bloc,
-    required BaseScrapeBloc<PartTxResult> commentsBloc,
+    required BaseScrapeBloc<ScrapeCommentsResult> commentsBloc,
     required ValueNotifier<bool> expansionNotifier,
     required int storyId,
-    required StoryApiClient api,
     required bool includeComments,
   }) : super(
          key: key ?? ValueKey('scrape_toc_${partLink.wattId}'),
@@ -368,7 +356,6 @@ class _ScrapeModeTocRow extends ExpansionTile {
            commentsBloc: commentsBloc,
            expansionNotifier: expansionNotifier,
            storyId: storyId,
-           api: api,
            includeComments: includeComments,
          ),
          children: const [],
@@ -381,12 +368,11 @@ class _ScrapeModeTocRow extends ExpansionTile {
 
 class _ScrapeModeTocRowHeader extends StatelessWidget {
   final PartLink partLink;
-  final Part? localPart;
+  final PartInfo? localPart;
   final ScrapePartBloc bloc;
-  final BaseScrapeBloc<PartTxResult> commentsBloc;
+  final BaseScrapeBloc<ScrapeCommentsResult> commentsBloc;
   final ValueNotifier<bool> expansionNotifier;
   final int storyId;
-  final StoryApiClient api;
   final bool includeComments;
 
   const _ScrapeModeTocRowHeader({
@@ -396,7 +382,6 @@ class _ScrapeModeTocRowHeader extends StatelessWidget {
     required this.commentsBloc,
     required this.expansionNotifier,
     required this.storyId,
-    required this.api,
     required this.includeComments,
   });
 
@@ -407,7 +392,7 @@ class _ScrapeModeTocRowHeader extends StatelessWidget {
       context,
     ).textTheme.titleMedium?.copyWith(fontSize: 16, color: AppPalette.primary);
 
-    return BlocBuilder<ScrapePartBloc, BaseScrapeState<PartTxResult>>(
+    return BlocBuilder<ScrapePartBloc, BaseScrapeState<PartInfo>>(
       bloc: bloc,
       buildWhen: (p, n) => p.status != n.status,
       builder: (context, scrapeState) {
@@ -453,7 +438,6 @@ class _ScrapeModeTocRowHeader extends StatelessWidget {
                               bloc: bloc,
                               commentsBloc: commentsBloc,
                               storyId: storyId,
-                              api: api,
                               includeComments: includeComments,
                             )
                           : const SizedBox(width: double.infinity),
@@ -475,9 +459,9 @@ class _ScrapeModeTocRowHeader extends StatelessWidget {
 
 class _QuickScrapeActions extends StatelessWidget {
   final ScrapePartBloc bloc;
-  final BaseScrapeBloc<PartTxResult> commentsBloc;
+  final BaseScrapeBloc<ScrapeCommentsResult> commentsBloc;
   final PartLink partLink;
-  final Part? localPart;
+  final PartInfo? localPart;
   final bool includeComments;
 
   const _QuickScrapeActions({
@@ -488,45 +472,30 @@ class _QuickScrapeActions extends StatelessWidget {
     required this.includeComments,
   });
 
-  String? get _href => localPart?.href ?? partLink.url;
+  String? get _href => partLink.url;
 
   void _scrape(BuildContext context) {
     final href = _href;
     if (href == null || href.isEmpty) return;
+    bloc.withComments = includeComments;
     bloc.add(InputChanged(href));
     bloc.add(StartRequested());
-    if (includeComments) _chainComments(context);
-  }
-
-  Future<void> _chainComments(BuildContext context) async {
-    await bloc.stream.firstWhere(
-      (s) => s.status == ScrapeStatus.done || s.status == ScrapeStatus.error,
-    );
-    if (!context.mounted) return;
-    final href = _href;
-    if (href == null || href.isEmpty) return;
-    commentsBloc.add(InputChanged(href));
-    commentsBloc.add(StartRequested());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!context.mounted) return;
-      openScrapeEventsModal<PartTxResult>(context: context, bloc: commentsBloc);
-    });
   }
 
   void _openLogs(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!context.mounted) return;
-      openScrapeEventsModal<PartTxResult>(context: context, bloc: bloc);
+      openScrapeEventsModal<PartInfo>(context: context, bloc: bloc);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ScrapePartBloc, BaseScrapeState<PartTxResult>>(
+    return BlocBuilder<ScrapePartBloc, BaseScrapeState<PartInfo>>(
       bloc: bloc,
       buildWhen: (p, n) => p.status != n.status,
-      builder: (context, state) {
-        if (state.status.isBusy) {
+      builder: (context, scrapeState) {
+        if (scrapeState.status.isBusy) {
           return _FilledIconBtn(
             icon: Icons.list_alt,
             tooltip: 'View logs',
@@ -534,7 +503,7 @@ class _QuickScrapeActions extends StatelessWidget {
           );
         }
 
-        if (state.status == ScrapeStatus.error) {
+        if (scrapeState.status == ScrapeStatus.error) {
           return Row(
             mainAxisSize: MainAxisSize.min,
             spacing: 4,
@@ -610,11 +579,10 @@ class _FilledIconBtn extends StatelessWidget {
 
 class _ScrapeModeTocRowExpanded extends StatefulWidget {
   final PartLink partLink;
-  final Part? localPart;
+  final PartInfo? localPart;
   final ScrapePartBloc bloc;
-  final BaseScrapeBloc<PartTxResult> commentsBloc;
+  final BaseScrapeBloc<ScrapeCommentsResult> commentsBloc;
   final int storyId;
-  final StoryApiClient api;
   final bool includeComments;
 
   const _ScrapeModeTocRowExpanded({
@@ -623,7 +591,6 @@ class _ScrapeModeTocRowExpanded extends StatefulWidget {
     required this.bloc,
     required this.commentsBloc,
     required this.storyId,
-    required this.api,
     required this.includeComments,
   });
 
@@ -633,58 +600,32 @@ class _ScrapeModeTocRowExpanded extends StatefulWidget {
 }
 
 class _ScrapeModeTocRowExpandedState extends State<_ScrapeModeTocRowExpanded> {
-  Future<(int, int)>? _countsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    final part = widget.localPart;
-    if (part != null) {
-      _countsFuture = Future.wait([
-        widget.api.getPartParagraphsCount(widget.storyId, part.partId),
-        widget.api.getPartCommentsCount(widget.storyId, part.partId),
-      ]).then((r) => (r[0].count, r[1].count));
-    }
-  }
 
   void _openPartLogs(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!context.mounted) return;
-      openScrapeEventsModal<PartTxResult>(context: context, bloc: widget.bloc);
+      openScrapeEventsModal<PartInfo>(
+          context: context, bloc: widget.bloc);
     });
   }
 
   void _openCommentsLogs(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!context.mounted) return;
-      openScrapeEventsModal<PartTxResult>(
-        context: context,
-        bloc: widget.commentsBloc,
-      );
+      openScrapeEventsModal<ScrapeCommentsResult>(
+          context: context, bloc: widget.commentsBloc);
     });
   }
 
-  String? get _href => widget.localPart?.href ?? widget.partLink.url;
+  String? get _href => widget.partLink.url;
 
   void _startScrape(BuildContext context) {
     final href = _href;
     if (href == null || href.isEmpty) return;
+    widget.bloc.withComments = widget.includeComments;
     widget.bloc.add(InputChanged(href));
     widget.bloc.add(StartRequested());
     _openPartLogs(context);
-    if (widget.includeComments) _chainComments(context);
-  }
-
-  Future<void> _chainComments(BuildContext context) async {
-    await widget.bloc.stream.firstWhere(
-      (s) => s.status == ScrapeStatus.done || s.status == ScrapeStatus.error,
-    );
-    if (!context.mounted) return;
-    final href = _href;
-    if (href == null || href.isEmpty) return;
-    widget.commentsBloc.add(InputChanged(href));
-    widget.commentsBloc.add(StartRequested());
-    _openCommentsLogs(context);
   }
 
   void _startScrapeComments(BuildContext context) {
@@ -710,53 +651,46 @@ class _ScrapeModeTocRowExpandedState extends State<_ScrapeModeTocRowExpanded> {
         children: [
           // Metadata
           if (widget.localPart != null)
-            FutureBuilder<(int, int)>(
-              future: _countsFuture,
-              builder: (context, snapshot) {
-                final p = widget.localPart!;
-                return Wrap(
-                  spacing: 16,
-                  runSpacing: 4,
-                  children: [
-                    Text(
-                      'Published: ${dateFmt.format(p.datePublished.toLocal())}',
-                      style: labelStyle,
-                    ),
-                    Text(
-                      'Votes: ${NumberFormat.compact().format(p.votes)}',
-                      style: labelStyle,
-                    ),
-                    Text(
-                      'Scraped: ${dateFmt.format(p.updatedAt.toLocal())}',
-                      style: labelStyle,
-                    ),
-                    if (snapshot.data != null) ...[
-                      Text(
-                        'Paragraphs: ${snapshot.data!.$1}',
-                        style: labelStyle,
-                      ),
-                      Text('Comments: ${snapshot.data!.$2}', style: labelStyle),
-                    ],
-                    if (p.isDeleted)
-                      Text(
-                        'Deleted',
-                        style: labelStyle?.copyWith(color: AppPalette.error),
-                      ),
-                  ],
-                );
-              },
+            Wrap(
+              spacing: 16,
+              runSpacing: 4,
+              children: [
+                Text(
+                  'Published: ${dateFmt.format(
+                      widget.localPart!.datePublished.toLocal())}',
+                  style: labelStyle,
+                ),
+                Text(
+                  'Votes: ${NumberFormat.compact().format(
+                      widget.localPart!.votes)}',
+                  style: labelStyle,
+                ),
+                Text(
+                  'Paragraphs: ${widget.localPart!.paragraphCount}',
+                  style: labelStyle,
+                ),
+                Text(
+                  'Comments: ${widget.localPart!.commentCount}',
+                  style: labelStyle,
+                ),
+                if (widget.localPart!.isDeleted)
+                  Text(
+                    'Deleted',
+                    style: labelStyle?.copyWith(color: AppPalette.error),
+                  ),
+              ],
             )
           else if (widget.partLink.url != null)
             Text(widget.partLink.url!, style: labelStyle),
 
           // Action buttons
-          BlocBuilder<ScrapePartBloc, BaseScrapeState<PartTxResult>>(
+          BlocBuilder<ScrapePartBloc, BaseScrapeState<PartInfo>>(
             bloc: widget.bloc,
             buildWhen: (p, n) => p.status != n.status,
             builder: (context, scrapeState) {
               return BlocBuilder<
-                BaseScrapeBloc<PartTxResult>,
-                BaseScrapeState<PartTxResult>
+                  BaseScrapeBloc<ScrapeCommentsResult>,
+                  BaseScrapeState<ScrapeCommentsResult>
               >(
                 bloc: widget.commentsBloc,
                 buildWhen: (p, n) => p.status != n.status,

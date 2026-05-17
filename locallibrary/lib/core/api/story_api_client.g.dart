@@ -136,7 +136,7 @@ class _StoryApiClient implements StoryApiClient {
   }
 
   @override
-  Future<CommentPage> fetchParagraphComments(int storyId,
+  Future<List<Comment>> fetchParagraphComments(int storyId,
       int paragraphId, {
         int? limit,
         int? offset,
@@ -149,7 +149,7 @@ class _StoryApiClient implements StoryApiClient {
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<CommentPage>(
+    final _options = _setStreamType<List<Comment>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
         _dio.options,
@@ -159,10 +159,12 @@ class _StoryApiClient implements StoryApiClient {
       )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late CommentPage _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<Comment> _value;
     try {
-      _value = CommentPage.fromJson(_result.data!);
+      _value = _result.data!
+          .map((dynamic i) => Comment.fromJson(i as Map<String, dynamic>))
+          .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -171,7 +173,7 @@ class _StoryApiClient implements StoryApiClient {
   }
 
   @override
-  Future<CommentPage> fetchPartComments(int storyId,
+  Future<List<Comment>> fetchPartComments(int storyId,
       int partId, {
         int? limit,
         int? offset,
@@ -184,7 +186,7 @@ class _StoryApiClient implements StoryApiClient {
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<CommentPage>(
+    final _options = _setStreamType<List<Comment>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
         _dio.options,
@@ -194,10 +196,12 @@ class _StoryApiClient implements StoryApiClient {
       )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late CommentPage _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<Comment> _value;
     try {
-      _value = CommentPage.fromJson(_result.data!);
+      _value = _result.data!
+          .map((dynamic i) => Comment.fromJson(i as Map<String, dynamic>))
+          .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -206,7 +210,7 @@ class _StoryApiClient implements StoryApiClient {
   }
 
   @override
-  Future<CommentPage> fetchCommentReplies(int storyId,
+  Future<List<Comment>> fetchCommentReplies(int storyId,
       int commentId, {
         int? limit,
         int? offset,
@@ -219,7 +223,7 @@ class _StoryApiClient implements StoryApiClient {
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<CommentPage>(
+    final _options = _setStreamType<List<Comment>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
         _dio.options,
@@ -229,10 +233,41 @@ class _StoryApiClient implements StoryApiClient {
       )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late CommentPage _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<Comment> _value;
     try {
-      _value = CommentPage.fromJson(_result.data!);
+      _value = _result.data!
+          .map((dynamic i) => Comment.fromJson(i as Map<String, dynamic>))
+          .toList();
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<List<PartInfo>> getPartsInfo(int storyId) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<List<PartInfo>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+        _dio.options,
+        '/stories/${storyId}/parts/info',
+        queryParameters: queryParameters,
+        data: _data,
+      )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<PartInfo> _value;
+    try {
+      _value = _result.data!
+          .map((dynamic i) => PartInfo.fromJson(i as Map<String, dynamic>))
+          .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

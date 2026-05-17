@@ -16,6 +16,7 @@ class CommentListItem extends StatelessWidget {
     required this.textDirection,
     required this.onToggleReplies,
     this.isByAuthor = false,
+    this.isHighlighted = false,
   });
 
   final Comment comment;
@@ -26,6 +27,7 @@ class CommentListItem extends StatelessWidget {
   final TextDirection textDirection;
   final VoidCallback onToggleReplies;
   final bool isByAuthor;
+  final bool isHighlighted;
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +37,17 @@ class CommentListItem extends StatelessWidget {
       padding: EdgeInsetsDirectional.only(start: depth * 18.0),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF2D2D2D).withOpacity(0.1),
+          color: isHighlighted
+              ? const Color(0xFFFFF8E1)
+              : const Color(0xFF2D2D2D).withOpacity(0.1),
           borderRadius: const BorderRadius.all(
             Radius.circular(8),
           ).copyWith(topLeft: const Radius.circular(3)),
+          border: isHighlighted
+              ? const Border(
+                  left: BorderSide(color: Color(0xFFFFA000), width: 3),
+                )
+              : null,
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),

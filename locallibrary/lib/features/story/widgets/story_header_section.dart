@@ -8,6 +8,7 @@ import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
 import '../models/dto/story_bundle.dart';
+import '../screens/scrape_story_screen.dart';
 import 'story_description_top_center.dart';
 import 'story_description_top_left.dart';
 import 'story_description_top_right.dart';
@@ -124,7 +125,12 @@ class _MobileStoryDescriptionTop extends StatelessWidget {
               ),
             ),
             GestureDetector(
-              onTap: () => print("load from web"),
+              onTap: () {
+                final url =
+                    story.story.url ??
+                    'https://www.wattpad.com/story/${story.story.wattId}';
+                showScrapeSheet(context, url: url, autoStart: true);
+              },
               child: SvgPicture.asset(
                 "assets/icons/reload_from_web_icon.svg",
                 width: _iconW,

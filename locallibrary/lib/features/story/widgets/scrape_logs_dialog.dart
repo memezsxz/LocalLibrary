@@ -12,6 +12,8 @@ import '../bloc/base_scrape_bloc.dart';
 import '../bloc/base_scrape_state.dart';
 import '../models/scrape/scrape_event_model.dart';
 
+// ─── open helper ──────────────────────────────────────────────────────────────
+
 void openScrapeEventsModal<TRes>({
   required BuildContext context,
   required BaseScrapeBloc<TRes> bloc,
@@ -32,13 +34,10 @@ void openScrapeEventsModal<TRes>({
         expand: false,
         builder: (_, scrollController) => ClipRRect(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: BlocProvider.value(
-            value: bloc,
-            child: EventInspectorModal<TRes>(
-              bloc: bloc,
-              scrollController: scrollController,
-              isSheet: true,
-            ),
+          child: EventInspectorModal<TRes>(
+            bloc: bloc,
+            scrollController: scrollController,
+            isSheet: true,
           ),
         ),
       ),
@@ -56,15 +55,14 @@ void openScrapeEventsModal<TRes>({
             minHeight: MediaQuery.of(context).size.height * 0.75,
             maxHeight: MediaQuery.of(context).size.height * 0.75,
           ),
-          child: BlocProvider.value(
-            value: bloc,
-            child: EventInspectorModal<TRes>(bloc: bloc),
-          ),
+          child: EventInspectorModal<TRes>(bloc: bloc),
         ),
       ),
     );
   }
 }
+
+// ─── modal ────────────────────────────────────────────────────────────────────
 
 class EventInspectorModal<TRes> extends StatefulWidget {
   const EventInspectorModal({
@@ -86,14 +84,28 @@ class EventInspectorModal<TRes> extends StatefulWidget {
 class _EventInspectorModalState<TRes> extends State<EventInspectorModal<TRes>> {
   final Set<int> _expanded = {};
 
+  void _expandAll(List<ScrapeEvent> events) {
+    setState(() {
+      _expanded.addAll(List.generate(events.length, (i) => i));
+    });
+  }
+
+  void _collapseAll() {
+    setState(() => _expanded.clear());
+  }
+
+  Future<void> _copyAll(List<ScrapeEvent> events) async {
+    final pretty = const JsonEncoder.withIndent('  ')
+        .convert(events.map((e) => e.toJson()).toList());
+    await Clipboard.setData(ClipboardData(text: pretty));
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BaseScrapeBloc<TRes>, BaseScrapeState<TRes>>(
       bloc: widget.bloc,
-      buildWhen: (prev, next) =>
-          prev.events.length != next.events.length ||
-          prev.status != next.status ||
-          !identical(prev.result, next.result),
+      buildWhen: (p, n) =>
+      p.events.length != n.events.length || p.status != n.status,
       builder: (_, state) {
         final events = state.events.reversed.toList();
 
@@ -117,34 +129,40 @@ class _EventInspectorModalState<TRes> extends State<EventInspectorModal<TRes>> {
                   ),
                 ),
               _InspectorHeader(
-                count: events.length,
-                onExpandAll: () => setState(
-                  () =>
-                      _expanded..addAll(List.generate(events.length, (i) => i)),
-                ),
-                onCollapseAll: () => setState(() => _expanded.clear()),
-                onCopyAll: () async {
-                  final pretty = const JsonEncoder.withIndent(
-                    '  ',
-                  ).convert(events.map((e) => e.toJson()).toList());
-                  await Clipboard.setData(ClipboardData(text: pretty));
-                },
+                onExpandAll: () => _expandAll(events),
+                onCollapseAll: _collapseAll,
+                onCopyAll: () => _copyAll(events),
+                onClose: () => Navigator.of(context).maybePop(),
               ),
               const Divider(height: 1),
               Flexible(
                 child: ListView.builder(
                   controller: widget.scrollController,
-                  padding: const EdgeInsets.only(bottom: 16),
                   shrinkWrap: widget.scrollController == null,
-                  itemCount: events.length,
+                  padding: const EdgeInsets.only(bottom: 16),
+                  itemCount: events.isEmpty ? 1 : events.length,
                   itemBuilder: (context, index) {
-                    final vm = events[index];
-                    final isOpen = _expanded.contains(index);
+                    if (events.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        child: Text(
+                          state.status == ScrapeStatus.idle
+                              ? 'Not started'
+                              : 'Waiting for events…',
+                          style: const TextStyle(
+                              fontSize: 12, color: AppPalette.gray),
+                        ),
+                      );
+                    }
+                    final isExpanded = _expanded.contains(index);
                     return _EventTile(
-                      vm: vm,
-                      isExpanded: isOpen,
+                      vm: events[index],
+                      isExpanded: isExpanded,
                       onToggle: () => setState(() {
-                        isOpen ? _expanded.remove(index) : _expanded.add(index);
+                        isExpanded
+                            ? _expanded.remove(index)
+                            : _expanded.add(index);
                       }),
                     );
                   },
@@ -158,18 +176,20 @@ class _EventInspectorModalState<TRes> extends State<EventInspectorModal<TRes>> {
   }
 }
 
+// ─── header ───────────────────────────────────────────────────────────────────
+
 class _InspectorHeader extends StatelessWidget {
   const _InspectorHeader({
-    required this.count,
     required this.onExpandAll,
     required this.onCollapseAll,
     required this.onCopyAll,
+    required this.onClose,
   });
 
-  final int count;
   final VoidCallback onExpandAll;
   final VoidCallback onCollapseAll;
   final VoidCallback onCopyAll;
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +200,7 @@ class _InspectorHeader extends StatelessWidget {
           const Icon(Icons.timeline, size: 18, color: AppPalette.primary),
           const SizedBox(width: 8),
           Text(
-            'Events ($count)',
+            'Scrape Logs',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const Spacer(),
@@ -207,7 +227,7 @@ class _InspectorHeader extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Close',
-            onPressed: () => Navigator.of(context).maybePop(),
+            onPressed: onClose,
             icon: const Icon(Icons.close, size: 18),
             color: AppPalette.primary,
             visualDensity: VisualDensity.compact,
@@ -217,6 +237,8 @@ class _InspectorHeader extends StatelessWidget {
     );
   }
 }
+
+// ─── event tile ───────────────────────────────────────────────────────────────
 
 class _EventTile extends StatelessWidget {
   const _EventTile({
@@ -283,7 +305,12 @@ class _EventTile extends StatelessWidget {
                     ),
                     child: Text(
                       DateFormat('HH:mm:ss.SSS').format(vm.receivedAt),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      style:
+                      Theme
+                          .of(context)
+                          .textTheme
+                          .labelSmall
+                          ?.copyWith(
                         fontSize: 10,
                         color: Colors.black,
                         fontFamily: 'IBM_Plex_Mono',
@@ -319,8 +346,9 @@ class _EventTile extends StatelessWidget {
                       constraints: BoxConstraints(
                         maxHeight: MediaQuery.of(context).size.height / 2,
                       ),
-                      child: JsonView.string(
-                        vm.payload,
+                      child: _isJsonObject(vm.payload)
+                          ? JsonView.string(
+                        _sanitizeNulls(vm.payload),
                         theme: JsonViewTheme(
                           loadingWidget: Loader(),
                           backgroundColor: AppPalette.transparent,
@@ -350,6 +378,16 @@ class _EventTile extends StatelessWidget {
                             fontFamily: 'IBM_Plex_Mono',
                           ),
                         ),
+                      )
+                          : SingleChildScrollView(
+                        child: Text(
+                          vm.payload,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'IBM_Plex_Mono',
+                            color: Colors.black87,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -362,7 +400,8 @@ class _EventTile extends StatelessWidget {
                     ),
                     tooltip: 'Copy',
                     onPressed: () async {
-                      await Clipboard.setData(ClipboardData(text: vm.payload));
+                      await Clipboard.setData(
+                          ClipboardData(text: vm.payload));
                     },
                     icon: const Icon(Icons.copy),
                   ),
@@ -373,6 +412,33 @@ class _EventTile extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static bool _isJsonObject(String s) {
+    try {
+      final v = jsonDecode(s);
+      return v is Map || v is List;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static String _sanitizeNulls(String s) {
+    try {
+      final v = jsonDecode(s);
+      return jsonEncode(_replaceNulls(v));
+    } catch (_) {
+      return s;
+    }
+  }
+
+  static dynamic _replaceNulls(dynamic v) {
+    if (v == null) return 'null';
+    if (v is Map) {
+      return {for (final e in v.entries) e.key: _replaceNulls(e.value)};
+    }
+    if (v is List) return v.map(_replaceNulls).toList();
+    return v;
   }
 
   static final Color _postmanBlue = const Color.fromARGB(255, 34, 80, 159);

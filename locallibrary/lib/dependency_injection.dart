@@ -4,10 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 
 import 'core/api/library_api_client.dart';
+import 'core/api/notifications_api_client.dart';
 import 'core/api/scrape_service.dart';
 import 'core/api/story_api_client.dart';
 import 'core/secrets/app_secrets.dart';
 import 'features/comments/bloc/comments_bloc.dart';
+import 'features/notifications/bloc/notifications_bloc.dart';
 import 'features/part/bloc/part_bloc.dart';
 import 'features/part/cubit/part_side_panel_cubit.dart';
 import 'features/settings/cubit/settings_cubit.dart';
@@ -44,6 +46,10 @@ void initDI() {
         () => ScrapeService(baseUrl: base),
   );
 
+  sl.registerLazySingleton<NotificationsApiClient>(
+        () => NotificationsApiClient(sl<Dio>()),
+  );
+
   sl.registerLazySingleton<StoryBloc>(
         () => StoryBloc(api: sl<StoryApiClient>()),
   );
@@ -61,5 +67,9 @@ void initDI() {
 
   sl.registerLazySingleton<ScrapeStoryBloc>(
         () => ScrapeStoryBloc(api: sl<ScrapeService>()),
+  );
+
+  sl.registerFactory<NotificationsBloc>(
+        () => NotificationsBloc(api: sl<NotificationsApiClient>()),
   );
 }

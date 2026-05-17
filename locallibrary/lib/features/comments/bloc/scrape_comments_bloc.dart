@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import '../../../core/api/scrape_service.dart';
 import '../../story/bloc/base_scrape_bloc.dart';
-import '../../story/models/dto/part_tx_result.dart';
 import '../../story/models/scrape/scrape_event_model.dart';
 import '../../story/utils/scrape_json_utils.dart';
 import '../../story/utils/scrape_url_utils.dart';
+import '../models/scrape_comments_result.dart';
 
-class ScrapeCommentsBloc extends BaseScrapeBloc<PartTxResult> {
+class ScrapeCommentsBloc extends BaseScrapeBloc<ScrapeCommentsResult> {
   final ScrapeService api;
   final int storyId;
 
@@ -37,10 +37,13 @@ class ScrapeCommentsBloc extends BaseScrapeBloc<PartTxResult> {
         parseFinished: (data) {
           try {
             final v = jsonDecode(data);
-            final obj = (v is Map && v['ok'] == true && v['result'] is Map)
-                ? v['result'] as Map<String, dynamic>
-                : (v is Map<String, dynamic> ? v : null);
-            return obj == null ? null : PartTxResult.fromJson(obj);
+            if (v is Map && v['ok'] == true) {
+              final result = v['result'];
+              if (result is Map<String, dynamic>) {
+                return ScrapeCommentsResult.fromJson(result);
+              }
+            }
+            return null;
           } catch (_) {
             return null;
           }

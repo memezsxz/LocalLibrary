@@ -2,10 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../features/story/models/domain/book_cover_model.dart';
+import '../../features/story/models/domain/comment_model.dart';
 import '../../features/story/models/domain/part_model.dart';
 import '../../features/story/models/dto/part_full_info.dart';
+import '../../features/story/models/dto/part_info.dart';
 import '../../features/story/models/dto/story_bundle.dart';
-import 'dto/comment_page.dart';
 import 'dto/count_response.dart';
 
 part 'story_api_client.g.dart';
@@ -35,7 +36,7 @@ abstract class StoryApiClient {
   );
 
   @GET('/app/stories/{storyId}/paragraphs/{paragraphId}/comments')
-  Future<CommentPage> fetchParagraphComments(
+  Future<List<Comment>> fetchParagraphComments(
     @Path('storyId') int storyId,
     @Path('paragraphId') int paragraphId, {
     @Query('limit') int? limit,
@@ -43,7 +44,7 @@ abstract class StoryApiClient {
   });
 
   @GET('/app/stories/{storyId}/parts/{partId}/comments')
-  Future<CommentPage> fetchPartComments(
+  Future<List<Comment>> fetchPartComments(
     @Path('storyId') int storyId,
     @Path('partId') int partId, {
     @Query('limit') int? limit,
@@ -51,12 +52,15 @@ abstract class StoryApiClient {
   });
 
   @GET('/app/stories/{storyId}/comments/{commentId}/replies')
-  Future<CommentPage> fetchCommentReplies(
+  Future<List<Comment>> fetchCommentReplies(
     @Path('storyId') int storyId,
     @Path('commentId') int commentId, {
     @Query('limit') int? limit,
     @Query('offset') int? offset,
   });
+
+  @GET('/stories/{storyId}/parts/info')
+  Future<List<PartInfo>> getPartsInfo(@Path('storyId') int storyId);
 
   @GET('/app/stories/{storyId}/parts/{partId}/paragraphs/count')
   Future<CountResponse> getPartParagraphsCount(

@@ -17,6 +17,7 @@ abstract class BaseScrapeBloc<TRes>
     required this.validateInput,
     required this.parseFinished,
     required this.extractError,
+    this.suppressParseError = false,
   }) : super(BaseScrapeState<TRes>()) {
     on<InputChanged>(_onInputChanged);
     on<StartRequested>(_onStart);
@@ -28,6 +29,7 @@ abstract class BaseScrapeBloc<TRes>
   final String? Function(String input) validateInput;
   final FinishedParser<TRes> parseFinished;
   final ErrorExtractor extractError;
+  final bool suppressParseError;
 
   StreamSubscription<ScrapeEvent>? _sseSub;
   TRes? _lastResult;
@@ -149,6 +151,7 @@ abstract class BaseScrapeBloc<TRes>
       _lastResult = res;
 
       if (res == null) {
+        print(e.data);
         emit(
           state.copyWith(
             status: ScrapeStatus.done,

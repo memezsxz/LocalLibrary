@@ -14,11 +14,11 @@ class PartTxResult {
 
   @JsonKey(name: 'paragraphs')
   @JsonKey(defaultValue: List<Paragraph>)
-  final List<Paragraph> paragraphs;
+  final List<Paragraph>? paragraphs;
 
-  @JsonKey(name: 'comments')
-  @JsonKey(defaultValue: List<Comment>)
-  final List<Comment> comments;
+  // @JsonKey(name: 'comments')
+  // @JsonKey(defaultValue: List<Comment>)
+  final List<Comment>? comments;
 
   PartTxResult({
     required this.part,

@@ -25,10 +25,16 @@ class ScrapeService {
     required String partUrl,
     required int storyId,
     bool clearOutput = false,
+    bool withComments = false,
   }) {
     return _stream(
       path: '/app/scrape/part/stream',
-      body: {'url': partUrl, 'story_id': storyId, 'clear_output': clearOutput},
+      body: {
+        'url': partUrl,
+        'story_id': storyId,
+        'clear_output': clearOutput,
+        'with_comments': withComments,
+      },
     );
   }
 

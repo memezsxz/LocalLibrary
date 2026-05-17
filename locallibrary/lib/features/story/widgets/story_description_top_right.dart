@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../../core/theme/app_palette.dart';
 import '../models/dto/story_bundle.dart';
+import '../screens/scrape_story_screen.dart';
 
 class StoryDescriptionTopRight extends StatelessWidget {
   const StoryDescriptionTopRight({super.key, required this.story});
@@ -32,7 +33,10 @@ class StoryDescriptionTopRight extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () {
-              print("load from web");
+              final url =
+                  story.story.url ??
+                  'https://www.wattpad.com/story/${story.story.wattId}';
+              showScrapeSheet(context, url: url, autoStart: true);
             },
             child: SvgPicture.asset(
               "assets/icons/reload_from_web_icon.svg",

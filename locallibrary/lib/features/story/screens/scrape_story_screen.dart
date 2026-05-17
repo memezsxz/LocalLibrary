@@ -32,7 +32,11 @@ class ScrapeStoryScreen extends StatelessWidget {
   }
 }
 
-void showScrapeSheet(BuildContext context) {
+void showScrapeSheet(
+  BuildContext context, {
+  String? url,
+  bool autoStart = false,
+}) {
   showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -40,18 +44,27 @@ void showScrapeSheet(BuildContext context) {
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
-    builder: (_) =>
-        BlocProvider.value(
-          value: context.read<NavigationCubit>(),
-          child: const _ScrapeStoryView(isSheet: true),
-        ),
+    builder: (_) => BlocProvider.value(
+      value: context.read<NavigationCubit>(),
+      child: _ScrapeStoryView(
+        isSheet: true,
+        initialUrl: url,
+        autoStart: autoStart,
+      ),
+    ),
   );
 }
 
 class _ScrapeStoryView extends StatefulWidget {
-  const _ScrapeStoryView({required this.isSheet});
+  const _ScrapeStoryView({
+    required this.isSheet,
+    this.initialUrl,
+    this.autoStart = false,
+  });
 
   final bool isSheet;
+  final String? initialUrl;
+  final bool autoStart;
 
   @override
   State<_ScrapeStoryView> createState() => _ScrapeStoryViewState();
@@ -63,8 +76,18 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) =>
-        _prefillFromClipboard());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final url = widget.initialUrl;
+      if (url != null && url.isNotEmpty) {
+        _urlCtrl.text = url;
+        sl.get<ScrapeStoryBloc>().add(InputChanged(url));
+        if (widget.autoStart) {
+          sl.get<ScrapeStoryBloc>().add(StartRequested());
+        }
+      } else {
+        _prefillFromClipboard();
+      }
+    });
   }
 
   @override
@@ -76,11 +99,7 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
 
   Future<void> _prefillFromClipboard() async {
     final bloc = sl.get<ScrapeStoryBloc>();
-    if (_urlCtrl.text
-        .trim()
-        .isNotEmpty || bloc.state.input
-        .trim()
-        .isNotEmpty) {
+    if (_urlCtrl.text.trim().isNotEmpty || bloc.state.input.trim().isNotEmpty) {
       return;
     }
     final raw = (await ClipboardService().getFromClipboard())?.trim() ?? '';
@@ -101,32 +120,39 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
           if (widget.isSheet) {
             final nav = context.read<NavigationCubit>();
             Navigator.of(context).popUntil((route) => route.isFirst);
-            nav.push(NavigationScrapeStoryState(
-              storyId: res.story.story.storyId,
-              scrapeRes: res,
-            ));
+            nav.push(
+              NavigationScrapeStoryState(
+                storyId: res.story.story.storyId,
+                scrapeRes: res,
+              ),
+            );
           } else {
-            context.read<NavigationCubit>().push(NavigationScrapeStoryState(
-              storyId: res.story.story.storyId,
-              scrapeRes: res,
-            ));
+            context.read<NavigationCubit>().push(
+              NavigationScrapeStoryState(
+                storyId: res.story.story.storyId,
+                scrapeRes: res,
+              ),
+            );
           }
         }
       },
       buildWhen: (prev, next) =>
-      prev.input != next.input ||
+          prev.input != next.input ||
           prev.inputHint != next.inputHint ||
           prev.errorMessage != next.errorMessage ||
           prev.status != next.status,
       builder: (context, state) {
         final isSheet = widget.isSheet;
-        final bottomInset = isSheet ? MediaQuery
-            .of(context)
-            .viewInsets
-            .bottom : 0.0;
+        final bottomInset = isSheet
+            ? MediaQuery.of(context).viewInsets.bottom
+            : 0.0;
         return Padding(
           padding: EdgeInsets.fromLTRB(
-              24, isSheet ? 0 : 16, 24, 24 + bottomInset),
+            24,
+            isSheet ? 0 : 16,
+            24,
+            24 + bottomInset,
+          ),
           child: Column(
             mainAxisSize: isSheet ? MainAxisSize.min : MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,10 +170,10 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                     ),
                   ),
                 ),
-                Text('Add Story', style: Theme
-                    .of(context)
-                    .textTheme
-                    .titleLarge),
+                Text(
+                  'Add Story',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ],
               TextField(
                 controller: _urlCtrl
@@ -170,8 +196,8 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                         tooltip: 'Paste',
                         icon: const Icon(Icons.content_paste, size: 18),
                         onPressed: () async {
-                          final data =
-                              await ClipboardService().getFromClipboard();
+                          final data = await ClipboardService()
+                              .getFromClipboard();
                           final txt = data?.trim() ?? '';
                           if (txt.isEmpty) return;
                           _urlCtrl.text = txt;
@@ -204,13 +230,11 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                   onStart: () =>
                       sl.get<ScrapeStoryBloc>().add(StartRequested()),
                   onViewLogs: () =>
-                      WidgetsBinding.instance
-                          .addPostFrameCallback(
-                            (_) =>
-                            openScrapeEventsModal<ScrapeStoryRes>(
-                              context: context,
-                              bloc: sl.get<ScrapeStoryBloc>(),
-                            ),
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (_) => openScrapeEventsModal<ScrapeStoryRes>(
+                          context: context,
+                          bloc: sl.get<ScrapeStoryBloc>(),
+                        ),
                       ),
                   onCancel: () =>
                       sl.get<ScrapeStoryBloc>().add(CancelRequested()),
@@ -245,64 +269,51 @@ class _ScrapeActions extends StatelessWidget {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 220),
       child: switch (status) {
-        ScrapeStatus.idle =>
+        ScrapeStatus.idle => FilledButton.icon(
+          key: const ValueKey('idle'),
+          onPressed: onStart,
+          icon: status.indicator,
+          label: const Text('Scrape'),
+        ),
+        ScrapeStatus.connecting || ScrapeStatus.streaming => Row(
+          key: const ValueKey('active'),
+          mainAxisSize: MainAxisSize.min,
+          spacing: 8,
+          children: [
             FilledButton.icon(
-              key: const ValueKey('idle'),
-              onPressed: onStart,
+              onPressed: onViewLogs,
               icon: status.indicator,
-              label: const Text('Scrape'),
+              label: const Text('View Logs'),
             ),
-        ScrapeStatus.connecting || ScrapeStatus.streaming =>
-            Row(
-              key: const ValueKey('active'),
-              mainAxisSize: MainAxisSize.min,
-              spacing: 8,
-              children: [
-                FilledButton.icon(
-                  onPressed: onViewLogs,
-                  icon: status.indicator,
-                  label: const Text('View Logs'),
-                ),
-                OutlinedButton(
-                  onPressed: onCancel,
-                  child: const Text('Cancel'),
-                ),
-              ],
+            OutlinedButton(onPressed: onCancel, child: const Text('Cancel')),
+          ],
+        ),
+        ScrapeStatus.done => Row(
+          key: const ValueKey('done'),
+          mainAxisSize: MainAxisSize.min,
+          spacing: 8,
+          children: [
+            FilledButton.icon(
+              onPressed: onViewLogs,
+              icon: status.indicator,
+              label: const Text('View Logs'),
             ),
-        ScrapeStatus.done =>
-            Row(
-              key: const ValueKey('done'),
-              mainAxisSize: MainAxisSize.min,
-              spacing: 8,
-              children: [
-                FilledButton.icon(
-                  onPressed: onViewLogs,
-                  icon: status.indicator,
-                  label: const Text('View Logs'),
-                ),
-                TextButton(
-                  onPressed: onReset,
-                  child: const Text('Start Over'),
-                ),
-              ],
+            TextButton(onPressed: onReset, child: const Text('Start Over')),
+          ],
+        ),
+        ScrapeStatus.error => Row(
+          key: const ValueKey('error'),
+          mainAxisSize: MainAxisSize.min,
+          spacing: 8,
+          children: [
+            FilledButton.icon(
+              onPressed: onViewLogs,
+              icon: status.indicator,
+              label: const Text('View Logs'),
             ),
-        ScrapeStatus.error =>
-            Row(
-              key: const ValueKey('error'),
-              mainAxisSize: MainAxisSize.min,
-              spacing: 8,
-              children: [
-                FilledButton.icon(
-                  onPressed: onViewLogs,
-                  icon: status.indicator,
-                  label: const Text('View Logs'),
-                ),
-                TextButton(
-                  onPressed: onReset,
-                  child: const Text('Try Again'),
-                ),
-              ],
-            ),
+            TextButton(onPressed: onReset, child: const Text('Try Again')),
+          ],
+        ),
       },
     );
   }

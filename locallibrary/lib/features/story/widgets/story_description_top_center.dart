@@ -24,9 +24,7 @@ class StoryDescriptionTopCenter extends StatelessWidget {
           StoryData(
             image: SvgPicture.asset("assets/icons/star_icon.svg"),
             label: "Votes",
-            number: story.parts
-                .map((p) => p.votes)
-                .reduce((prev, now) => prev + now),
+            number: story.parts.fold<int>(0, (sum, p) => sum + (p.votes ?? 0)),
           ),
           StoryData(
             image: SvgPicture.asset("assets/icons/parts_icon.svg"),

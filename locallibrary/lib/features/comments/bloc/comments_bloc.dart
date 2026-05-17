@@ -59,13 +59,12 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     emit(loading);
 
     try {
-      final page = await api.fetchParagraphComments(
+      final items = await api.fetchParagraphComments(
         e.storyId,
         e.paragraphId,
         limit: e.limit ?? _pageSize,
         offset: 0,
       );
-      final items = page.items; // <-- unwrap
 
       emit(
         loading.copyWith(
@@ -119,13 +118,12 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     emit(loading);
 
     try {
-      final page = await api.fetchPartComments(
+      final items = await api.fetchPartComments(
         e.storyId,
         e.partId,
         limit: e.limit ?? _pageSize,
         offset: 0,
       );
-      final items = page.items; // <-- unwrap
 
       emit(
         loading.copyWith(
@@ -176,21 +174,19 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
 
       List<Comment> next;
       if (s.isParagraphMode) {
-        final page = await api.fetchParagraphComments(
+        next = await api.fetchParagraphComments(
           s.storyId,
           s.paragraphId!,
           limit: limit,
           offset: offset,
         );
-        next = page.items; // <-- unwrap
       } else if (s.isPartMode) {
-        final page = await api.fetchPartComments(
+        next = await api.fetchPartComments(
           s.storyId,
           s.partId!,
           limit: limit,
           offset: offset,
         );
-        next = page.items; // <-- unwrap
       } else {
         next = const <Comment>[];
       }
@@ -241,13 +237,12 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
 
     try {
       final current = s.replies[id] ?? const <Comment>[];
-      final page = await api.fetchCommentReplies(
+      final next = await api.fetchCommentReplies(
         s.storyId,
         id,
         limit: e.limit ?? _pageSize,
         offset: current.length,
       );
-      final next = page.items; // <-- unwrap
 
       final updatedReplies = Map<int, List<Comment>>.from(s.replies)
         ..[id] = [...current, ...next];

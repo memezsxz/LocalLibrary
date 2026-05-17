@@ -2,23 +2,43 @@ import 'dart:convert';
 
 import '../../../core/api/scrape_service.dart';
 import '../../story/bloc/base_scrape_bloc.dart';
-import '../../story/models/dto/part_tx_result.dart';
+import '../../story/models/dto/part_info.dart';
 import '../../story/models/scrape/scrape_event_model.dart';
 import '../../story/utils/scrape_json_utils.dart';
 import '../../story/utils/scrape_url_utils.dart';
 
-class ScrapePartBloc extends BaseScrapeBloc<PartTxResult> {
+class ScrapePartBloc extends BaseScrapeBloc<PartInfo> {
   final ScrapeService api;
   final int storyId;
+  final _WithCommentsHolder _holder;
 
-  /// Accept either a full part URL or "storyId:partId"
-  ScrapePartBloc({required this.api, required this.storyId})
-    : super(
+  /// Set before firing [StartRequested] to include comments in the scrape.
+  bool get withComments => _holder.value;
+
+  set withComments(bool v) => _holder.value = v;
+
+  factory ScrapePartBloc({required ScrapeService api, required int storyId}) {
+    final holder = _WithCommentsHolder();
+    return ScrapePartBloc._internal(
+      api: api,
+      storyId: storyId,
+      holder: holder,
+    );
+  }
+
+  ScrapePartBloc._internal({
+    required this.api,
+    required this.storyId,
+    required _WithCommentsHolder holder,
+  })
+      : _holder = holder,
+        super(
         startStream: (input) {
           final base = api.streamScrapePart(
             partUrl: input,
             clearOutput: false,
             storyId: storyId,
+            withComments: holder.value,
           );
 
           return base.asyncExpand((evt) async* {
@@ -33,21 +53,31 @@ class ScrapePartBloc extends BaseScrapeBloc<PartTxResult> {
             }
           });
         },
-
         validateInput: _validateUrlMessage,
         parseFinished: (data) {
           try {
             final v = jsonDecode(data);
-            final obj = (v is Map && v['ok'] == true && v['result'] is Map)
-                ? v['result'] as Map<String, dynamic>
-                : (v is Map<String, dynamic> ? v : null);
-            return obj == null ? null : PartTxResult.fromJson(obj);
+            if (v is Map && v['ok'] == true) {
+              final result = v['result'];
+              if (result is List && result.isNotEmpty) {
+                return PartInfo.fromJson(result[0] as Map<String, dynamic>);
+              }
+              if (result is Map<String, dynamic>) {
+                return PartInfo.fromJson(result);
+              }
+            }
+            if (v is Map<String, dynamic>) return PartInfo.fromJson(v);
+            return null;
           } catch (_) {
             return null;
           }
         },
         extractError: defaultErrorExtractor,
       );
+}
+
+class _WithCommentsHolder {
+  bool value = false;
 }
 
 String? _validateUrlMessage(String raw) {
@@ -62,7 +92,6 @@ String? _validateUrlMessage(String raw) {
   final segs = uri.pathSegments;
   if (segs.isEmpty) return 'Problem: expected a Wattpad path';
 
-  // Case 1: /<id>-slug   (part pages)
   final head = segs.first;
   final hasId = RegExp(r'^\d+').hasMatch(head);
   return hasId ? null : 'Problem: missing numeric id after wattpad.com/';
