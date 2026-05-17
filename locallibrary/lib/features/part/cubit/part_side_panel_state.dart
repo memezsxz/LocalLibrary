@@ -57,6 +57,6 @@ final class PartSidePanelCommentsCubit extends PartSidePanelState {
 final class PartSidePanelTypographyCubit extends PartSidePanelState {
   @override
   Widget get() {
-    return Placeholder();
+    return const PartTypographyPanel();
   }
 }

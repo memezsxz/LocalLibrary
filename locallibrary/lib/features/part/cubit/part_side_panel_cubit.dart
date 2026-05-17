@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../story/models/domain/part_model.dart';
 import '../widgets/part_comments_side_panel.dart';
 import '../widgets/part_info_side_panel.dart';
+import '../widgets/part_typography_panel.dart';
 
 part 'part_side_panel_state.dart';
 

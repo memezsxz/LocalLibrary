@@ -325,24 +325,51 @@ class _SettingsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        spacing: 12,
-        children: [
-          Icon(icon, size: 18, color: AppPalette.primary),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppPalette.textPrimary,
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final narrow = constraints.maxWidth < 360;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: narrow
+              ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
+            children: [
+              Row(
+                spacing: 12,
+                children: [
+                  Icon(icon, size: 18, color: AppPalette.primary),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppPalette.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              Center(child: trailing),
+            ],
+          )
+              : Row(
+            spacing: 12,
+            children: [
+              Icon(icon, size: 18, color: AppPalette.primary),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppPalette.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              trailing,
+            ],
           ),
-          const Spacer(),
-          trailing,
-        ],
-      ),
+        );
+      },
     );
   }
 }
