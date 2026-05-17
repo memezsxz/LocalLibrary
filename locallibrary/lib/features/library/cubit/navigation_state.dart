@@ -57,13 +57,22 @@ final class NavigationScrapeStoryState extends NavigationState {
 final class NavigationPartState extends NavigationState {
   final int storyId;
   final int partId;
+  final int? targetParagraphId;
+  final int? targetCommentId;
 
-  NavigationPartState({required this.storyId, required this.partId});
+  NavigationPartState({
+    required this.storyId,
+    required this.partId,
+    this.targetParagraphId,
+    this.targetCommentId,
+  });
 
   @override
   Widget build() => PartScreen(
     key: ValueKey('part_${storyId}_$partId'),
     storyId: storyId,
     partId: partId,
+    targetParagraphId: targetParagraphId,
+    targetCommentId: targetCommentId,
   );
 }

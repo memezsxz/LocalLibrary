@@ -11,10 +11,18 @@ import 'part_image_view.dart';
 import 'part_local_video.dart';
 
 class PartContent extends StatelessWidget {
-  const PartContent({super.key, required this.storyId, required this.info});
+  const PartContent({
+    super.key,
+    required this.storyId,
+    required this.info,
+    this.targetParagraphId,
+    this.targetCommentId,
+  });
 
   final int storyId;
   final PartFullInfo info;
+  final int? targetParagraphId;
+  final int? targetCommentId;
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +123,12 @@ class PartContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          ParagraphsColumn(info: info, storyId: storyId),
+          ParagraphsColumn(
+            info: info,
+            storyId: storyId,
+            targetParagraphId: targetParagraphId,
+            targetCommentId: targetCommentId,
+          ),
           const SizedBox(height: 40),
         ],
       ),

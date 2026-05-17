@@ -26,13 +26,21 @@ final class PartSidePanelPartInfoCubit extends PartSidePanelState {
 final class PartSidePanelCommentsCubit extends PartSidePanelState {
   final Paragraph? paragraph;
   final int storyId;
+  final int? targetCommentId;
 
-  PartSidePanelCommentsCubit({required this.storyId, this.paragraph});
+  PartSidePanelCommentsCubit({
+    required this.storyId,
+    this.paragraph,
+    this.targetCommentId,
+  });
 
   @override
   Widget get() {
-
-    return CommentsPanel(storyId: storyId, paragraph: paragraph,);
+    return CommentsPanel(
+      storyId: storyId,
+      paragraph: paragraph,
+      targetCommentId: targetCommentId,
+    );
 
     // return Container(
     //   color: Colors.red,

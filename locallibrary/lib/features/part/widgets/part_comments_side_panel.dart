@@ -16,10 +16,16 @@ export 'comment_list_item.dart';
 export 'comments_paragraph_nav_arrow.dart';
 
 class CommentsPanel extends StatefulWidget {
-  const CommentsPanel({super.key, required this.storyId, this.paragraph});
+  const CommentsPanel({
+    super.key,
+    required this.storyId,
+    this.paragraph,
+    this.targetCommentId,
+  });
 
   final int storyId;
   final Paragraph? paragraph;
+  final int? targetCommentId;
 
   @override
   State<CommentsPanel> createState() => _CommentsPanelState();
@@ -28,6 +34,12 @@ class CommentsPanel extends StatefulWidget {
 class _CommentsPanelState extends State<CommentsPanel> {
   final _expanded = <int>{};
   final _scrollCtrl = ScrollController();
+  final _commentKeys = <int, GlobalKey>{};
+  bool _scrolledToTarget = false;
+  bool _loadedRepliesForTarget = false;
+
+  GlobalKey _keyForComment(int id) =>
+      _commentKeys.putIfAbsent(id, () => GlobalKey());
 
   @override
   void dispose() {
@@ -53,6 +65,9 @@ class _CommentsPanelState extends State<CommentsPanel> {
     if (oldWidget.storyId != widget.storyId ||
         oldWidget.paragraph?.paragraphId != widget.paragraph?.paragraphId) {
       _expanded.clear();
+      _scrolledToTarget = false;
+      _loadedRepliesForTarget = false;
+      _commentKeys.clear();
       // debugPrint(
       //   '[CommentsPanel] didUpdateWidget -> load is primed by SidePanelScaffold',
       // );
@@ -173,6 +188,60 @@ class _CommentsPanelState extends State<CommentsPanel> {
                     }
                   }
 
+                  // ── deep-link: scroll to target comment ──
+                  final target = widget.targetCommentId;
+                  if (target != null && !_scrolledToTarget && !s.loadingRoot) {
+                    final inRoots = s.roots.any((c) => c.commentId == target);
+                    if (inRoots) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!mounted) return;
+                        final ctx = _keyForComment(target).currentContext;
+                        if (ctx != null) {
+                          Scrollable.ensureVisible(
+                            ctx,
+                            duration: const Duration(milliseconds: 400),
+                            alignment: 0.1,
+                          );
+                          setState(() => _scrolledToTarget = true);
+                        }
+                      });
+                    } else if (!_loadedRepliesForTarget && s.roots.isNotEmpty) {
+                      _loadedRepliesForTarget = true;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!mounted) return;
+                        for (final root in s.roots) {
+                          if (root.repliesCount > 0 &&
+                              !(s.repliesEnded[root.commentId] ?? false) &&
+                              !s.repliesLoading.contains(root.commentId)) {
+                            setState(() => _expanded.add(root.commentId));
+                            context
+                                .read<CommentsBloc>()
+                                .add(LoadReplies(root.commentId));
+                          }
+                        }
+                      });
+                    } else if (_loadedRepliesForTarget) {
+                      final foundInReplies = s.replies.values
+                          .any((list) =>
+                          list.any((c) =>
+                          c.commentId == target));
+                      if (foundInReplies) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+                          final ctx = _keyForComment(target).currentContext;
+                          if (ctx != null) {
+                            Scrollable.ensureVisible(
+                              ctx,
+                              duration: const Duration(milliseconds: 400),
+                              alignment: 0.1,
+                            );
+                            setState(() => _scrolledToTarget = true);
+                          }
+                        });
+                      }
+                    }
+                  }
+
                   Widget listChild;
                   if (isEmptyAndEnded) {
                     // clearly show "no comments"
@@ -251,7 +320,9 @@ class _CommentsPanelState extends State<CommentsPanel> {
                               final textDir =
                                   p?.direction.toTextDirection ??
                                   TextDirection.ltr;
-                              return CommentListItem(
+                              final isTarget = target != null &&
+                                  c.commentId == target;
+                              Widget item = CommentListItem(
                                 comment: c,
                                 depth: depth,
                                 isRoot: isRoot,
@@ -259,6 +330,7 @@ class _CommentsPanelState extends State<CommentsPanel> {
                                 loadingChildren: loadingChildren,
                                 textDirection: textDir,
                                 isByAuthor: c.userName == authorUsername,
+                                isHighlighted: isTarget,
                                 onToggleReplies: () {
                                   setState(() {
                                     if (isExpanded) {
@@ -280,6 +352,13 @@ class _CommentsPanelState extends State<CommentsPanel> {
                                   });
                                 },
                               );
+                              if (isTarget) {
+                                item = KeyedSubtree(
+                                  key: _keyForComment(c.commentId),
+                                  child: item,
+                                );
+                              }
+                              return item;
                             },
                           ),
                         ),

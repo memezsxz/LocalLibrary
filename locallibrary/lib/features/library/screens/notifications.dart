@@ -285,11 +285,14 @@ class _NotificationCardState extends State<_NotificationCard> {
   void _navigate(BuildContext context) {
     final nav = context.read<NavigationCubit>();
     final n = widget.row.notification;
-    if (n.partId != null &&
-        (n.notificationType == NotificationType.authorComment ||
-            n.notificationType == NotificationType.partAdded ||
-            n.notificationType == NotificationType.partDeleted)) {
-      nav.push(NavigationPartState(storyId: n.storyId, partId: n.partId!));
+    if (n.partId != null) {
+      final isComment = n.notificationType == NotificationType.authorComment;
+      nav.push(NavigationPartState(
+        storyId: n.storyId,
+        partId: n.partId!,
+        targetParagraphId: isComment ? n.paragraphId : null,
+        targetCommentId: isComment ? n.commentId : null,
+      ));
     } else {
       nav.push(NavigationStoryState(storyId: n.storyId));
     }
@@ -539,9 +542,12 @@ class _NotificationCommentsViewState extends State<_NotificationCommentsView> {
   @override
   void initState() {
     super.initState();
-    _future = sl<NotificationsApiClient>().getCommentsThread(
-      widget.notification.notificationId,
-    );
+    _future = sl<NotificationsApiClient>()
+        .getCommentsThread(widget.notification.notificationId)
+        .catchError((e, st) {
+      debugPrint('[NotificationThread] ERROR: $e\n$st');
+      throw e;
+    });
   }
 
   @override

@@ -12,8 +12,16 @@ import 'part_view.dart';
 class PartScreen extends StatelessWidget {
   final int storyId;
   final int partId;
+  final int? targetParagraphId;
+  final int? targetCommentId;
 
-  const PartScreen({super.key, required this.storyId, required this.partId});
+  const PartScreen({
+    super.key,
+    required this.storyId,
+    required this.partId,
+    this.targetParagraphId,
+    this.targetCommentId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +40,11 @@ class PartScreen extends StatelessWidget {
         ),
         BlocProvider<CommentsBloc>(create: (_) => sl<CommentsBloc>()),
       ],
-      child: PartView(storyId: storyId),
+      child: PartView(
+        storyId: storyId,
+        targetParagraphId: targetParagraphId,
+        targetCommentId: targetCommentId,
+      ),
     );
   }
 }

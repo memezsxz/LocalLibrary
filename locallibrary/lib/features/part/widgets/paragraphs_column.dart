@@ -16,10 +16,14 @@ class ParagraphsColumn extends StatefulWidget {
     super.key,
     required this.info,
     required this.storyId,
+    this.targetParagraphId,
+    this.targetCommentId,
   });
 
   final PartFullInfo info;
   final int storyId;
+  final int? targetParagraphId;
+  final int? targetCommentId;
 
   @override
   State<ParagraphsColumn> createState() => _ParagraphsColumnState();
@@ -34,6 +38,34 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      // Deep-link from notification: takes priority
+      if (widget.targetParagraphId != null) {
+        final para = widget.info.paragraphs
+            .where((p) => p.paragraphId == widget.targetParagraphId)
+            .firstOrNull;
+        if (para != null) {
+          final ctx = _keyFor('${para.paragraphId}').currentContext;
+          if (ctx != null) {
+            Scrollable.ensureVisible(
+              ctx,
+              duration: const Duration(milliseconds: 500),
+              alignment: 0.1,
+            );
+          }
+          context.read<PartSidePanelCubit>().changeContent(
+            PartSidePanelCommentsCubit(
+              storyId: widget.storyId,
+              paragraph: para,
+              targetCommentId: widget.targetCommentId,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Default: restore reading progress
       final b = context.read<StoryBloc>().state.bundles[widget.storyId];
       if (b == null) return;
       if (b.currentPart?.partId != widget.info.part.partId) return;

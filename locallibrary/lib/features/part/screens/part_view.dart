@@ -18,9 +18,16 @@ import '../widgets/part_peek_bar.dart';
 import '../widgets/part_side_panel.dart';
 
 class PartView extends StatefulWidget {
-  const PartView({super.key, required this.storyId});
+  const PartView({
+    super.key,
+    required this.storyId,
+    this.targetParagraphId,
+    this.targetCommentId,
+  });
 
   final int storyId;
+  final int? targetParagraphId;
+  final int? targetCommentId;
 
   @override
   State<PartView> createState() => _PartViewState();
@@ -280,6 +287,10 @@ class _PartViewState extends State<PartView>
                                         child: PartContent(
                                           storyId: widget.storyId,
                                           info: _parts[i],
+                                          targetParagraphId:
+                                              widget.targetParagraphId,
+                                          targetCommentId:
+                                              widget.targetCommentId,
                                         ),
                                       ),
                                     ),
