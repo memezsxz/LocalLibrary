@@ -12,6 +12,7 @@ import 'features/comments/bloc/comments_bloc.dart';
 import 'features/notifications/bloc/notifications_bloc.dart';
 import 'features/part/bloc/part_bloc.dart';
 import 'features/part/cubit/part_side_panel_cubit.dart';
+import 'features/part/cubit/reading_settings_cubit.dart';
 import 'features/settings/cubit/settings_cubit.dart';
 import 'features/story/bloc/scrape_story_bloc.dart';
 import 'features/story/bloc/story_bloc.dart';
@@ -63,6 +64,10 @@ void initDI() {
 
   sl.registerLazySingleton<SettingsCubit>(
         () => SettingsCubit(),
+  );
+
+  sl.registerLazySingleton<ReadingSettingsCubit>(
+        () => ReadingSettingsCubit(),
   );
 
   sl.registerLazySingleton<ScrapeStoryBloc>(
