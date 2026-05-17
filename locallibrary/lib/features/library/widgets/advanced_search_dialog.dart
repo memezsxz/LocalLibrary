@@ -233,41 +233,27 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
                     children: [
                       const SectionLabel(label: 'Order By', icon: Icons.sort),
                       const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: _orderBy,
-                        hint: const Text('Default'),
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                      Center(
+                        child: SegmentedButton<String>(
+                          emptySelectionAllowed: true,
+                          segments: const [
+                            ButtonSegment(value: 'relevance',
+                                label: Text('Relevance')),
+                            ButtonSegment(value: 'newest',
+                                label: Text('Newest')),
+                            ButtonSegment(value: 'oldest',
+                                label: Text('Oldest')),
+                            ButtonSegment(value: 'title_asc',
+                                label: Text('A–Z')),
+                            ButtonSegment(value: 'title_desc',
+                                label: Text('Z–A')),
+                          ],
+                          selected: _orderBy != null ? {_orderBy!} : {},
+                          onSelectionChanged: (val) =>
+                              setState(() => _orderBy = val.firstOrNull),
+                          style: ButtonStyle(iconSize: WidgetStateProperty.all(
+                              16)),
                         ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'relevance',
-                            child: Text('Relevance'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'newest',
-                            child: Text('Newest first'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'oldest',
-                            child: Text('Oldest first'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'title_asc',
-                            child: Text('Title A–Z'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'title_desc',
-                            child: Text('Title Z–A'),
-                          ),
-                        ],
-                        onChanged: (val) => setState(() => _orderBy = val),
                       ),
                       const SizedBox(height: 16),
                       const SectionLabel(label: 'Include', icon: Icons.search),

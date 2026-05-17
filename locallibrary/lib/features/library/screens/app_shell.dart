@@ -17,11 +17,16 @@ class AppShell extends StatelessWidget {
       defaultTargetPlatform == TargetPlatform.windows ||
       defaultTargetPlatform == TargetPlatform.linux;
 
-  static final _screens = [
+  static final _tabStates = [
     NavigationDashboardState(),
     NavigationLibraryState(),
     NavigationNotificationsState(),
     NavigationSettingsState(),
+  ];
+
+  // Built once — stable references keep IndexedStack element tree alive.
+  static final _tabWidgets = [
+    for (final s in _tabStates) s.build(),
   ];
 
   @override
@@ -29,13 +34,13 @@ class AppShell extends StatelessWidget {
     return BlocBuilder<NavigationCubit, NavigationState>(
       builder: (context, navState) {
         void onTab(int i) =>
-            context.read<NavigationCubit>().changeContent(_screens[i]);
+            context.read<NavigationCubit>().changeContent(_tabStates[i]);
 
-        final currentIndex = _screens
+        final currentIndex = _tabStates
             .indexWhere((s) => s.runtimeType == navState.runtimeType)
             .clamp(0, navItems.length - 1);
 
-        final hideNav =
+        final isDetail =
             navState is NavigationStoryState ||
             navState is NavigationScrapeStoryState ||
             navState is NavigationPartState;
@@ -50,31 +55,39 @@ class AppShell extends StatelessWidget {
               )
             : null;
 
-        final body = hideNav
-            ? navState.build()
-            : SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+        // IndexedStack is always in the tree (preserves scroll & state).
+        // Detail screens overlay on top via Stack.
+        final body = Stack(
+          children: [
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Offstage(
+                  offstage: isDetail,
                   child: IndexedStack(
                     index: currentIndex,
-                    children: [for (final s in _screens) s.build()],
+                    children: _tabWidgets,
                   ),
                 ),
-              );
+              ),
+            ),
+            if (isDetail) navState.build(),
+          ],
+        );
 
         return isDesktop
             ? DesktopScaffold(
                 selectedIndex: currentIndex,
                 body: body,
                 floatingActionButton: fab,
-                hideNav: hideNav,
+          hideNav: isDetail,
                 onDestinationSelected: onTab,
               )
             : MobileScaffold(
                 selectedIndex: currentIndex,
                 body: body,
                 floatingActionButton: fab,
-                hideNav: hideNav,
+          hideNav: isDetail,
                 onDestinationSelected: onTab,
               );
       },

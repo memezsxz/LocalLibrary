@@ -29,13 +29,13 @@ class PartContent extends StatelessWidget {
     final wattId = context
         .read<StoryBloc>()
         .state
-        .bundles[storyId]!
-        .story
+        .bundles[storyId]
+        ?.story
         .wattId;
     final List<Widget> partImages = [];
 
     if (info.image != null) {
-      if (info.image!.path != null) {
+      if (info.image!.path != null && wattId != null) {
         partImages.add(
           LocalImage.relative(
             storageRoot: '/Users/meme/Desktop/storage',
@@ -50,7 +50,7 @@ class PartContent extends StatelessWidget {
       }
     }
 
-    if (info.video != null) {
+    if (info.video != null && wattId != null) {
       partImages.add(
         PartLocalVideo.relative(
           storageRoot: '/Users/meme/Desktop/storage',

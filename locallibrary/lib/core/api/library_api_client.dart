@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../../features/story/models/domain/book_cover_model.dart';
 import '../../features/story/models/domain/story_model.dart';
+import 'dto/filter_stories_params.dart';
 
 part 'library_api_client.g.dart';
 
@@ -44,4 +46,7 @@ abstract class LibraryApiClient {
 
   @GET('/languages')
   Future<List<String>> listAllLanguages();
+
+  @POST('/stories/search_filter')
+  Future<List<BookMinimal>> searchFilter(@Body() FilterStoriesParams params);
 }

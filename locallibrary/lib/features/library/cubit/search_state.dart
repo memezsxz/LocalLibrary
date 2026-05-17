@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../core/api/dto/filter_stories_params.dart';
+
 // ─── Search params model ──────────────────────────────────────────────────────
 
 enum SearchInclude { stories, parts, comments }
@@ -60,6 +62,21 @@ class SearchState extends Equatable {
   final AdvancedSearchParams params;
 
   bool get hasActiveFilters => !params.isDefault;
+
+  FilterStoriesParams toFilterParams({int pageOffset = 0, int pageLimit = 20}) {
+    return FilterStoriesParams(
+      query: query,
+      pageOffset: pageOffset,
+      pageLimit: pageLimit,
+      orderBy: params.orderBy ?? '',
+      includeStories: params.include.contains(SearchInclude.stories),
+      includeParts: params.include.contains(SearchInclude.parts),
+      includeComments: params.include.contains(SearchInclude.comments),
+      languages: params.languages.toList(),
+      genres: params.genreIds.toList(),
+      tags: params.tagIds.toList(),
+    );
+  }
 
   SearchState copyWith({String? query, AdvancedSearchParams? params}) {
     return SearchState(

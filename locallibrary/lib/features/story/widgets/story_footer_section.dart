@@ -4,8 +4,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:locallibrary/core/extensions/datetime.dart';
 
 import '../../../core/theme/app_palette.dart';
+import '../../../dependency_injection.dart';
+import '../../library/bloc/search_bloc.dart';
+import '../../library/bloc/search_event.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
+import '../../library/cubit/search_cubit.dart';
+import '../../library/cubit/search_state.dart';
+import '../models/domain/story_model.dart';
 import '../models/dto/story_bundle.dart';
 import 'story_tags_wrap.dart';
 
@@ -15,6 +21,15 @@ class StoryDescriptionBottom extends StatelessWidget {
   const StoryDescriptionBottom({super.key, required this.storyBundle});
 
   final StoryBundle storyBundle;
+
+  void _searchByTag(BuildContext context, Tag tag) {
+    final cubit = sl<SearchCubit>();
+    cubit.setParams(
+      AdvancedSearchParams(tagIds: {tag.tagId}),
+    );
+    sl<SearchBloc>().add(SearchRequested(cubit.state.toFilterParams()));
+    context.read<NavigationCubit>().pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +48,10 @@ class StoryDescriptionBottom extends StatelessWidget {
         SizedBox(height: 50),
 
         // tags
-        StoryTagsWrap(tags: storyBundle.tags),
+        StoryTagsWrap(
+          tags: storyBundle.tags,
+          onTagTap: (tag) => _searchByTag(context, tag),
+        ),
         SizedBox(height: 50),
 
         // table of content

@@ -9,6 +9,8 @@ import 'core/api/scrape_service.dart';
 import 'core/api/story_api_client.dart';
 import 'core/secrets/app_secrets.dart';
 import 'features/comments/bloc/comments_bloc.dart';
+import 'features/library/bloc/search_bloc.dart';
+import 'features/library/cubit/search_cubit.dart';
 import 'features/notifications/bloc/notifications_bloc.dart';
 import 'features/part/bloc/part_bloc.dart';
 import 'features/part/cubit/part_side_panel_cubit.dart';
@@ -53,6 +55,12 @@ void initDI() {
 
   sl.registerLazySingleton<StoryBloc>(
         () => StoryBloc(api: sl<StoryApiClient>()),
+  );
+
+  sl.registerLazySingleton<SearchCubit>(() => SearchCubit());
+
+  sl.registerLazySingleton<SearchBloc>(
+        () => SearchBloc(api: sl<LibraryApiClient>()),
   );
 
   sl.registerFactory<PartBloc>(() => PartBloc(api: sl<StoryApiClient>()));
