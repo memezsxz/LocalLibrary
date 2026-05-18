@@ -25,3 +25,19 @@ class PartDataProvided extends PartEvent {
 
   const PartDataProvided(this.info);
 }
+
+class PartProgressStarted extends PartEvent {
+  final int storyId;
+
+  const PartProgressStarted({required this.storyId});
+}
+
+class PartProgressUpdated extends PartEvent {
+  final int storyId;
+  final int lastParagraphId;
+
+  const PartProgressUpdated({
+    required this.storyId,
+    required this.lastParagraphId,
+  });
+}

@@ -129,7 +129,8 @@ class StoryDescriptionBottom extends StatelessWidget {
                               ),
                               if (isCurrentPart)
                                 Text(
-                                  "${storyBundle.storyProgress.progress! * 100}% Complete",
+                                  "${(storyBundle.storyProgress.progress! * 100)
+                                      .toStringAsFixed(2)}% Complete",
                                   style: Theme.of(context).textTheme.labelLarge
                                       ?.copyWith(
                                         color: AppPalette.primary,

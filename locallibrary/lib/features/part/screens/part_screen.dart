@@ -40,10 +40,15 @@ class PartScreen extends StatelessWidget {
         ),
         BlocProvider<CommentsBloc>(create: (_) => sl<CommentsBloc>()),
       ],
-      child: PartView(
-        storyId: storyId,
-        targetParagraphId: targetParagraphId,
-        targetCommentId: targetCommentId,
+      child: BlocListener<PartBloc, PartState>(
+        listenWhen: (prev, next) => prev is! PartLoaded && next is PartLoaded,
+        listener: (context, _) =>
+            context.read<PartBloc>().add(PartProgressStarted(storyId: storyId)),
+        child: PartView(
+          storyId: storyId,
+          targetParagraphId: targetParagraphId,
+          targetCommentId: targetCommentId,
+        ),
       ),
     );
   }

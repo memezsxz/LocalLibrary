@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -10,19 +12,26 @@ import '../../comments/widgets/comment_icon.dart';
 import '../../story/bloc/story_bloc.dart';
 import '../../story/models/domain/story_enums.dart';
 import '../../story/models/dto/part_full_info.dart';
+import '../bloc/part_bloc.dart';
 import '../cubit/part_side_panel_cubit.dart';
+
+typedef ProgressRecord = ({int paragraphId});
 
 class ParagraphsColumn extends StatefulWidget {
   const ParagraphsColumn({
     super.key,
     required this.info,
     required this.storyId,
+    required this.scrollController,
+    required this.progressNotifier,
     this.targetParagraphId,
     this.targetCommentId,
   });
 
   final PartFullInfo info;
   final int storyId;
+  final ScrollController scrollController;
+  final ValueNotifier<ProgressRecord?> progressNotifier;
   final int? targetParagraphId;
   final int? targetCommentId;
 
@@ -32,12 +41,62 @@ class ParagraphsColumn extends StatefulWidget {
 
 class _ParagraphsColumnState extends State<ParagraphsColumn> {
   final Map<String, GlobalKey> _paraKeys = {};
+  Timer? _progressDebounce;
 
   GlobalKey _keyFor(String id) => _paraKeys.putIfAbsent(id, () => GlobalKey());
+
+  void _onScrollDebounce() {
+    _progressDebounce?.cancel();
+    _progressDebounce =
+        Timer(const Duration(milliseconds: 600), _reportProgress);
+  }
+
+  void _reportProgress() {
+    if (!mounted) return;
+    final paragraphs = widget.info.paragraphs;
+    if (paragraphs.isEmpty) return;
+
+    final screenH = MediaQuery
+        .of(context)
+        .size
+        .height;
+    int lastVisibleIndex = -1;
+    int? lastVisibleId;
+
+    for (var i = 0; i < paragraphs.length; i++) {
+      final key = _paraKeys['${paragraphs[i].paragraphId}'];
+      final ctx = key?.currentContext;
+      if (ctx == null) continue;
+      final box = ctx.findRenderObject() as RenderBox?;
+      if (box == null) continue;
+      final dy = box
+          .localToGlobal(Offset.zero)
+          .dy;
+      if (dy < screenH * 0.75) {
+        lastVisibleIndex = i;
+        lastVisibleId = paragraphs[i].paragraphId;
+      }
+    }
+
+    if (lastVisibleId == null) return;
+    widget.progressNotifier.value = (paragraphId: lastVisibleId);
+    context.read<PartBloc>().add(PartProgressUpdated(
+      storyId: widget.storyId,
+      lastParagraphId: lastVisibleId,
+    ));
+  }
+
+  @override
+  void dispose() {
+    widget.scrollController.removeListener(_onScrollDebounce);
+    _progressDebounce?.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    widget.scrollController.addListener(_onScrollDebounce);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 

@@ -8,6 +8,8 @@ import '../../features/story/models/dto/part_full_info.dart';
 import '../../features/story/models/dto/part_info.dart';
 import '../../features/story/models/dto/story_bundle.dart';
 import 'dto/count_response.dart';
+import 'dto/start_read_time_request.dart';
+import 'dto/update_progress_request.dart';
 
 part 'story_api_client.g.dart';
 
@@ -72,5 +74,17 @@ abstract class StoryApiClient {
   Future<CountResponse> getPartCommentsCount(
     @Path('storyId') int storyId,
     @Path('partId') int partId,
+  );
+
+  @PATCH('/stories/{storyId}/progress/start')
+  Future<void> startReadTime(
+    @Path('storyId') int storyId,
+    @Body() StartReadTimeRequest body,
+  );
+
+  @PATCH('/stories/{storyId}/progress')
+  Future<void> updateProgress(
+    @Path('storyId') int storyId,
+    @Body() UpdateProgressRequest body,
   );
 }

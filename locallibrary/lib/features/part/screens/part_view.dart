@@ -12,6 +12,7 @@ import '../../story/bloc/story_state.dart';
 import '../../story/models/dto/part_full_info.dart';
 import '../../story/models/dto/story_bundle.dart';
 import '../bloc/part_bloc.dart';
+import '../widgets/paragraphs_column.dart' show ProgressRecord;
 import '../widgets/part_content.dart';
 import '../widgets/part_divider.dart';
 import '../widgets/part_peek_bar.dart';
@@ -37,7 +38,9 @@ class _PartViewState extends State<PartView>
     with SingleTickerProviderStateMixin {
   late final ScrollController _scrollController;
   late final AnimationController _fadeCtrl;
+  late PartBloc _partBloc;
   final List<PartFullInfo> _parts = [];
+  final ValueNotifier<ProgressRecord?> _progressNotifier = ValueNotifier(null);
   bool _seeded = false;
   bool _loadingNext = false;
   bool _loadingPrev = false;
@@ -57,6 +60,12 @@ class _PartViewState extends State<PartView>
   double get _kThreshold => _isDesktop ? _kThresholdDesktop : _kThresholdMobile;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _partBloc = context.read<PartBloc>();
+  }
+
+  @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
@@ -70,6 +79,14 @@ class _PartViewState extends State<PartView>
 
   @override
   void dispose() {
+    final p = _progressNotifier.value;
+    if (p != null) {
+      _partBloc.add(PartProgressUpdated(
+        storyId: widget.storyId,
+        lastParagraphId: p.paragraphId,
+      ));
+    }
+    _progressNotifier.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _fadeCtrl.dispose();
@@ -169,7 +186,15 @@ class _PartViewState extends State<PartView>
   }
 
   void _syncBlocs(PartFullInfo info) {
+    final p = _progressNotifier.value;
+    if (p != null) {
+      context.read<PartBloc>().add(PartProgressUpdated(
+        storyId: widget.storyId,
+        lastParagraphId: p.paragraphId,
+      ));
+    }
     context.read<PartBloc>().add(PartDataProvided(info));
+    context.read<PartBloc>().add(PartProgressStarted(storyId: widget.storyId));
     context.read<StoryBloc>().add(
       StoryCurrentPartChanged(widget.storyId, info.part),
     );
@@ -287,6 +312,8 @@ class _PartViewState extends State<PartView>
                                         child: PartContent(
                                           storyId: widget.storyId,
                                           info: _parts[i],
+                                          scrollController: _scrollController,
+                                          progressNotifier: _progressNotifier,
                                           targetParagraphId:
                                               widget.targetParagraphId,
                                           targetCommentId:

@@ -16,12 +16,16 @@ class PartContent extends StatelessWidget {
     super.key,
     required this.storyId,
     required this.info,
+    required this.scrollController,
+    required this.progressNotifier,
     this.targetParagraphId,
     this.targetCommentId,
   });
 
   final int storyId;
   final PartFullInfo info;
+  final ScrollController scrollController;
+  final ValueNotifier<ProgressRecord?> progressNotifier;
   final int? targetParagraphId;
   final int? targetCommentId;
 
@@ -127,6 +131,8 @@ class PartContent extends StatelessWidget {
           ParagraphsColumn(
             info: info,
             storyId: storyId,
+            scrollController: scrollController,
+            progressNotifier: progressNotifier,
             targetParagraphId: targetParagraphId,
             targetCommentId: targetCommentId,
           ),
