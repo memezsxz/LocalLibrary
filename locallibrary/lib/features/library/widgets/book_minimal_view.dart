@@ -4,6 +4,7 @@ import 'package:locallibrary/features/library/cubit/navigation_state.dart';
 
 import '../../../core/api/story_api_client.dart';
 import '../../../core/extensions/image.dart';
+import '../../../core/secrets/app_secrets.dart';
 import '../../../dependency_injection.dart';
 import '../../story/models/domain/book_cover_model.dart';
 import '../cubit/navigation_cubit.dart';
@@ -50,7 +51,7 @@ class _BookMinimalViewState extends State<BookMinimalView> {
             children: [
               // cover image
               LocalImage.relative(
-                storageRoot: "/Users/meme/Desktop/storage",
+                storageRoot: AppSecrets.storageRoot,
                 storyWattId: book.wattId,
                 relativePath: book.image.path!,
                 fit: BoxFit.cover,

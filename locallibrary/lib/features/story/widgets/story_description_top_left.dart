@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/common/widgets/base_button.dart';
 import '../../../core/extensions/image.dart';
+import '../../../core/secrets/app_secrets.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
 import '../models/dto/story_bundle.dart';
@@ -30,7 +31,7 @@ class StoryDescriptionTopLeft extends StatelessWidget {
             ),
             width: double.infinity,
             child: LocalImage.relative(
-              storageRoot: "/Users/meme/Desktop/storage",
+              storageRoot: AppSecrets.storageRoot,
               storyWattId: story.story.wattId,
               relativePath: story.image!.path!,
               width: double.infinity,

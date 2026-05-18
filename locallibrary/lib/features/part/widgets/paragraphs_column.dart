@@ -4,6 +4,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/extensions/image.dart';
+import '../../../core/secrets/app_secrets.dart';
 import '../../../core/theme/theme.dart';
 import '../../comments/widgets/comment_icon.dart';
 import '../../story/bloc/story_bloc.dart';
@@ -111,7 +112,7 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
               maxHeight: MediaQuery.of(context).size.height * 0.7,
             ),
             child: LocalImage.relative(
-              storageRoot: '/Users/meme/Desktop/storage',
+              storageRoot: AppSecrets.storageRoot,
               storyWattId: b.story.wattId,
               relativePath: p.media!.path!,
               width: double.infinity,

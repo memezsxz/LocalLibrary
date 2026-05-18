@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../core/extensions/image.dart';
+import '../../../core/secrets/app_secrets.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../story/bloc/story_bloc.dart';
 import '../../story/models/dto/part_full_info.dart';
@@ -38,7 +39,7 @@ class PartContent extends StatelessWidget {
       if (info.image!.path != null && wattId != null) {
         partImages.add(
           LocalImage.relative(
-            storageRoot: '/Users/meme/Desktop/storage',
+            storageRoot: AppSecrets.storageRoot,
             storyWattId: wattId,
             relativePath: info.image!.path!,
             width: double.infinity,
@@ -53,7 +54,7 @@ class PartContent extends StatelessWidget {
     if (info.video != null && wattId != null) {
       partImages.add(
         PartLocalVideo.relative(
-          storageRoot: '/Users/meme/Desktop/storage',
+          storageRoot: AppSecrets.storageRoot,
           storyWattId: wattId,
           relativePath: info.video!.path!,
         ),

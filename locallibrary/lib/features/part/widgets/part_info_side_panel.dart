@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../core/extensions/image.dart';
+import '../../../core/secrets/app_secrets.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
@@ -153,7 +154,7 @@ class _DesktopHeader extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: LocalImage.relative(
-                storageRoot: "/Users/meme/Desktop/storage",
+                storageRoot: AppSecrets.storageRoot,
                 storyWattId: b.story.wattId,
                 relativePath: b.image!.path!,
                 height: MediaQuery.of(context).size.height / 5,
@@ -229,7 +230,7 @@ class _MobileHeader extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LocalImage.relative(
-                storageRoot: "/Users/meme/Desktop/storage",
+                storageRoot: AppSecrets.storageRoot,
                 storyWattId: b.story.wattId,
                 relativePath: b.image!.path!,
                 height: 56,

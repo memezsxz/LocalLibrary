@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/api/story_api_client.dart';
 import '../../../core/extensions/image.dart';
+import '../../../core/secrets/app_secrets.dart';
 import '../../../dependency_injection.dart';
 import '../../story/models/domain/book_cover_model.dart';
 import '../cubit/navigation_cubit.dart';
@@ -47,7 +48,7 @@ class _BookCoverCardState extends State<BookCoverCard> {
         fit: StackFit.expand,
         children: [
           LocalImage.relative(
-            storageRoot: "/Users/meme/Desktop/storage",
+            storageRoot: AppSecrets.storageRoot,
             storyWattId: book.wattId,
             relativePath: book.image.path!,
             fit: BoxFit.cover,

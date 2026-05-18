@@ -42,7 +42,10 @@ class LocalImage extends Image {
     BoxFit? fit,
   }) : this(
     key: key,
-    absolutePath: path.join(storageRoot, storyWattId, relativePath),
+    absolutePath: path.join(storageRoot, storyWattId,
+        relativePath.startsWith('/')
+            ? relativePath.substring(1)
+            : relativePath),
     width: width,
     height: height,
     fit: fit,

@@ -1,9 +1,16 @@
 // app_secrets.dart
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class AppSecrets {
+  static String get storageRoot {
+    final raw = (dotenv.maybeGet('STORAGE_ROOT') ?? '').trim();
+    if (raw.isEmpty) return '/Users/meme/Desktop/store1';
+    return raw;
+  }
+
   static String get apiBaseUrl {
     // read AFTER dotenv.load()
     final raw = (dotenv.maybeGet('API_BASE_URL') ?? '').trim();

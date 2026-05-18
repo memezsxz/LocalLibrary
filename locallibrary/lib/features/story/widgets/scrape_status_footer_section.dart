@@ -142,8 +142,9 @@ class _ScrapeAllBarState extends State<_ScrapeAllBar> {
       _doneCount = 0;
     });
 
+    final futures = <Future<void>>[];
+
     for (var i = 0; i < widget.partLinks.length; i++) {
-      if (!_isRunning) break;
       final link = widget.partLinks[i];
       final href = link.url;
       if (href == null || href.isEmpty) {
@@ -152,19 +153,32 @@ class _ScrapeAllBarState extends State<_ScrapeAllBar> {
       }
 
       final bloc = widget.blocs[i];
-      final partDoneFuture = bloc.stream.firstWhere(
-        (s) => s.status == ScrapeStatus.done || s.status == ScrapeStatus.error,
-      );
       bloc.withComments = widget.includeComments;
       bloc.add(InputChanged(href));
       bloc.add(StartRequested());
-      await partDoneFuture;
-      if (!mounted) return;
 
-      setState(() => _doneCount++);
+      futures.add(
+        bloc.stream
+            .firstWhere(
+              (s) =>
+                  s.status == ScrapeStatus.done ||
+                  s.status == ScrapeStatus.error,
+            )
+            .then((_) {
+              if (mounted && _isRunning) setState(() => _doneCount++);
+            }),
+      );
     }
 
+    await Future.wait(futures, eagerError: false);
     if (mounted) setState(() => _isRunning = false);
+  }
+
+  void _stopAll() {
+    for (final bloc in widget.blocs) {
+      if (bloc.state.status.isBusy) bloc.add(CancelRequested());
+    }
+    setState(() => _isRunning = false);
   }
 
   @override
@@ -220,9 +234,7 @@ class _ScrapeAllBarState extends State<_ScrapeAllBar> {
             visualDensity: VisualDensity.compact,
           ),
           if (_isRunning)
-            OutlinedButton(
-              onPressed: () => setState(() => _isRunning = false),
-              child: const Text('Stop'),
+            OutlinedButton(onPressed: _stopAll, child: const Text('Stop'),
             )
           else
             FilledButton.icon(
