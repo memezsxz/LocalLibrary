@@ -81,10 +81,12 @@ class _PartViewState extends State<PartView>
   void dispose() {
     final p = _progressNotifier.value;
     if (p != null) {
-      _partBloc.add(PartProgressUpdated(
-        storyId: widget.storyId,
-        lastParagraphId: p.paragraphId,
-      ));
+      _partBloc.add(
+        PartProgressUpdated(
+          storyId: widget.storyId,
+          lastParagraphId: p.paragraphId,
+        ),
+      );
     }
     _progressNotifier.dispose();
     _scrollController.removeListener(_onScroll);
@@ -188,10 +190,12 @@ class _PartViewState extends State<PartView>
   void _syncBlocs(PartFullInfo info) {
     final p = _progressNotifier.value;
     if (p != null) {
-      context.read<PartBloc>().add(PartProgressUpdated(
-        storyId: widget.storyId,
-        lastParagraphId: p.paragraphId,
-      ));
+      context.read<PartBloc>().add(
+        PartProgressUpdated(
+          storyId: widget.storyId,
+          lastParagraphId: p.paragraphId,
+        ),
+      );
     }
     context.read<PartBloc>().add(PartDataProvided(info));
     context.read<PartBloc>().add(PartProgressStarted(storyId: widget.storyId));
@@ -247,7 +251,7 @@ class _PartViewState extends State<PartView>
                   : null;
 
               return Scaffold(
-                backgroundColor: Colors.white,
+                backgroundColor: context.colors.background,
                 body: SafeArea(
                   child: SidePanelScaffold(
                     storyId: widget.storyId,
@@ -290,7 +294,7 @@ class _PartViewState extends State<PartView>
                                       ),
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: AppPalette.surfaceAlt,
+                                          color: context.colors.surfaceAlt,
                                           image: const DecorationImage(
                                             repeat: ImageRepeat.repeat,
                                             image: AssetImage(

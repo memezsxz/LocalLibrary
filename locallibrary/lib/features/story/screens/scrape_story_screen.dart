@@ -165,7 +165,7 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
+                      color: context.colors.primaryLight,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -187,7 +187,7 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
                     sl.get<ScrapeStoryBloc>().add(StartRequested()),
                 decoration: InputDecoration(
                   hintText: 'https://www.wattpad.com/story/...',
-                  hintStyle: TextStyle(color: AppPalette.gray),
+                  hintStyle: TextStyle(color: context.colors.gray),
                   border: const OutlineInputBorder(),
                   suffixIcon: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -217,12 +217,12 @@ class _ScrapeStoryViewState extends State<_ScrapeStoryView> {
               if (state.inputHint != null && state.inputHint!.isNotEmpty)
                 Text(
                   state.inputHint!,
-                  style: TextStyle(color: AppPalette.error),
+                  style: TextStyle(color: context.colors.error),
                 ),
               if (state.errorMessage != null && state.errorMessage!.isNotEmpty)
                 Text(
                   state.errorMessage!,
-                  style: TextStyle(color: AppPalette.error),
+                  style: TextStyle(color: context.colors.error),
                 ),
               Center(
                 child: _ScrapeActions(
@@ -272,7 +272,7 @@ class _ScrapeActions extends StatelessWidget {
         ScrapeStatus.idle => FilledButton.icon(
           key: const ValueKey('idle'),
           onPressed: onStart,
-          icon: status.indicator,
+          icon: status.indicator(context),
           label: const Text('Scrape'),
         ),
         ScrapeStatus.connecting || ScrapeStatus.streaming => Row(
@@ -282,7 +282,7 @@ class _ScrapeActions extends StatelessWidget {
           children: [
             FilledButton.icon(
               onPressed: onViewLogs,
-              icon: status.indicator,
+              icon: status.indicator(context),
               label: const Text('View Logs'),
             ),
             OutlinedButton(onPressed: onCancel, child: const Text('Cancel')),
@@ -295,7 +295,7 @@ class _ScrapeActions extends StatelessWidget {
           children: [
             FilledButton.icon(
               onPressed: onViewLogs,
-              icon: status.indicator,
+              icon: status.indicator(context),
               label: const Text('View Logs'),
             ),
             TextButton(onPressed: onReset, child: const Text('Start Over')),
@@ -308,7 +308,7 @@ class _ScrapeActions extends StatelessWidget {
           children: [
             FilledButton.icon(
               onPressed: onViewLogs,
-              icon: status.indicator,
+              icon: status.indicator(context),
               label: const Text('View Logs'),
             ),
             TextButton(onPressed: onReset, child: const Text('Try Again')),

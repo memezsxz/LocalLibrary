@@ -36,13 +36,13 @@ class _ExpandableSegmentRowState extends State<ExpandableSegmentRow> {
             child: Row(
               spacing: 10,
               children: [
-                Icon(widget.icon, size: 16, color: AppPalette.primary),
+                Icon(widget.icon, size: 16, color: context.colors.primary),
                 Text(
                   widget.label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: AppPalette.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
                 const Spacer(),
@@ -53,9 +53,9 @@ class _ExpandableSegmentRowState extends State<ExpandableSegmentRow> {
                       : Text(
                           widget.currentLabel,
                           key: ValueKey(widget.currentLabel),
-                          style: const TextStyle(
+                    style: TextStyle(
                             fontSize: 12,
-                            color: AppPalette.gray,
+                      color: context.colors.gray,
                           ),
                         ),
                 ),
@@ -64,10 +64,10 @@ class _ExpandableSegmentRowState extends State<ExpandableSegmentRow> {
                   turns: _expanded ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOutCubic,
-                  child: const Icon(
+                  child: Icon(
                     Icons.expand_more_rounded,
                     size: 16,
-                    color: AppPalette.gray,
+                    color: context.colors.gray,
                   ),
                 ),
               ],

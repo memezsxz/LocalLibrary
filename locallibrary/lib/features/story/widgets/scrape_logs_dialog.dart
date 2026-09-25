@@ -95,8 +95,9 @@ class _EventInspectorModalState<TRes> extends State<EventInspectorModal<TRes>> {
   }
 
   Future<void> _copyAll(List<ScrapeEvent> events) async {
-    final pretty = const JsonEncoder.withIndent('  ')
-        .convert(events.map((e) => e.toJson()).toList());
+    final pretty = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(events.map((e) => e.toJson()).toList());
     await Clipboard.setData(ClipboardData(text: pretty));
   }
 
@@ -110,7 +111,7 @@ class _EventInspectorModalState<TRes> extends State<EventInspectorModal<TRes>> {
         final events = state.events.reversed.toList();
 
         return Material(
-          color: Colors.white,
+          color: context.colors.background,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -122,7 +123,7 @@ class _EventInspectorModalState<TRes> extends State<EventInspectorModal<TRes>> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
+                        color: context.colors.primaryLight,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -145,13 +146,17 @@ class _EventInspectorModalState<TRes> extends State<EventInspectorModal<TRes>> {
                     if (events.isEmpty) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         child: Text(
                           state.status == ScrapeStatus.idle
                               ? 'Not started'
                               : 'Waiting for events…',
-                          style: const TextStyle(
-                              fontSize: 12, color: AppPalette.gray),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.colors.gray,
+                          ),
                         ),
                       );
                     }
@@ -197,39 +202,39 @@ class _InspectorHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Row(
         children: [
-          const Icon(Icons.timeline, size: 18, color: AppPalette.primary),
+          Icon(Icons.timeline, size: 18, color: context.colors.primary),
           const SizedBox(width: 8),
-          Text(
-            'Scrape Logs',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Scrape Logs', style: Theme
+              .of(context)
+              .textTheme
+              .titleMedium),
           const Spacer(),
           IconButton(
             tooltip: 'Expand all',
             onPressed: onExpandAll,
             icon: const Icon(Icons.unfold_more, size: 18),
-            color: AppPalette.primary,
+            color: context.colors.primary,
             visualDensity: VisualDensity.compact,
           ),
           IconButton(
             tooltip: 'Collapse all',
             onPressed: onCollapseAll,
             icon: const Icon(Icons.unfold_less, size: 18),
-            color: AppPalette.primary,
+            color: context.colors.primary,
             visualDensity: VisualDensity.compact,
           ),
           IconButton(
             tooltip: 'Copy all',
             onPressed: onCopyAll,
             icon: const Icon(Icons.copy_all, size: 18),
-            color: AppPalette.primary,
+            color: context.colors.primary,
             visualDensity: VisualDensity.compact,
           ),
           IconButton(
             tooltip: 'Close',
             onPressed: onClose,
             icon: const Icon(Icons.close, size: 18),
-            color: AppPalette.primary,
+            color: context.colors.primary,
             visualDensity: VisualDensity.compact,
           ),
         ],
@@ -253,11 +258,11 @@ class _EventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _getEventColor(vm.name);
+    final color = _getEventColor(context, vm.name);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5),
-      color: isExpanded ? Colors.grey.shade50 : Colors.white,
+      color: isExpanded ? context.colors.surfaceAlt : context.colors.background,
       child: Column(
         children: [
           GestureDetector(
@@ -300,19 +305,18 @@ class _EventTile extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.black12,
+                      borderRadius: const BorderRadius.all(Radius.circular(12)),
+                      color: context.colors.primaryExtraLight,
                     ),
                     child: Text(
                       DateFormat('HH:mm:ss.SSS').format(vm.receivedAt),
-                      style:
-                      Theme
+                      style: Theme
                           .of(context)
                           .textTheme
                           .labelSmall
                           ?.copyWith(
                         fontSize: 10,
-                        color: Colors.black,
+                        color: context.colors.textPrimary,
                         fontFamily: 'IBM_Plex_Mono',
                       ),
                     ),
@@ -361,19 +365,19 @@ class _EventTile extends StatelessWidget {
                           ),
                           stringStyle: TextStyle(color: _postmanBlue),
                           keyStyle: TextStyle(color: _postmanRed),
-                          openIcon: const Icon(
+                          openIcon: Icon(
                             Icons.keyboard_arrow_right_outlined,
                             size: 16,
-                            color: Colors.black,
+                            color: context.colors.textPrimary,
                           ),
-                          closeIcon: const Icon(
+                          closeIcon: Icon(
                             Icons.keyboard_arrow_down_outlined,
                             size: 16,
-                            color: Colors.black,
+                            color: context.colors.textPrimary,
                           ),
                           viewType: JsonViewType.collapsible,
-                          defaultTextStyle: const TextStyle(
-                            color: Colors.black,
+                          defaultTextStyle: TextStyle(
+                            color: context.colors.textPrimary,
                             fontSize: 12,
                             fontFamily: 'IBM_Plex_Mono',
                           ),
@@ -382,10 +386,10 @@ class _EventTile extends StatelessWidget {
                           : SingleChildScrollView(
                         child: Text(
                           vm.payload,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontFamily: 'IBM_Plex_Mono',
-                            color: Colors.black87,
+                            color: context.colors.textPrimary,
                           ),
                         ),
                       ),
@@ -400,15 +404,14 @@ class _EventTile extends StatelessWidget {
                     ),
                     tooltip: 'Copy',
                     onPressed: () async {
-                      await Clipboard.setData(
-                          ClipboardData(text: vm.payload));
+                      await Clipboard.setData(ClipboardData(text: vm.payload));
                     },
                     icon: const Icon(Icons.copy),
                   ),
                 ],
               ),
             ),
-          Divider(height: 1.2, color: Colors.grey.shade200),
+          Divider(height: 1.2, color: context.colors.primaryExtraLight),
         ],
       ),
     );
@@ -455,7 +458,7 @@ class _EventTile extends StatelessWidget {
   static final Color _aqua = const Color(0xFF0C5E66);
   static final Color _mustered = const Color(0xFF7F5F00);
 
-  Color _getEventColor(String eventName) {
+  Color _getEventColor(BuildContext context, String eventName) {
     switch (eventName) {
       case 'started':
         return _blue;
@@ -488,7 +491,7 @@ class _EventTile extends StatelessWidget {
       case 'finished':
         return _red;
       default:
-        return Colors.black;
+        return context.colors.textPrimary;
     }
   }
 }

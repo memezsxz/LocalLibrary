@@ -13,15 +13,15 @@ class BaseButton extends StatelessWidget {
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         alignment: Alignment.center,
-        side: BorderSide(color: AppPalette.primary, width: 1.5),
+        side: BorderSide(color: context.colors.primary, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-        overlayColor: AppPalette.primary.withOpacity(0.1),
+        overlayColor: context.colors.primary.withOpacity(0.1),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: AppPalette.primary,
+          color: context.colors.primary,
           fontWeight: FontWeight.normal,
         ),
       ),

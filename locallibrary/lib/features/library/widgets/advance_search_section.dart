@@ -15,7 +15,7 @@ class AdvancedSearchHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Row(
         children: [
-          const Icon(Icons.tune, size: 18, color: AppPalette.primary),
+          Icon(Icons.tune, size: 18, color: context.colors.primary),
           const SizedBox(width: 8),
           Text(
             'Advanced Search',
@@ -26,7 +26,7 @@ class AdvancedSearchHeader extends StatelessWidget {
             tooltip: 'Close',
             onPressed: () => Navigator.of(context).maybePop(),
             icon: const Icon(Icons.close, size: 18),
-            color: AppPalette.primary,
+            color: context.colors.primary,
             visualDensity: VisualDensity.compact,
           ),
         ],
@@ -47,13 +47,16 @@ class SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppPalette.primary),
+        Icon(icon, size: 16, color: context.colors.primary),
         const SizedBox(width: 6),
         Text(
           label,
           style: Theme.of(
             context,
-          ).textTheme.labelLarge?.copyWith(color: AppPalette.primary),
+          )
+              .textTheme
+              .labelLarge
+              ?.copyWith(color: context.colors.primary),
         ),
       ],
     );
@@ -101,27 +104,30 @@ class _FilterSectionState extends State<FilterSection> {
     return ExpansionTile(
       tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      leading: Icon(widget.icon, size: 18, color: AppPalette.primary),
+      leading: Icon(widget.icon, size: 18, color: context.colors.primary),
       title: Row(
         children: [
           Text(
             widget.title,
             style: Theme.of(
               context,
-            ).textTheme.labelLarge?.copyWith(color: AppPalette.primary),
+            )
+                .textTheme
+                .labelLarge
+                ?.copyWith(color: context.colors.primary),
           ),
           if (selCount > 0) ...[
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
               decoration: BoxDecoration(
-                color: AppPalette.primary,
+                color: context.colors.primary,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 '$selCount',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: context.colors.textOnLight,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
@@ -168,15 +174,24 @@ class _FilterSectionState extends State<FilterSection> {
             children: filtered.map((item) {
               final isSelected = widget.selectedIds.contains(item.id);
               return FilterChip(
-                label: Text(item.label, style: const TextStyle(fontSize: 12)),
+                label: Text(
+                  item.label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isSelected
+                        ? context.colors.textOnLight
+                        : context.colors.textPrimary,
+                  ),
+                ),
                 selected: isSelected,
                 onSelected: (_) => widget.onToggle(item.id),
-                selectedColor: AppPalette.primaryLight,
-                checkmarkColor: AppPalette.primary,
+                backgroundColor: context.colors.surfaceAlt,
+                selectedColor: context.colors.primary,
+                checkmarkColor: context.colors.textOnLight,
                 side: BorderSide(
                   color: isSelected
-                      ? AppPalette.primary
-                      : AppPalette.secondary.withAlpha(100),
+                      ? context.colors.primary
+                      : context.colors.primaryLight.withAlpha(140),
                 ),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 visualDensity: VisualDensity.compact,

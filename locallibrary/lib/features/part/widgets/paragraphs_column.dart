@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/extensions/image.dart';
 import '../../../core/secrets/app_secrets.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/theme.dart';
 import '../../comments/widgets/comment_icon.dart';
 import '../../story/bloc/story_bloc.dart';
@@ -45,10 +46,32 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
 
   GlobalKey _keyFor(String id) => _paraKeys.putIfAbsent(id, () => GlobalKey());
 
+  void _scrollToParagraph(int paragraphId) {
+    void attempt() {
+      if (!mounted) return;
+      final ctx = _keyFor('$paragraphId').currentContext;
+      if (ctx == null) return;
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 300),
+        alignment: 0.1,
+      );
+    }
+
+    // Header media (images/video) above the paragraphs can still be
+    // decoding on the first frame, which shifts paragraph positions
+    // after this runs. Re-run a couple of times to correct for that.
+    attempt();
+    Future.delayed(const Duration(milliseconds: 400), attempt);
+    Future.delayed(const Duration(milliseconds: 900), attempt);
+  }
+
   void _onScrollDebounce() {
     _progressDebounce?.cancel();
-    _progressDebounce =
-        Timer(const Duration(milliseconds: 600), _reportProgress);
+    _progressDebounce = Timer(
+      const Duration(milliseconds: 600),
+      _reportProgress,
+    );
   }
 
   void _reportProgress() {
@@ -80,10 +103,12 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
 
     if (lastVisibleId == null) return;
     widget.progressNotifier.value = (paragraphId: lastVisibleId);
-    context.read<PartBloc>().add(PartProgressUpdated(
-      storyId: widget.storyId,
-      lastParagraphId: lastVisibleId,
-    ));
+    context.read<PartBloc>().add(
+      PartProgressUpdated(
+        storyId: widget.storyId,
+        lastParagraphId: lastVisibleId,
+      ),
+    );
   }
 
   @override
@@ -106,14 +131,7 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
             .where((p) => p.paragraphId == widget.targetParagraphId)
             .firstOrNull;
         if (para != null) {
-          final ctx = _keyFor('${para.paragraphId}').currentContext;
-          if (ctx != null) {
-            Scrollable.ensureVisible(
-              ctx,
-              duration: const Duration(milliseconds: 500),
-              alignment: 0.1,
-            );
-          }
+          _scrollToParagraph(para.paragraphId);
           context.read<PartSidePanelCubit>().changeContent(
             PartSidePanelCommentsCubit(
               storyId: widget.storyId,
@@ -133,14 +151,7 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
       final targetId = b.storyProgress.lastParagraphId;
       if (targetId == null) return;
 
-      final ctx = _keyFor('$targetId').currentContext;
-      if (ctx != null) {
-        Scrollable.ensureVisible(
-          ctx,
-          duration: const Duration(milliseconds: 500),
-          alignment: 0.1,
-        );
-      }
+      _scrollToParagraph(targetId);
     });
   }
 
@@ -159,9 +170,9 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
         Widget content = Html(
           data: p.content,
           style: {
-            'p': AppTheme.paragraphsStyle.copyWith(
-              direction: p.direction.toTextDirection,
-            ),
+            'p': AppTheme.paragraphsStyle(
+              context,
+            ).copyWith(direction: p.direction.toTextDirection),
           },
         );
 
@@ -189,7 +200,10 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
                 await launchUrl(url, mode: LaunchMode.externalApplication);
               }
             },
-            child: const Text('Open', style: TextStyle(color: Colors.blue)),
+            child: Text(
+              'Open',
+              style: TextStyle(color: context.colors.primary),
+            ),
           );
         }
 

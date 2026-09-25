@@ -38,14 +38,14 @@ class CommentListItem extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: isHighlighted
-              ? const Color(0xFFFFF8E1)
-              : const Color(0xFF2D2D2D).withOpacity(0.1),
+              ? context.colors.primaryExtraLight
+              : context.colors.surfaceAlt,
           borderRadius: const BorderRadius.all(
             Radius.circular(8),
           ).copyWith(topLeft: const Radius.circular(3)),
           border: isHighlighted
-              ? const Border(
-                  left: BorderSide(color: Color(0xFFFFA000), width: 3),
+              ? Border(
+            left: BorderSide(color: context.colors.primary, width: 3),
                 )
               : null,
         ),
@@ -63,7 +63,7 @@ class CommentListItem extends StatelessWidget {
                         text: c.userName,
                         style: Theme.of(context).textTheme.labelMedium
                             ?.copyWith(
-                              color: AppPalette.primary,
+                          color: context.colors.primary,
                               fontWeight: FontWeight.bold,
                             ),
                         children: isByAuthor
@@ -71,7 +71,7 @@ class CommentListItem extends StatelessWidget {
                                 TextSpan(
                                   text: ' (Author)',
                                   style: TextStyle(
-                                    color: AppPalette.primaryLight,
+                                    color: context.colors.primaryLight,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 10,
                                   ),
@@ -91,7 +91,7 @@ class CommentListItem extends StatelessWidget {
                           padding: HtmlPaddings.zero,
                           lineHeight: LineHeight.rem(1.4),
                           fontSize: FontSize.medium,
-                          color: Colors.black,
+                          color: context.colors.textPrimary,
                           direction: textDirection,
                         ),
                       },
@@ -119,12 +119,18 @@ class CommentListItem extends StatelessWidget {
                     maintainState: true,
                     child: Column(
                       children: [
-                        SvgPicture.asset("assets/icons/heart_icon.svg"),
+                        SvgPicture.asset(
+                          "assets/icons/heart_icon.svg",
+                          colorFilter: ColorFilter.mode(
+                            context.colors.error,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         Text(
                           (c.likes < 1000) ? "${c.likes}" : "\u221E",
                           style: Theme.of(context).textTheme.labelMedium
                               ?.copyWith(
-                                color: const Color(0xFFDB2F2F),
+                            color: context.colors.error,
                                 fontWeight: FontWeight.bold,
                               ),
                           textAlign: TextAlign.center,
@@ -141,6 +147,10 @@ class CommentListItem extends StatelessWidget {
                           onTap: onToggleReplies,
                           child: SvgPicture.asset(
                             "assets/icons/commet_replies_icon.svg",
+                            colorFilter: ColorFilter.mode(
+                              context.colors.primary,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
                         Text(
@@ -149,7 +159,7 @@ class CommentListItem extends StatelessWidget {
                               : "\u221E",
                           style: Theme.of(context).textTheme.labelMedium
                               ?.copyWith(
-                                color: AppPalette.primary,
+                            color: context.colors.primary,
                                 fontWeight: FontWeight.bold,
                               ),
                           textAlign: TextAlign.center,

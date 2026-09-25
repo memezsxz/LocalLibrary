@@ -74,7 +74,7 @@ class SidePanelDock extends StatelessWidget {
               selected: false,
               iconWidget: Icon(
                 Icons.arrow_back,
-                color: AppPalette.primary,
+                color: context.colors.primary,
                 size: size * 0.40,
               ),
               onTap: () => context.read<NavigationCubit>().pop(),
@@ -119,10 +119,10 @@ class _DockBtn extends StatelessWidget {
         height: size,
         child: Material(
           clipBehavior: Clip.antiAlias,
-          color: AppPalette.surfaceAlt,
+          color: context.colors.surfaceAlt,
           shape: shape,
           elevation: selected ? 15 : 0,
-          shadowColor: AppPalette.primary.withOpacity(0.3),
+          shadowColor: context.colors.primary.withOpacity(0.3),
           child: InkWell(
             customBorder: shape,
             onTap: onTap,
@@ -133,7 +133,8 @@ class _DockBtn extends StatelessWidget {
                 height: inner,
                 child:
                     iconWidget ??
-                    SvgPicture.asset(iconPath!, color: AppPalette.primary),
+                        SvgPicture.asset(
+                            iconPath!, color: context.colors.primary),
               ),
             ),
           ),
@@ -145,7 +146,7 @@ class _DockBtn extends StatelessWidget {
       core = InnerShadow(
         shadows: [
           Shadow(
-            color: AppPalette.primary.withOpacity(0.35),
+            color: context.colors.primary.withOpacity(0.35),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

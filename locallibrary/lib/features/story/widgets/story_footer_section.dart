@@ -24,9 +24,7 @@ class StoryDescriptionBottom extends StatelessWidget {
 
   void _searchByTag(BuildContext context, Tag tag) {
     final cubit = sl<SearchCubit>();
-    cubit.setParams(
-      AdvancedSearchParams(tagIds: {tag.tagId}),
-    );
+    cubit.setParams(AdvancedSearchParams(tagIds: {tag.tagId}));
     sl<SearchBloc>().add(SearchRequested(cubit.state.toFilterParams()));
     context.read<NavigationCubit>().pop();
   }
@@ -60,7 +58,7 @@ class StoryDescriptionBottom extends StatelessWidget {
           width: double.infinity,
           padding: EdgeInsets.only(top: 30),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.colors.surface,
             borderRadius: BorderRadius.all(Radius.circular(25)),
             boxShadow: [
               BoxShadow(
@@ -105,8 +103,8 @@ class StoryDescriptionBottom extends StatelessWidget {
                   child: Container(
                     // padding: EdgeInsets.symmetric( vertical: 10),
                     color: isCurrentPart
-                        ? AppPalette.primaryLight.withOpacity(0.3)
-                        : Colors.white,
+                        ? context.colors.primaryLight.withOpacity(0.3)
+                        : Colors.transparent,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -120,7 +118,7 @@ class StoryDescriptionBottom extends StatelessWidget {
                                 p.title.trim(),
                                 style: Theme.of(context).textTheme.labelLarge
                                     ?.copyWith(
-                                      color: Colors.black,
+                                  color: context.colors.textPrimary,
                                       fontFamily: 'Courier New',
                                       fontSize: 18,
                                     ),
@@ -133,7 +131,7 @@ class StoryDescriptionBottom extends StatelessWidget {
                                       .toStringAsFixed(2)}% Complete",
                                   style: Theme.of(context).textTheme.labelLarge
                                       ?.copyWith(
-                                        color: AppPalette.primary,
+                                    color: context.colors.primary,
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'Courier New',
                                         fontSize: 14,
@@ -146,7 +144,7 @@ class StoryDescriptionBottom extends StatelessWidget {
                           p.datePublished.showDateInOwnFormat(),
                           style: Theme.of(context).textTheme.labelLarge
                               ?.copyWith(
-                                color: Colors.black,
+                            color: context.colors.textPrimary,
                                 fontFamily: 'Courier New',
                                 fontSize:
                                     MediaQuery.of(context).size.width < 600
@@ -173,4 +171,3 @@ class StoryDescriptionBottom extends StatelessWidget {
     );
   }
 }
-

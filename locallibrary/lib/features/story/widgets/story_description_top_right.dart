@@ -52,7 +52,7 @@ class StoryDescriptionTopRight extends StatelessWidget {
           SizedBox(
             width: w,
             child: Divider(
-              color: AppPalette.primaryLight.withOpacity(0.5),
+              color: context.colors.primaryLight.withOpacity(0.5),
               thickness: 2,
               radius: BorderRadius.all(Radius.circular(50)),
               height: 3,

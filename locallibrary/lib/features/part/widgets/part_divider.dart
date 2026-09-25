@@ -19,7 +19,7 @@ class PartDivider extends StatelessWidget {
             child: Text(
               title,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: AppPalette.primaryLight,
+                color: context.colors.primaryLight,
                 fontFamily: 'Courier New',
               ),
               maxLines: 1,

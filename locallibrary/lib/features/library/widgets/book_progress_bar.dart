@@ -21,9 +21,9 @@ class BookProgressBar extends StatelessWidget {
           ),
         ],
         child: LinearProgressIndicator(
-          color: AppPalette.primaryLight,
+          color: context.colors.primaryLight,
           value: progress,
-          backgroundColor: AppPalette.primaryExtraLight,
+          backgroundColor: context.colors.primaryExtraLight,
           borderRadius: BorderRadius.all(Radius.circular(2)),
         ),
       ),

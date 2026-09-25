@@ -40,7 +40,7 @@ class StoryDescriptionTop extends StatelessWidget {
     if (isMobile) {
       return Container(
         margin: margin,
-        color: Colors.white,
+        color: context.colors.background,
         width: double.infinity,
         child: _MobileStoryDescriptionTop(story: story),
       );
@@ -50,7 +50,7 @@ class StoryDescriptionTop extends StatelessWidget {
       margin: margin,
       width: double.infinity,
       height: double.infinity,
-      color: Colors.white,
+      color: context.colors.background,
       child: LayoutBuilder(
         builder: (context, c) {
           final w = c.maxWidth;
@@ -144,7 +144,7 @@ class _MobileStoryDescriptionTop extends StatelessWidget {
               ),
             ),
             VerticalDivider(
-              color: AppPalette.primaryLight.withOpacity(0.5),
+              color: context.colors.primaryLight.withOpacity(0.5),
               thickness: 2,
               width: 16,
             ),

@@ -34,7 +34,7 @@ class PartPeekBar extends StatelessWidget {
           children: [
             Icon(
               isTop ? Icons.arrow_upward : Icons.arrow_downward,
-              color: AppPalette.primary,
+              color: context.colors.primary,
               size: 14,
             ),
             const SizedBox(width: 8),
@@ -42,7 +42,7 @@ class PartPeekBar extends StatelessWidget {
               child: Text(
                 title,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppPalette.primary,
+                  color: context.colors.primary,
                   fontFamily: 'Courier New',
                 ),
                 maxLines: 1,
@@ -60,8 +60,8 @@ class PartPeekBar extends StatelessWidget {
 
         final bar = LinearProgressIndicator(
           value: progress,
-          backgroundColor: AppPalette.primaryLight.withOpacity(0.15),
-          color: AppPalette.primary,
+          backgroundColor: context.colors.primaryLight.withOpacity(0.15),
+          color: context.colors.primary,
           minHeight: 2,
         );
 
@@ -73,7 +73,7 @@ class PartPeekBar extends StatelessWidget {
               maxHeight: double.infinity,
               alignment: isTop ? Alignment.bottomCenter : Alignment.topCenter,
               child: Container(
-                color: AppPalette.surfaceAlt.withOpacity(0.95),
+                color: context.colors.surfaceAlt.withOpacity(0.95),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 6,

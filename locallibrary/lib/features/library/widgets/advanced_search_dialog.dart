@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/api/library_api_client.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../dependency_injection.dart';
 import '../../story/models/domain/genre_model.dart';
 import '../../story/models/domain/tag_model.dart';
@@ -154,7 +155,7 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
         .toList();
 
     return Material(
-      color: Colors.white,
+      color: context.colors.background,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -166,7 +167,7 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: context.colors.primaryLight,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -237,22 +238,33 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
                         child: SegmentedButton<String>(
                           emptySelectionAllowed: true,
                           segments: const [
-                            ButtonSegment(value: 'relevance',
-                                label: Text('Relevance')),
-                            ButtonSegment(value: 'newest',
-                                label: Text('Newest')),
-                            ButtonSegment(value: 'oldest',
-                                label: Text('Oldest')),
-                            ButtonSegment(value: 'title_asc',
-                                label: Text('A–Z')),
-                            ButtonSegment(value: 'title_desc',
-                                label: Text('Z–A')),
+                            ButtonSegment(
+                              value: 'relevance',
+                              label: Text('Relevance'),
+                            ),
+                            ButtonSegment(
+                              value: 'newest',
+                              label: Text('Newest'),
+                            ),
+                            ButtonSegment(
+                              value: 'oldest',
+                              label: Text('Oldest'),
+                            ),
+                            ButtonSegment(
+                              value: 'title_asc',
+                              label: Text('A–Z'),
+                            ),
+                            ButtonSegment(
+                              value: 'title_desc',
+                              label: Text('Z–A'),
+                            ),
                           ],
                           selected: _orderBy != null ? {_orderBy!} : {},
                           onSelectionChanged: (val) =>
                               setState(() => _orderBy = val.firstOrNull),
-                          style: ButtonStyle(iconSize: WidgetStateProperty.all(
-                              16)),
+                          style: ButtonStyle(
+                            iconSize: WidgetStateProperty.all(16),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),

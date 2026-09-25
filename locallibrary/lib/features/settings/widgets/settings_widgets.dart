@@ -16,11 +16,11 @@ class SettingsSectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.4,
-          color: AppPalette.gray,
+          color: context.colors.gray,
         ),
       ),
     );
@@ -38,9 +38,9 @@ class SettingsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppPalette.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppPalette.primaryExtraLight, width: 1),
+        border: Border.all(color: context.colors.primaryExtraLight, width: 1),
       ),
       clipBehavior: Clip.hardEdge,
       child: Column(
@@ -80,13 +80,13 @@ class SettingsRow extends StatelessWidget {
                     Row(
                       spacing: 12,
                       children: [
-                        Icon(icon, size: 18, color: AppPalette.primary),
+                        Icon(icon, size: 18, color: context.colors.primary),
                         Text(
                           label,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: AppPalette.textPrimary,
+                            color: context.colors.textPrimary,
                           ),
                         ),
                       ],
@@ -97,13 +97,13 @@ class SettingsRow extends StatelessWidget {
               : Row(
                   spacing: 12,
                   children: [
-                    Icon(icon, size: 18, color: AppPalette.primary),
+                    Icon(icon, size: 18, color: context.colors.primary),
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppPalette.textPrimary,
+                        color: context.colors.textPrimary,
                       ),
                     ),
                     const Spacer(),
@@ -123,11 +123,11 @@ class SettingsRowDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(
+    return Divider(
       height: 1,
       indent: 48,
       endIndent: 0,
-      color: AppPalette.primaryExtraLight,
+      color: context.colors.primaryExtraLight,
     );
   }
 }
@@ -161,7 +161,9 @@ class _ApiUrlDisplayState extends State<ApiUrlDisplay> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: _copied ? Colors.green.shade50 : AppPalette.primaryExtraLight,
+          color: _copied
+              ? context.colors.success.withOpacity(0.15)
+              : context.colors.primaryExtraLight,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -172,7 +174,9 @@ class _ApiUrlDisplayState extends State<ApiUrlDisplay> {
               widget.url,
               style: TextStyle(
                 fontSize: 12,
-                color: _copied ? Colors.green.shade700 : AppPalette.primary,
+                color: _copied
+                    ? context.colors.success
+                    : context.colors.primary,
                 fontWeight: FontWeight.w500,
                 fontFamily: 'monospace',
               ),
@@ -180,7 +184,9 @@ class _ApiUrlDisplayState extends State<ApiUrlDisplay> {
             Icon(
               _copied ? Icons.check_rounded : Icons.copy_rounded,
               size: 13,
-              color: _copied ? Colors.green.shade600 : AppPalette.primaryLight,
+              color: _copied
+                  ? context.colors.success
+                  : context.colors.primaryLight,
             ),
           ],
         ),

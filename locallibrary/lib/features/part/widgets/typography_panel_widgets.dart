@@ -15,11 +15,11 @@ class TypographySectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.4,
-          color: AppPalette.gray,
+          color: context.colors.gray,
         ),
       ),
     );
@@ -37,9 +37,9 @@ class TypographyPanelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppPalette.background,
+        color: context.colors.background,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppPalette.primaryExtraLight, width: 1),
+        border: Border.all(color: context.colors.primaryExtraLight, width: 1),
       ),
       clipBehavior: Clip.hardEdge,
       child: Column(
@@ -71,13 +71,13 @@ class TypographyPanelRow extends StatelessWidget {
       child: Row(
         spacing: 10,
         children: [
-          Icon(icon, size: 16, color: AppPalette.primary),
+          Icon(icon, size: 16, color: context.colors.primary),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: AppPalette.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
           const Spacer(),
@@ -111,23 +111,23 @@ class TypographyPanelSwitchRow extends StatelessWidget {
       child: Row(
         spacing: 10,
         children: [
-          Icon(icon, size: 16, color: AppPalette.primary),
+          Icon(icon, size: 16, color: context.colors.primary),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: AppPalette.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
           const Spacer(),
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppPalette.primary,
-            activeTrackColor: AppPalette.primaryLight,
-            inactiveThumbColor: AppPalette.gray,
-            inactiveTrackColor: AppPalette.primaryExtraLight,
+            activeColor: context.colors.primary,
+            activeTrackColor: context.colors.primaryLight,
+            inactiveThumbColor: context.colors.gray,
+            inactiveTrackColor: context.colors.primaryExtraLight,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ],
@@ -143,10 +143,10 @@ class TypographyRowDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(
+    return Divider(
       height: 1,
       indent: 40,
-      color: AppPalette.primaryExtraLight,
+      color: context.colors.primaryExtraLight,
     );
   }
 }
@@ -170,25 +170,25 @@ class TypographyFontDropdown extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
-        color: AppPalette.primaryExtraLight,
+        color: context.colors.primaryExtraLight,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppPalette.primaryLight, width: 0.8),
+        border: Border.all(color: context.colors.primaryLight, width: 0.8),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
           isDense: true,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
-            color: AppPalette.textPrimary,
+            color: context.colors.textPrimary,
             fontWeight: FontWeight.w500,
           ),
-          icon: const Icon(
+          icon: Icon(
             Icons.expand_more_rounded,
             size: 16,
-            color: AppPalette.primary,
+            color: context.colors.primary,
           ),
-          dropdownColor: AppPalette.surface,
+          dropdownColor: context.colors.surface,
           borderRadius: BorderRadius.circular(10),
           items: fonts
               .map((f) => DropdownMenuItem(value: f, child: Text(f)))

@@ -34,7 +34,7 @@ class StoryTagsWrap extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(50)),
-                color: AppPalette.primaryLight,
+                color: context.colors.primaryLight,
               ),
               child: Text(
                 t.name,

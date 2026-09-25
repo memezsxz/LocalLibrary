@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../core/theme/app_palette.dart';
 import '../../story/models/domain/part_model.dart';
 import '../bloc/part_bloc.dart';
 import '../cubit/part_side_panel_cubit.dart';
@@ -78,7 +79,13 @@ class CommentsParagraphNavArrow extends StatelessWidget {
                   PartSidePanelCommentsCubit(storyId: storyId, paragraph: next),
                 );
               },
-              child: SvgPicture.asset(iconAsset),
+              child: SvgPicture.asset(
+                iconAsset,
+                colorFilter: ColorFilter.mode(
+                  context.colors.textPrimary,
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
           ),
         );

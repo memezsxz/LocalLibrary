@@ -21,7 +21,6 @@ class SidePanelScaffold extends StatefulWidget {
 
   final Widget content;
   final double panelWidth;
-  final Color panelBg = AppPalette.surfaceAlt;
   final double dockSize;
   final int storyId;
   final ScrollController? scrollController;
@@ -90,11 +89,14 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
         if (panelState is! PartSidePanelCommentsCubit) return;
         if (panelState.paragraph != null) {
           panelCubit.changeContent(
-              PartSidePanelCommentsCubit(storyId: panelState.storyId));
+            PartSidePanelCommentsCubit(storyId: panelState.storyId),
+          );
         } else {
           context.read<CommentsBloc>().add(
             LoadPartComments(
-                panelState.storyId, (partState as PartLoaded).info.part.partId),
+              panelState.storyId,
+              (partState as PartLoaded).info.part.partId,
+            ),
           );
         }
       },
@@ -113,14 +115,16 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
       final commentsBloc = context.read<CommentsBloc>();
       if (state.paragraph != null) {
         commentsBloc.add(
-            LoadParagraphComments(state.storyId, state.paragraph!.paragraphId));
+          LoadParagraphComments(state.storyId, state.paragraph!.paragraphId),
+        );
       } else {
         final partState = context
             .read<PartBloc>()
             .state;
         if (partState is PartLoaded) {
           commentsBloc.add(
-              LoadPartComments(state.storyId, partState.info.part.partId));
+            LoadPartComments(state.storyId, partState.info.part.partId),
+          );
         }
       }
     }
@@ -146,7 +150,7 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                 boxShadow: [
                   BoxShadow(
                     offset: const Offset(2, 12),
-                    color: AppPalette.primary.withOpacity(0.3),
+                    color: context.colors.primary.withOpacity(0.3),
                     blurRadius: 20,
                   ),
                 ],
@@ -157,7 +161,7 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                 minWidth: widget.panelWidth,
                 maxWidth: widget.panelWidth,
                 child: Material(
-                  color: widget.panelBg,
+                  color: context.colors.surfaceAlt,
                   elevation: 4,
                   child: KeyedSubtree(
                     key: ValueKey(currentKey),
@@ -178,7 +182,9 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                 top: 0,
                 bottom: 0,
                 child: SidePanelDock(
-                    storyId: widget.storyId, size: widget.dockSize),
+                  storyId: widget.storyId,
+                  size: widget.dockSize,
+                ),
               ),
             ],
           ),
@@ -222,13 +228,15 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                     right: 0,
                     height: panelH,
                     child: Material(
-                      color: widget.panelBg,
+                      color: context.colors.surfaceAlt,
                       elevation: 8,
                       borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(16)),
+                        top: Radius.circular(16),
+                      ),
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius
-                            .circular(16)),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
                         child: isOpen
                             ? Column(
                           children: [
@@ -238,8 +246,8 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                                 setState(() {
                                   _isDraggingPanel = true;
                                   _panelDragOffset =
-                                      (_panelDragOffset + d.delta.dy).clamp(
-                                          0.0, panelH);
+                                      (_panelDragOffset + d.delta.dy)
+                                          .clamp(0.0, panelH);
                                 });
                               },
                               onVerticalDragEnd: (d) {
@@ -255,14 +263,17 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    vertical: 10),
+                                  vertical: 10,
+                                ),
                                 child: Center(
                                   child: Container(
                                     width: 40,
                                     height: 4,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.withOpacity(0.35),
-                                      borderRadius: BorderRadius.circular(2),
+                                      color: context.colors.primaryLight,
+                                      borderRadius: BorderRadius.circular(
+                                        2,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -289,8 +300,8 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                 left: 16,
                 child: FloatingActionButton.small(
                   heroTag: 'back',
-                  backgroundColor: widget.panelBg,
-                  foregroundColor: AppPalette.primary,
+                  backgroundColor: context.colors.surfaceAlt,
+                  foregroundColor: context.colors.primary,
                   elevation: 4,
                   onPressed: () => context.read<NavigationCubit>().pop(),
                   child: const Icon(Icons.arrow_back),

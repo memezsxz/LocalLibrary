@@ -20,43 +20,43 @@ extension ScrapeStatusAssociation on ScrapeStatus {
   }
 
   /// Tiny status indicator suited for buttons / list tiles.
-  Widget get indicator {
+  Widget indicator(BuildContext context) {
     switch (this) {
       case ScrapeStatus.idle:
-        return const Icon(
+        return Icon(
           Icons.cookie_outlined,
           size: 18,
-          color: AppPalette.primary,
+          color: context.colors.primary,
         );
       case ScrapeStatus.connecting:
-        return const SizedBox(
+        return SizedBox(
           width: 18,
           height: 18,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            color: AppPalette.primary,
+            color: context.colors.primary,
           ),
         );
       case ScrapeStatus.streaming:
-        return const SizedBox(
+        return SizedBox(
           width: 18,
           height: 18,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            color: AppPalette.primary,
+            color: context.colors.primary,
           ),
         );
       case ScrapeStatus.done:
-        return const Icon(
+        return Icon(
           Icons.check_circle,
           size: 18,
-          color: AppPalette.primary,
+          color: context.colors.primary,
         );
       case ScrapeStatus.error:
-        return const Icon(
+        return Icon(
           Icons.error_outline,
           size: 18,
-          color: AppPalette.primary,
+          color: context.colors.primary,
         );
     }
   }

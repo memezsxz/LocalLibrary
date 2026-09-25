@@ -9,10 +9,10 @@ class StoryData extends StatelessWidget {
   final SvgPicture image;
   final String label;
   final int? number;
-  Color color = AppPalette.primaryLight;
 
   @override
   Widget build(BuildContext context) {
+    final color = context.colors.primaryLight;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       spacing: 10,

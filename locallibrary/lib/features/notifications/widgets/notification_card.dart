@@ -89,54 +89,61 @@ class _NotificationCardState extends State<NotificationCard> {
       background: Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.green.shade600,
+          color: context.colors.success,
           borderRadius: BorderRadius.circular(10),
         ),
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: 20),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
-            SizedBox(width: 8),
+            Icon(
+              Icons.check_circle_outline,
+              color: context.colors.onSuccess,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
             Text(
               'Mark as read',
               style: TextStyle(
-                color: Colors.white,
+                color: context.colors.onSuccess,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
       ),
-      child: GestureDetector(
-        onTap: () => _toggle(context),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: isUnread ? AppPalette.surfaceAlt : AppPalette.background,
-            borderRadius: BorderRadius.circular(10),
-            border: Border(
-              left: BorderSide(
-                color: isUnread ? AppPalette.primary : Colors.transparent,
-                width: 3,
-              ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: isUnread
+              ? context.colors.surfaceAlt
+              : context.colors.background,
+          borderRadius: BorderRadius.circular(10),
+          border: Border(
+            left: BorderSide(
+              color: isUnread ? context.colors.primary : Colors.transparent,
+              width: 3,
             ),
-            boxShadow: _expanded
-                ? [
-                    BoxShadow(
-                      color: AppPalette.primary.withOpacity(0.08),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
+          boxShadow: _expanded
+              ? [
+            BoxShadow(
+              color: context.colors.primary.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ]
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GestureDetector(
+              onTap: () => _toggle(context),
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,10 +161,10 @@ class _NotificationCardState extends State<NotificationCard> {
                               Expanded(
                                 child: Text(
                                   n.message,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
-                                    color: AppPalette.textPrimary,
+                                    color: context.colors.textPrimary,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -171,8 +178,8 @@ class _NotificationCardState extends State<NotificationCard> {
                                     left: 6,
                                     top: 3,
                                   ),
-                                  decoration: const BoxDecoration(
-                                    color: AppPalette.primary,
+                                  decoration: BoxDecoration(
+                                    color: context.colors.primary,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
@@ -184,9 +191,9 @@ class _NotificationCardState extends State<NotificationCard> {
                               _TypeBadge(type: n.notificationType),
                               Text(
                                 _formatTime(n.createdAt),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: AppPalette.gray,
+                                  color: context.colors.gray,
                                 ),
                               ),
                             ],
@@ -194,9 +201,9 @@ class _NotificationCardState extends State<NotificationCard> {
                           if (preview != null && !_expanded)
                             Text(
                               '"$preview"',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: AppPalette.gray,
+                                color: context.colors.gray,
                                 fontStyle: FontStyle.italic,
                               ),
                               maxLines: 2,
@@ -209,33 +216,33 @@ class _NotificationCardState extends State<NotificationCard> {
                       AnimatedRotation(
                         turns: _expanded ? 0.5 : 0,
                         duration: const Duration(milliseconds: 200),
-                        child: const Icon(
+                        child: Icon(
                           Icons.expand_more,
                           size: 18,
-                          color: AppPalette.gray,
+                          color: context.colors.gray,
                         ),
                       )
                     else
-                      const Icon(
+                      Icon(
                         Icons.arrow_forward_ios,
                         size: 14,
-                        color: AppPalette.gray,
+                        color: context.colors.gray,
                       ),
                   ],
                 ),
               ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 280),
-                curve: Curves.easeOutCubic,
-                child: _expanded
-                    ? _ExpandedBody(
-                        notification: n,
-                        onNavigate: () => _navigate(context),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            ],
-          ),
+            ),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 280),
+              curve: Curves.easeOutCubic,
+              child: _expanded
+                  ? _ExpandedBody(
+                notification: n,
+                onNavigate: () => _navigate(context),
+              )
+                  : const SizedBox.shrink(),
+            ),
+          ],
         ),
       ),
     );
@@ -264,7 +271,7 @@ class _ExpandedBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Divider(height: 1, color: AppPalette.primaryExtraLight),
+        Divider(height: 1, color: context.colors.primaryExtraLight),
         if (notification.notificationType == NotificationType.authorComment &&
             (notification.paragraphId != null || notification.partId != null))
           _NotificationCommentsView(notification: notification),
@@ -279,7 +286,7 @@ class _ExpandedBody extends StatelessWidget {
                 notification.partId != null ? 'Open Part' : 'Open Story',
               ),
               style: TextButton.styleFrom(
-                foregroundColor: AppPalette.primary,
+                foregroundColor: context.colors.primary,
                 textStyle: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -344,7 +351,7 @@ class _NotificationCommentsViewState extends State<_NotificationCommentsView> {
             padding: const EdgeInsets.all(12),
             child: Text(
               'Failed to load thread: ${snapshot.error}',
-              style: const TextStyle(color: AppPalette.error, fontSize: 13),
+              style: TextStyle(color: context.colors.error, fontSize: 13),
             ),
           );
         }
@@ -358,11 +365,11 @@ class _NotificationCommentsViewState extends State<_NotificationCommentsView> {
             if (thread.paragraph != null)
               CommentsParagraphView(p: thread.paragraph!),
             if (comments.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(12),
+              Padding(
+                padding: const EdgeInsets.all(12),
                 child: Text(
                   'No comments',
-                  style: TextStyle(color: AppPalette.gray, fontSize: 13),
+                  style: TextStyle(color: context.colors.gray, fontSize: 13),
                 ),
               )
             else
@@ -417,19 +424,19 @@ class _TypeBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppPalette.primaryExtraLight,
+        color: context.colors.primaryExtraLight,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          Icon(icon, size: 11, color: AppPalette.primary),
+          Icon(icon, size: 11, color: context.colors.primary),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
-              color: AppPalette.primary,
+              color: context.colors.primary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -458,18 +465,19 @@ class _CoverThumbnail extends StatelessWidget {
             ? Image.network(
                 url,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _placeholder,
+          errorBuilder: (context, __, ___) => _placeholder(context),
               )
-            : _placeholder,
+            : _placeholder(context),
       ),
     );
   }
 
-  Widget get _placeholder => Container(
-    color: AppPalette.primaryExtraLight,
-    child: const Icon(
+  Widget _placeholder(BuildContext context) =>
+      Container(
+        color: context.colors.primaryExtraLight,
+        child: Icon(
       Icons.menu_book_rounded,
-      color: AppPalette.primary,
+          color: context.colors.primary,
       size: 24,
     ),
   );

@@ -13,8 +13,8 @@ class PartImages extends StatelessWidget {
     return Container(
       height: MediaQuery.of(context).size.height / 2,
       decoration: BoxDecoration(
-        border: Border.all(color: AppPalette.primary, width: 2),
-        color: AppPalette.primary.withOpacity(0.5),
+        border: Border.all(color: context.colors.primary, width: 2),
+        color: context.colors.primary.withOpacity(0.5),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {

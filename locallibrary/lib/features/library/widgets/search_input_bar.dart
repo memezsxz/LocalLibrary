@@ -55,7 +55,7 @@ class _SearchInputBarState extends State<SearchInputBar> {
         IconButton(
           icon: Icon(
             Icons.tune,
-            color: widget.hasActiveFilters ? AppPalette.primary : null,
+            color: widget.hasActiveFilters ? context.colors.primary : null,
           ),
           tooltip: 'Advanced search',
           onPressed: widget.onAdvancedSearch,

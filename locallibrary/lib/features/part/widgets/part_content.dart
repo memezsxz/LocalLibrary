@@ -77,7 +77,7 @@ class PartContent extends StatelessWidget {
           Text(
             info.part.title,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.black,
+              color: context.colors.textPrimary,
               fontFamily: 'Courier New',
             ),
           ),
@@ -97,7 +97,7 @@ class PartContent extends StatelessWidget {
                   leading: 0,
                 ),
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: AppPalette.primary,
+                  color: context.colors.primary,
                   fontFamily: 'Courier New',
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -110,7 +110,7 @@ class PartContent extends StatelessWidget {
                 child: Center(
                   child: SvgPicture.asset(
                     'assets/icons/star_fill_icon.svg',
-                    color: AppPalette.primary,
+                    color: context.colors.primary,
                   ),
                 ),
               ),
@@ -121,7 +121,7 @@ class PartContent extends StatelessWidget {
             height: 2,
             width: MediaQuery.of(context).size.width * 0.3,
             decoration: ShapeDecoration(
-              color: AppPalette.primaryLight,
+              color: context.colors.primaryLight,
               shape: BeveledRectangleBorder(
                 borderRadius: BorderRadius.circular(150),
               ),

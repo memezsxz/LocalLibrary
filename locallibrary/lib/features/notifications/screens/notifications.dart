@@ -119,18 +119,18 @@ class _NotificationsViewState extends State<_NotificationsView> {
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.resolveWith((states) {
                     if (states.contains(WidgetState.selected)) {
-                      return AppPalette.primary;
+                      return context.colors.primary;
                     }
-                    return AppPalette.surfaceAlt;
+                    return context.colors.surfaceAlt;
                   }),
                   foregroundColor: WidgetStateProperty.resolveWith((states) {
                     if (states.contains(WidgetState.selected)) {
-                      return AppPalette.textOnLight;
+                      return context.colors.textOnLight;
                     }
-                    return AppPalette.textPrimary;
+                    return context.colors.textPrimary;
                   }),
-                  side: const WidgetStatePropertyAll(
-                    BorderSide(color: AppPalette.primaryLight),
+                  side: WidgetStatePropertyAll(
+                    BorderSide(color: context.colors.primaryLight),
                   ),
                 ),
               ),
@@ -148,7 +148,7 @@ class _NotificationsViewState extends State<_NotificationsView> {
                       NotificationsMarkAllReadRequested(),
                     ),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppPalette.primary,
+                      foregroundColor: context.colors.primary,
                       textStyle: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -176,7 +176,7 @@ class _NotificationsViewState extends State<_NotificationsView> {
                     children: [
                       Text(
                         state.message,
-                        style: const TextStyle(color: AppPalette.error),
+                        style: TextStyle(color: context.colors.error),
                       ),
                       TextButton(
                         onPressed: () => context.read<NotificationsBloc>().add(
@@ -196,7 +196,7 @@ class _NotificationsViewState extends State<_NotificationsView> {
                       _unreadOnly
                           ? 'No unread notifications'
                           : 'No notifications',
-                      style: const TextStyle(color: AppPalette.gray),
+                      style: TextStyle(color: context.colors.gray),
                     ),
                   );
                 }
@@ -204,7 +204,8 @@ class _NotificationsViewState extends State<_NotificationsView> {
                 final grouped = _buildGrouped(state.items);
 
                 return RefreshIndicator(
-                  color: AppPalette.primary,
+                  color: context.colors.primary,
+                  backgroundColor: context.colors.surface,
                   onRefresh: () async => context.read<NotificationsBloc>().add(
                     NotificationsLoadRequested(unreadOnly: _unreadOnly),
                   ),
@@ -254,14 +255,13 @@ class _DateHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.4,
-          color: AppPalette.gray,
+          color: context.colors.gray,
         ),
       ),
     );
   }
 }
-

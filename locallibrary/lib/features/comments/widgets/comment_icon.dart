@@ -27,7 +27,7 @@ class CommentIcon extends StatelessWidget {
           ? Icon(
         Icons.all_inclusive, // ∞
         size: size * 0.5,
-        color: AppPalette.primary,
+        color: context.colors.primary,
       )
           : Text(
         '$count',
@@ -36,7 +36,7 @@ class CommentIcon extends StatelessWidget {
           fontSize: size * 0.4,
           height: 1.0,
           fontWeight: FontWeight.w700,
-          color: AppPalette.primary,
+          color: context.colors.primary,
           shadows: [
             Shadow(blurRadius: 2, color: Colors.black.withOpacity(0.35)),
           ],
@@ -57,6 +57,10 @@ class CommentIcon extends StatelessWidget {
               'assets/icons/comment_icon.svg',
               width: size,
               height: size,
+              colorFilter: ColorFilter.mode(
+                context.colors.primaryLight,
+                BlendMode.srcIn,
+              ),
             ),
             overlaid,
           ],

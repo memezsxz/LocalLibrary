@@ -46,7 +46,7 @@ class StoryLayout extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.colors.background,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.25),
@@ -65,7 +65,7 @@ class StoryLayout extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      color: AppPalette.surface,
+                      color: context.colors.surface,
                       child: ContentContainer(
                         margin: contentMargin,
                         child: bottom,
@@ -97,15 +97,13 @@ class StoryLayout extends StatelessWidget {
             SingleChildScrollView(
               clipBehavior: Clip.none,
               child: Container(
-                color: Colors.white,
+                color: context.colors.background,
                 child: Stack(
                   children: [
                     Container(
                       margin: EdgeInsets.only(top: topSize),
                       width: double.infinity,
-                      decoration: const BoxDecoration(
-                        color: AppPalette.surface,
-                      ),
+                      decoration: BoxDecoration(color: context.colors.surface),
                       child: ContentContainer(
                         margin: contentMargin,
                         child: bottom,
@@ -113,7 +111,7 @@ class StoryLayout extends StatelessWidget {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.colors.background,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.25),

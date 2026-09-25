@@ -119,9 +119,11 @@ class _CommentsPanelState extends State<CommentsPanel> {
                       if (p != null) {
                         return Text(
                           "Comments # ${p.commentsCount}",
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleSmall?.copyWith(color: Colors.black),
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(color: context.colors.textPrimary),
                         );
                       }
                       final ps = context.read<PartBloc>().state;
@@ -133,9 +135,13 @@ class _CommentsPanelState extends State<CommentsPanel> {
                           : 'Comments # $count';
                       return Text(
                         label,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleSmall?.copyWith(color: Colors.black),
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(
+                          color: context.colors.textPrimary,
+                        ),
                       );
                     },
                   ),
@@ -214,17 +220,16 @@ class _CommentsPanelState extends State<CommentsPanel> {
                               !(s.repliesEnded[root.commentId] ?? false) &&
                               !s.repliesLoading.contains(root.commentId)) {
                             setState(() => _expanded.add(root.commentId));
-                            context
-                                .read<CommentsBloc>()
-                                .add(LoadReplies(root.commentId));
+                            context.read<CommentsBloc>().add(
+                              LoadReplies(root.commentId),
+                            );
                           }
                         }
                       });
                     } else if (_loadedRepliesForTarget) {
-                      final foundInReplies = s.replies.values
-                          .any((list) =>
-                          list.any((c) =>
-                          c.commentId == target));
+                      final foundInReplies = s.replies.values.any(
+                            (list) => list.any((c) => c.commentId == target),
+                      );
                       if (foundInReplies) {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           if (!mounted) return;
@@ -292,11 +297,11 @@ class _CommentsPanelState extends State<CommentsPanel> {
                           // width of the thumb
                           radius: const Radius.circular(8),
                           scrollbarOrientation: ScrollbarOrientation.left,
-                          thumbColor: AppPalette.primaryLight,
+                          thumbColor: context.colors.primaryLight,
                           // thumb color
                           trackColor: AppPalette.transparent,
                           // track fill
-                          // trackBorderColor: AppPalette.primary.withOpacity(0.25), // track border
+                          // trackBorderColor: context.colors.primary.withOpacity(0.25), // track border
                           interactive: true,
 
                           // draggable
@@ -320,8 +325,8 @@ class _CommentsPanelState extends State<CommentsPanel> {
                               final textDir =
                                   p?.direction.toTextDirection ??
                                   TextDirection.ltr;
-                              final isTarget = target != null &&
-                                  c.commentId == target;
+                              final isTarget =
+                                  target != null && c.commentId == target;
                               Widget item = CommentListItem(
                                 comment: c,
                                 depth: depth,
@@ -370,7 +375,7 @@ class _CommentsPanelState extends State<CommentsPanel> {
                     children: [
                       // always paint a surface so it never appears transparent
                       Container(
-                        // color: Colors.white, // change to AppPalette.surfaceAlt if you prefer
+                        color: context.colors.surfaceAlt,
                         child: listChild,
                       ),
 

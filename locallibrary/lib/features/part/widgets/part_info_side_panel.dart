@@ -178,15 +178,15 @@ class _DesktopHeader extends StatelessWidget {
                 AutoSizeText.rich(
                   TextSpan(
                     children: [
-                      const TextSpan(
+                      TextSpan(
                         text: 'By ',
-                        style: TextStyle(color: Colors.black54),
+                        style: TextStyle(color: context.colors.gray),
                       ),
                       TextSpan(
                         text: b.author.username,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.black54,
+                          color: context.colors.gray,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () =>
@@ -249,7 +249,7 @@ class _MobileHeader extends StatelessWidget {
                   Text(
                     'By ${b.author.username}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppPalette.primaryLight,
+                      color: context.colors.primaryLight,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -257,7 +257,11 @@ class _MobileHeader extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: AppPalette.primaryLight, size: 18),
+            Icon(
+              Icons.chevron_right,
+              color: context.colors.primaryLight,
+              size: 18,
+            ),
           ],
         ),
       ),
@@ -282,7 +286,7 @@ class _PartRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: isCurrentPart
-          ? AppPalette.primary.withOpacity(0.12)
+          ? context.colors.primary.withOpacity(0.12)
           : Colors.transparent,
       child: InkWell(
         onTap: () => context.read<NavigationCubit>().push(
@@ -301,7 +305,9 @@ class _PartRow extends StatelessWidget {
                     softWrap: true,
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       fontSize: 15,
-                      color: isCurrentPart ? AppPalette.primary : Colors.black,
+                      color: isCurrentPart
+                          ? context.colors.primary
+                          : context.colors.textPrimary,
                       fontWeight: isCurrentPart
                           ? FontWeight.w600
                           : FontWeight.normal,

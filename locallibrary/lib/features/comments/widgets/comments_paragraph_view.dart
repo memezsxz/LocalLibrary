@@ -13,9 +13,9 @@ class CommentsParagraphView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppPalette.surfaceAlt,
+      color: context.colors.surfaceAlt,
       child: Container(
-        color: Colors.white.withOpacity(0.7),
+        color: context.colors.background,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
           child: Html(
@@ -28,7 +28,7 @@ class CommentsParagraphView extends StatelessWidget {
                 padding: HtmlPaddings.zero,
                 lineHeight: LineHeight.rem(1.4),
                 fontSize: FontSize.medium,
-                color: Colors.black,
+                color: context.colors.textPrimary,
                 direction: p.direction.toTextDirection,
               ),
             },

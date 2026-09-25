@@ -8,6 +8,7 @@ import 'core/theme/util.dart';
 import 'dependency_injection.dart';
 import 'features/library/cubit/navigation_cubit.dart';
 import 'features/library/screens/app_shell.dart';
+import 'features/settings/cubit/settings_cubit.dart';
 
 class WindowCloseNotifier extends StatefulWidget {
   final int parentId;
@@ -60,19 +61,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = createTextTheme(context, "Bellefair", "Elsie");
-    // final brightness = View.of(context).platformDispatcher.platformBrightness;
-    final brightness = Brightness.light;
-
     MaterialTheme theme = MaterialTheme(textTheme);
+
     return MultiBlocProvider(
       providers: [BlocProvider(create: (_) => NavigationCubit())],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Local Library',
-        theme: brightness == Brightness.light
-            ? theme.lightMediumContrast()
-            : theme.dark(),
-        home: const AppShell(),
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        bloc: sl<SettingsCubit>(),
+        builder: (context, settings) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Local Library',
+            theme: theme.light(),
+            darkTheme: theme.dark(),
+            themeMode: settings.themeMode,
+            home: const AppShell(),
+          );
+        },
       ),
     );
   }

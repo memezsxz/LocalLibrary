@@ -151,7 +151,7 @@ class _AuthorDialogContentState extends State<_AuthorDialogContent> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppPalette.background,
+      color: context.colors.background,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -164,7 +164,7 @@ class _AuthorDialogContentState extends State<_AuthorDialogContent> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: context.colors.primaryLight,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -180,10 +180,10 @@ class _AuthorDialogContentState extends State<_AuthorDialogContent> {
 
   Widget _buildBody() {
     if (widget.fetchStories == null) {
-      return const Center(
+      return Center(
         child: Text(
           'Stories not available yet',
-          style: TextStyle(color: AppPalette.gray),
+          style: TextStyle(color: context.colors.gray),
         ),
       );
     }
@@ -193,10 +193,10 @@ class _AuthorDialogContentState extends State<_AuthorDialogContent> {
     }
 
     if (_stories.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No stories found',
-          style: TextStyle(color: AppPalette.gray),
+          style: TextStyle(color: context.colors.gray),
         ),
       );
     }
@@ -246,8 +246,8 @@ class AuthorAvatar extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(
-        color: AppPalette.primaryLight,
+      decoration: BoxDecoration(
+        color: context.colors.primaryLight,
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
@@ -256,7 +256,7 @@ class AuthorAvatar extends StatelessWidget {
         style: TextStyle(
           fontSize: size * 0.35,
           fontWeight: FontWeight.w700,
-          color: AppPalette.primary,
+          color: context.colors.primary,
         ),
       ),
     );
@@ -273,7 +273,7 @@ class _AuthorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppPalette.surface,
+      color: context.colors.surface,
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       child: Row(
         spacing: 16,
@@ -288,16 +288,16 @@ class _AuthorHeader extends StatelessWidget {
                   author.name,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppPalette.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   '@${author.username}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppPalette.gray,
+                    color: context.colors.gray,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

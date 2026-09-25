@@ -188,7 +188,7 @@ class _ScrapeAllBarState extends State<_ScrapeAllBar> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -213,16 +213,24 @@ class _ScrapeAllBarState extends State<_ScrapeAllBar> {
                 if (_isRunning)
                   Text(
                     '$_doneCount / $total parts done',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelSmall?.copyWith(color: AppPalette.primary),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.copyWith(
+                      color: context.colors.primary,
+                    ),
                   )
                 else
                   Text(
                     '$total parts',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelSmall?.copyWith(color: Colors.grey),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.copyWith(
+                      color: context.colors.gray,
+                    ),
                   ),
               ],
             ),
@@ -234,8 +242,7 @@ class _ScrapeAllBarState extends State<_ScrapeAllBar> {
             visualDensity: VisualDensity.compact,
           ),
           if (_isRunning)
-            OutlinedButton(onPressed: _stopAll, child: const Text('Stop'),
-            )
+            OutlinedButton(onPressed: _stopAll, child: const Text('Stop'))
           else
             FilledButton.icon(
               onPressed: _scrapeAll,
@@ -279,7 +286,7 @@ class _ScrapeModeToc extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.only(top: 30),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: const BorderRadius.all(Radius.circular(25)),
         boxShadow: [
           BoxShadow(
@@ -400,9 +407,14 @@ class _ScrapeModeTocRowHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = partLink.title ?? partLink.wattId;
-    final titleStyle = Theme.of(
-      context,
-    ).textTheme.titleMedium?.copyWith(fontSize: 16, color: AppPalette.primary);
+    final titleStyle = Theme
+        .of(context)
+        .textTheme
+        .titleMedium
+        ?.copyWith(
+      fontSize: 16,
+      color: context.colors.primary,
+    );
 
     return BlocBuilder<ScrapePartBloc, BaseScrapeState<PartInfo>>(
       bloc: bloc,
@@ -523,13 +535,13 @@ class _QuickScrapeActions extends StatelessWidget {
               _FilledIconBtn(
                 icon: Icons.list_alt,
                 tooltip: 'View logs',
-                color: AppPalette.error,
+                color: context.colors.error,
                 onPressed: () => _openLogs(context),
               ),
               _FilledIconBtn(
                 icon: Icons.replay,
                 tooltip: 'Retry',
-                color: AppPalette.error,
+                color: context.colors.error,
                 onPressed: () => _scrape(context),
               ),
             ],
@@ -541,7 +553,7 @@ class _QuickScrapeActions extends StatelessWidget {
         return _FilledIconBtn(
           icon: isScraped ? Icons.refresh : Icons.download,
           tooltip: isScraped ? 'Rescrape part' : 'Scrape part',
-          color: isScraped ? AppPalette.primary : Colors.grey,
+          color: isScraped ? context.colors.primary : context.colors.gray,
           onPressed: hasUrl ? () => _scrape(context) : null,
         );
       },
@@ -564,7 +576,7 @@ class _FilledIconBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = color ?? AppPalette.primary;
+    final bg = color ?? context.colors.primary;
     final effectiveBg = onPressed == null ? bg.withOpacity(0.3) : bg;
     return Tooltip(
       message: tooltip,
@@ -577,7 +589,7 @@ class _FilledIconBtn extends StatelessWidget {
           child: SizedBox(
             width: 30,
             height: 30,
-            child: Icon(icon, size: 16, color: Colors.white),
+            child: Icon(icon, size: 16, color: context.colors.textOnLight),
           ),
         ),
       ),
@@ -612,12 +624,10 @@ class _ScrapeModeTocRowExpanded extends StatefulWidget {
 }
 
 class _ScrapeModeTocRowExpandedState extends State<_ScrapeModeTocRowExpanded> {
-
   void _openPartLogs(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!context.mounted) return;
-      openScrapeEventsModal<PartInfo>(
-          context: context, bloc: widget.bloc);
+      openScrapeEventsModal<PartInfo>(context: context, bloc: widget.bloc);
     });
   }
 
@@ -625,7 +635,9 @@ class _ScrapeModeTocRowExpandedState extends State<_ScrapeModeTocRowExpanded> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!context.mounted) return;
       openScrapeEventsModal<ScrapeCommentsResult>(
-          context: context, bloc: widget.commentsBloc);
+        context: context,
+        bloc: widget.commentsBloc,
+      );
     });
   }
 
@@ -652,7 +664,7 @@ class _ScrapeModeTocRowExpandedState extends State<_ScrapeModeTocRowExpanded> {
   Widget build(BuildContext context) {
     final dateFmt = DateFormat('MMM d, yyyy');
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
-      color: AppPalette.primary.withOpacity(0.7),
+      color: context.colors.primary.withOpacity(0.7),
     );
 
     return Padding(
@@ -688,7 +700,7 @@ class _ScrapeModeTocRowExpandedState extends State<_ScrapeModeTocRowExpanded> {
                 if (widget.localPart!.isDeleted)
                   Text(
                     'Deleted',
-                    style: labelStyle?.copyWith(color: AppPalette.error),
+                    style: labelStyle?.copyWith(color: context.colors.error),
                   ),
               ],
             )
@@ -734,12 +746,12 @@ class _ScrapeModeTocRowExpandedState extends State<_ScrapeModeTocRowExpanded> {
                             ? () => _openPartLogs(context)
                             : () => _startScrape(context),
                         icon: scrapeBusy
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 14,
                                 height: 14,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.white,
+                                  color: context.colors.textOnLight,
                                 ),
                               )
                             : Icon(

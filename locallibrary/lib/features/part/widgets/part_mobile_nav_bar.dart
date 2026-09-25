@@ -22,7 +22,7 @@ class SidePanelMobileNavBar extends StatelessWidget {
         return Container(
           height: 60,
           decoration: BoxDecoration(
-            color: AppPalette.surfaceAlt,
+            color: context.colors.surfaceAlt,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
@@ -87,7 +87,7 @@ class _NavBtn extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: selected
-              ? AppPalette.primary.withOpacity(0.15)
+              ? context.colors.primary.withOpacity(0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -95,8 +95,8 @@ class _NavBtn extends StatelessWidget {
           iconPath,
           width: 24,
           color: selected
-              ? AppPalette.primary
-              : AppPalette.primary.withOpacity(0.4),
+              ? context.colors.primary
+              : context.colors.primary.withOpacity(0.4),
         ),
       ),
     );
