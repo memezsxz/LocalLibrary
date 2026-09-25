@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inner_shadow/flutter_inner_shadow.dart';
-import 'package:locallibrary/core/theme/app_palette.dart';
+import 'package:locallibrary/core/theme/app_theme.dart';
 
 class BookProgressBar extends StatelessWidget {
   final double progress;

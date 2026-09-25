@@ -6,7 +6,7 @@ import '../../../core/api/library_api_client.dart';
 import '../../../core/common/widgets/base_button.dart';
 import '../../../core/extensions/image.dart';
 import '../../../core/secrets/app_secrets.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../dependency_injection.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 import '../models/domain/story_model.dart';
 
 class StoryTagsWrap extends StatelessWidget {

@@ -6,7 +6,7 @@ import 'package:locallibrary/core/extensions/scrape_status.dart';
 
 import '../../../core/api/scrape_service.dart';
 import '../../../core/api/story_api_client.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../dependency_injection.dart';
 import '../../comments/bloc/scrape_comments_bloc.dart';
 import '../../comments/models/scrape_comments_result.dart';

@@ -7,7 +7,7 @@ import 'package:flutter_json_view/flutter_json_view.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/common/widgets/loader.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 import '../bloc/base_scrape_bloc.dart';
 import '../bloc/base_scrape_state.dart';
 import '../models/scrape/scrape_event_model.dart';
@@ -355,7 +355,7 @@ class _EventTile extends StatelessWidget {
                         _sanitizeNulls(vm.payload),
                         theme: JsonViewTheme(
                           loadingWidget: Loader(),
-                          backgroundColor: AppPalette.transparent,
+                          backgroundColor: Colors.transparent,
                           separator: const Divider(),
                           intStyle: TextStyle(color: _postmanGreen),
                           doubleStyle: TextStyle(color: _postmanGreen),

@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 
 class PartImages extends StatelessWidget {
   const PartImages({super.key, required this.partImages});

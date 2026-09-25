@@ -7,8 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/extensions/image.dart';
 import '../../../core/secrets/app_secrets.dart';
-import '../../../core/theme/app_palette.dart';
-import '../../../core/theme/theme.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../comments/widgets/comment_icon.dart';
 import '../../story/bloc/story_bloc.dart';
 import '../../story/models/domain/story_enums.dart';

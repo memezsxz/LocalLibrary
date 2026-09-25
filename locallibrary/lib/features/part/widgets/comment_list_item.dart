@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:locallibrary/core/theme/app_palette.dart';
+import 'package:locallibrary/core/theme/app_theme.dart';
 
 import '../../story/models/domain/comment_model.dart';
 

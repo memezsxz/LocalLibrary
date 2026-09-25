@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:locallibrary/core/theme/app_palette.dart';
+import 'package:locallibrary/core/theme/app_theme.dart';
 
 class BaseButton extends StatelessWidget {
   final String label;

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/api/dto/notification_row.dart';
 import '../../../core/api/dto/notification_thread.dart';
 import '../../../core/api/notifications_api_client.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../dependency_injection.dart';
 import '../../comments/widgets/comments_paragraph_view.dart';
 import '../../library/cubit/navigation_cubit.dart';

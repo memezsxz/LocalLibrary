@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 
 class StoryData extends StatelessWidget {
   StoryData({super.key, required this.image, required this.label, this.number});

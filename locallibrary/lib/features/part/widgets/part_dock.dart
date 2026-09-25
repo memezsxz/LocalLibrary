@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inner_shadow/flutter_inner_shadow.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../cubit/part_side_panel_cubit.dart';
 
@@ -126,7 +126,7 @@ class _DockBtn extends StatelessWidget {
           child: InkWell(
             customBorder: shape,
             onTap: onTap,
-            overlayColor: WidgetStateProperty.all(AppPalette.transparent),
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
             child: Center(
               child: SizedBox(
                 width: inner,

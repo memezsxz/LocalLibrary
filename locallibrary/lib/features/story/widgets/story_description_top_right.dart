@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../../core/api/library_api_client.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../dependency_injection.dart';
 import '../models/dto/story_bundle.dart';
 import '../screens/scrape_story_screen.dart';

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'core/theme/new_theme.dart';
+import 'core/theme/app_theme.dart';
 import 'core/theme/util.dart';
 import 'dependency_injection.dart';
 import 'features/library/cubit/navigation_cubit.dart';

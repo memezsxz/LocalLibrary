@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:locallibrary/core/theme/app_palette.dart';
+import 'package:locallibrary/core/theme/app_theme.dart';
 import 'package:locallibrary/features/story/models/domain/story_enums.dart';
 
 import '../../comments/bloc/comments_bloc.dart';
@@ -299,7 +299,7 @@ class _CommentsPanelState extends State<CommentsPanel> {
                           scrollbarOrientation: ScrollbarOrientation.left,
                           thumbColor: context.colors.primaryLight,
                           // thumb color
-                          trackColor: AppPalette.transparent,
+                          trackColor: Colors.transparent,
                           // track fill
                           // trackBorderColor: context.colors.primary.withOpacity(0.25), // track border
                           interactive: true,

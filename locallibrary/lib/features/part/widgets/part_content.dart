@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../core/extensions/image.dart';
 import '../../../core/secrets/app_secrets.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../story/bloc/story_bloc.dart';
 import '../../story/models/dto/part_full_info.dart';
 import 'paragraphs_column.dart';

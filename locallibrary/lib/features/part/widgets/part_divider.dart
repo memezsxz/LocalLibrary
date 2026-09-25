@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 
 class PartDivider extends StatelessWidget {
   const PartDivider({super.key, required this.title});

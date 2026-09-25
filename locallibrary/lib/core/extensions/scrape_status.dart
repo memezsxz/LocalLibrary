@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../features/story/bloc/base_scrape_state.dart';
-import '../theme/app_palette.dart';
+import '../theme/app_theme.dart';
 
 extension ScrapeStatusAssociation on ScrapeStatus {
   String get title {

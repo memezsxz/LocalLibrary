@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/api/story_api_client.dart';
 import '../../../core/common/widgets/loader.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../dependency_injection.dart';
 import '../../story/bloc/story_bloc.dart';
 import '../../story/bloc/story_event.dart';
