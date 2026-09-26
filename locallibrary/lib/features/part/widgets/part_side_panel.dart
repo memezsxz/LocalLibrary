@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../comments/bloc/comments_bloc.dart';
-import '../../library/cubit/navigation_cubit.dart';
 import '../bloc/part_bloc.dart';
 import '../cubit/part_side_panel_cubit.dart';
 import 'part_dock.dart';
@@ -149,9 +148,9 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    offset: const Offset(2, 12),
-                    color: context.colors.primary.withOpacity(0.3),
-                    blurRadius: 20,
+                    offset: const Offset(1, 0),
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
                   ),
                 ],
               ),
@@ -172,23 +171,18 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
             );
           },
         ),
-        Expanded(
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              widget.content,
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: SidePanelDock(
-                  storyId: widget.storyId,
-                  size: widget.dockSize,
-                ),
-              ),
-            ],
-          ),
+        VerticalDivider(
+          thickness: 1,
+          width: 1,
+          color: context.colors.primaryExtraLight,
         ),
+        SidePanelDock(storyId: widget.storyId, size: widget.dockSize),
+        VerticalDivider(
+          thickness: 1,
+          width: 1,
+          color: context.colors.primaryExtraLight,
+        ),
+        Expanded(child: widget.content),
       ],
     );
   }
@@ -199,7 +193,6 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
         .size
         .height * 0.75;
     const navH = 60.0;
-    const fabSize = 40.0;
 
     return Column(
       children: [
@@ -292,20 +285,6 @@ class SidePanelScaffoldState extends State<SidePanelScaffold> {
                     ),
                   );
                 },
-              ),
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-                top: _showControls ? 16 : -(fabSize + 16),
-                left: 16,
-                child: FloatingActionButton.small(
-                  heroTag: 'back',
-                  backgroundColor: context.colors.surfaceAlt,
-                  foregroundColor: context.colors.primary,
-                  elevation: 4,
-                  onPressed: () => context.read<NavigationCubit>().pop(),
-                  child: const Icon(Icons.arrow_back),
-                ),
               ),
             ],
           ),

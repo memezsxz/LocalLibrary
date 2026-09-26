@@ -28,6 +28,7 @@ class BookCoverCard extends StatefulWidget {
 
 class _BookCoverCardState extends State<BookCoverCard> {
   Future<BookMinimal>? _future;
+  bool _hovering = false;
 
   @override
   void initState() {
@@ -38,32 +39,105 @@ class _BookCoverCardState extends State<BookCoverCard> {
   }
 
   Widget _buildCard(BuildContext context, BookMinimal book) {
-    return GestureDetector(
-      onTap:
-          widget.onTap ??
-          () => context.read<NavigationCubit>().push(
-            NavigationStoryState(storyId: widget.storyId),
-          ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          LocalImage.relative(
-            storageRoot: AppSecrets.storageRoot,
-            storyWattId: book.wattId,
-            relativePath: book.image.path!,
-            fit: BoxFit.cover,
-          ),
-          if ((book.storyProgress?.progress ?? 0) > 0)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(5),
-                child: BookProgressBar(progress: book.storyProgress!.progress!),
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: GestureDetector(
+        onTap:
+        widget.onTap ??
+                () =>
+                context.read<NavigationCubit>().push(
+                  NavigationStoryState(storyId: widget.storyId),
+                ),
+        child: AnimatedSlide(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          offset: _hovering ? const Offset(0, -0.02) : Offset.zero,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(_hovering ? 0.32 : 0.22),
+                  blurRadius: _hovering ? 26 : 16,
+                  offset: Offset(0, _hovering ? 14 : 8),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  LocalImage.relative(
+                    storageRoot: AppSecrets.storageRoot,
+                    storyWattId: book.wattId,
+                    relativePath: book.image.path!,
+                    fit: BoxFit.cover,
+                  ),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(9, 22, 9, 8),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0),
+                            Colors.black.withOpacity(0.78),
+                          ],
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            book.title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              height: 1.25,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          // Placeholder — BookMinimal doesn't carry an author
+                          // field yet; swap for the real name once it does.
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1),
+                            child: Text(
+                              'Unknown author',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.75),
+                                fontSize: 9.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if ((book.storyProgress?.progress ?? 0) > 0)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: BookProgressBar(
+                                progress: book.storyProgress!.progress!,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-        ],
+          ),
+        ),
       ),
     );
   }

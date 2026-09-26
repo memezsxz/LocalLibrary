@@ -121,14 +121,18 @@ class TypographyPanelSwitchRow extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: context.colors.primary,
-            activeTrackColor: context.colors.primaryLight,
-            inactiveThumbColor: context.colors.gray,
-            inactiveTrackColor: context.colors.primaryExtraLight,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          Transform.scale(
+            scale: 0.8,
+            alignment: Alignment.centerRight,
+            child: Switch(
+              value: value,
+              onChanged: onChanged,
+              activeColor: context.colors.primary,
+              activeTrackColor: context.colors.primaryLight,
+              inactiveThumbColor: context.colors.gray,
+              inactiveTrackColor: context.colors.primaryExtraLight,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
           ),
         ],
       ),
@@ -143,11 +147,7 @@ class TypographyRowDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Divider(
-      height: 1,
-      indent: 40,
-      color: context.colors.primaryExtraLight,
-    );
+    return Divider(height: 1, color: context.colors.primaryExtraLight);
   }
 }
 

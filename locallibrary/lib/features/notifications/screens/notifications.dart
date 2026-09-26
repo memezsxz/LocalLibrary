@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/api/dto/notification_row.dart';
+import '../../../core/common/widgets/page_header.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../dependency_injection.dart';
 import '../bloc/notifications_bloc.dart';
@@ -30,10 +31,10 @@ String _dateBucket(DateTime dt) {
   final today = DateTime(now.year, now.month, now.day);
   final d = DateTime(dt.year, dt.month, dt.day);
   final diff = today.difference(d).inDays;
-  if (diff == 0) return 'TODAY';
-  if (diff == 1) return 'YESTERDAY';
-  if (diff < 7) return 'THIS WEEK';
-  return 'EARLIER';
+  if (diff == 0) return 'Today';
+  if (diff == 1) return 'Yesterday';
+  if (diff < 7) return 'This week';
+  return 'Earlier';
 }
 
 List<_ListItem> _buildGrouped(List<NotificationRow> items) {
@@ -103,64 +104,75 @@ class _NotificationsViewState extends State<_NotificationsView> {
 
   @override
   Widget build(BuildContext context) {
+    // NotificationCard below insets itself 10px via its own margin — match
+    // that here so the header/filter row shares the same left edge as the
+    // cards instead of sitting 16px in against their 10px.
+    const contentInset = 10.0;
+    final isDesktop = MediaQuery
+        .of(context)
+        .size
+        .width >= 600;
+
+    final toggle = SegmentedButton<bool>(
+      segments: const [
+        ButtonSegment(value: false, label: Text('All')),
+        ButtonSegment(value: true, label: Text('Unread')),
+      ],
+      selected: {_unreadOnly},
+      onSelectionChanged: (s) => _setFilter(s.first),
+      style: ButtonStyle(
+        // Kill the hover/press tint — SegmentedButton applies one by default.
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return context.colors.primaryExtraLight;
+          }
+          return Colors.transparent;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return context.colors.primary;
+          }
+          return context.colors.gray;
+        }),
+        side: WidgetStatePropertyAll(
+          BorderSide(color: context.colors.primaryExtraLight),
+        ),
+      ),
+    );
+
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          padding: const EdgeInsets.fromLTRB(
+            contentInset,
+            12,
+            contentInset,
+            8,
+          ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: false, label: Text('All')),
-                  ButtonSegment(value: true, label: Text('Unread')),
-                ],
-                selected: {_unreadOnly},
-                onSelectionChanged: (s) => _setFilter(s.first),
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.resolveWith((states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return context.colors.primary;
-                    }
-                    return context.colors.surfaceAlt;
-                  }),
-                  foregroundColor: WidgetStateProperty.resolveWith((states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return context.colors.textOnLight;
-                    }
-                    return context.colors.textPrimary;
-                  }),
-                  side: WidgetStatePropertyAll(
-                    BorderSide(color: context.colors.primaryLight),
-                  ),
+              const Expanded(
+                child: PageHeader(
+                  title: 'Notifications',
+                  subtitle: 'Stay on top of new chapters and comments',
                 ),
               ),
-              const Spacer(),
-              BlocBuilder<NotificationsBloc, NotificationsState>(
-                builder: (context, state) {
-                  if (state is! NotificationsData)
-                    return const SizedBox.shrink();
-                  final hasUnread = state.items.any(
-                    (r) => !r.notification.isRead,
-                  );
-                  if (!hasUnread) return const SizedBox.shrink();
-                  return TextButton(
-                    onPressed: () => context.read<NotificationsBloc>().add(
-                      NotificationsMarkAllReadRequested(),
-                    ),
-                    style: TextButton.styleFrom(
-                      foregroundColor: context.colors.primary,
-                      textStyle: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    child: const Text('Mark all read'),
-                  );
-                },
-              ),
+              if (isDesktop) toggle,
             ],
           ),
         ),
+        if (!isDesktop)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              contentInset,
+              0,
+              contentInset,
+              8,
+            ),
+            child: SizedBox(width: double.infinity, child: toggle),
+          ),
         Expanded(
           child: BlocBuilder<NotificationsBloc, NotificationsState>(
             builder: (context, state) {
@@ -252,13 +264,12 @@ class _DateHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
+      padding: const EdgeInsets.fromLTRB(10, 18, 10, 6),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: FontWeight.w600,
-          letterSpacing: 1.4,
           color: context.colors.gray,
         ),
       ),

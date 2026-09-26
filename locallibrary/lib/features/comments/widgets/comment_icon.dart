@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 import '../../../core/theme/app_theme.dart';
 
@@ -21,49 +20,29 @@ class CommentIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!visible) return SizedBox(width: size, height: size);
 
-    final overlaid = Padding(
-      padding: const EdgeInsets.only(top: 5),
-      child: (count >= 1000)
-          ? Icon(
-        Icons.all_inclusive, // ∞
-        size: size * 0.5,
-        color: context.colors.primary,
-      )
-          : Text(
-        '$count',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: size * 0.4,
-          height: 1.0,
-          fontWeight: FontWeight.w700,
-          color: context.colors.primary,
-          shadows: [
-            Shadow(blurRadius: 2, color: Colors.black.withOpacity(0.35)),
-          ],
-        ),
-      ),
-    );
-
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(size / 2),
+      borderRadius: BorderRadius.circular(100),
       child: SizedBox(
         width: size,
         height: size,
-        child: Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            SvgPicture.asset(
-              'assets/icons/comment_icon.svg',
-              width: size,
-              height: size,
-              colorFilter: ColorFilter.mode(
-                context.colors.primaryLight,
-                BlendMode.srcIn,
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: context.colors.primaryExtraLight,
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Text(
+              count >= 1000 ? '999+' : '$count',
+              style: TextStyle(
+                fontSize: 10,
+                height: 1.3,
+                fontWeight: FontWeight.w700,
+                color: context.colors.primary,
               ),
             ),
-            overlaid,
-          ],
+          ),
         ),
       ),
     );

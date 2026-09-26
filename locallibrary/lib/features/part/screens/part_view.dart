@@ -6,6 +6,7 @@ import '../../../core/api/story_api_client.dart';
 import '../../../core/common/widgets/loader.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../dependency_injection.dart';
+import '../../library/cubit/navigation_cubit.dart';
 import '../../story/bloc/story_bloc.dart';
 import '../../story/bloc/story_event.dart';
 import '../../story/bloc/story_state.dart';
@@ -256,108 +257,116 @@ class _PartViewState extends State<PartView>
                   child: SidePanelScaffold(
                     storyId: widget.storyId,
                     panelWidth: MediaQuery.of(context).size.width / 4,
-                    dockSize: 40,
+                    dockSize: 64,
                     scrollController: _scrollController,
-                    content: FadeTransition(
-                      opacity: _fadeCtrl,
-                      child: Stack(
-                        children: [
-                          CustomScrollView(
-                            controller: _scrollController,
-                            physics: const BouncingScrollPhysics(
-                              parent: AlwaysScrollableScrollPhysics(),
-                            ),
-                            slivers: [
-                              for (int i = 0; i < _parts.length; i++) ...[
-                                if (i > 0)
-                                  SliverToBoxAdapter(
-                                    child: PartDivider(
-                                      title: _parts[i].part.title,
-                                    ),
+                    content: Column(
+                      children: [
+                        _ReadingTopBar(
+                          title: _parts.first.part.title,
+                          votes: _parts.first.part.votes,
+                          commentsCount: _parts.first.commentsCount,
+                          onBack: () => context.read<NavigationCubit>().pop(),
+                        ),
+                        Expanded(
+                          child: FadeTransition(
+                            opacity: _fadeCtrl,
+                            child: Stack(
+                              children: [
+                                CustomScrollView(
+                                  controller: _scrollController,
+                                  physics: const BouncingScrollPhysics(
+                                    parent: AlwaysScrollableScrollPhysics(),
                                   ),
-                                SliverToBoxAdapter(
-                                  child: Align(
-                                    alignment: Alignment.topCenter,
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth:
-                                            MediaQuery.of(context).size.width <
-                                                900
-                                            ? double.infinity
-                                            : MediaQuery.of(
-                                                    context,
-                                                  ).size.width /
-                                                  1.6,
-                                        minHeight: i == 0
-                                            ? MediaQuery.sizeOf(context).height
-                                            : 0,
-                                      ),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: context.colors.surfaceAlt,
-                                          image: const DecorationImage(
-                                            repeat: ImageRepeat.repeat,
-                                            image: AssetImage(
-                                              'assets/images/texture_5.png',
-                                            ),
-                                            fit: BoxFit.none,
-                                            opacity: 0.1,
+                                  slivers: [
+                                    for (int i = 0; i < _parts.length; i++) ...[
+                                      if (i > 0)
+                                        SliverToBoxAdapter(
+                                          child: PartDivider(
+                                            title: _parts[i].part.title,
                                           ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(
-                                                0.25,
-                                              ),
-                                              blurRadius: 40,
-                                            ),
-                                          ],
                                         ),
-                                        alignment: Alignment.topCenter,
-                                        child: PartContent(
-                                          storyId: widget.storyId,
-                                          info: _parts[i],
-                                          scrollController: _scrollController,
-                                          progressNotifier: _progressNotifier,
-                                          targetParagraphId:
-                                              widget.targetParagraphId,
-                                          targetCommentId:
-                                              widget.targetCommentId,
+                                      SliverToBoxAdapter(
+                                        child: Align(
+                                          alignment: Alignment.topCenter,
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth:
+                                              MediaQuery
+                                                  .of(
+                                                context,
+                                              )
+                                                  .size
+                                                  .width <
+                                                  900
+                                                  ? double.infinity
+                                                  : MediaQuery
+                                                  .of(
+                                                context,
+                                              )
+                                                  .size
+                                                  .width /
+                                                  1.6,
+                                              minHeight: i == 0
+                                                  ? MediaQuery
+                                                  .sizeOf(
+                                                context,
+                                              )
+                                                  .height
+                                                  : 0,
+                                            ),
+                                            child: Container(
+                                              color: context.colors.surfaceAlt,
+                                              alignment: Alignment.topCenter,
+                                              child: PartContent(
+                                                storyId: widget.storyId,
+                                                info: _parts[i],
+                                                scrollController:
+                                                _scrollController,
+                                                progressNotifier:
+                                                _progressNotifier,
+                                                targetParagraphId:
+                                                widget.targetParagraphId,
+                                                targetCommentId:
+                                                widget.targetCommentId,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
+                                    ],
+                                  ],
+                                ),
+                                if (prevTitle != null)
+                                  Positioned(
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: PartPeekBar(
+                                      overscroll: _topOverscroll,
+                                      threshold: _kThreshold,
+                                      title: prevTitle,
+                                      loading: _loadingPrev,
+                                      direction: PeekDirection.top,
                                     ),
                                   ),
-                                ),
+                                if (nextTitle != null)
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: PartPeekBar(
+                                      overscroll: _bottomOverscroll,
+                                      threshold: _kThreshold,
+                                      title: nextTitle,
+                                      loading: _loadingNext,
+                                      direction: PeekDirection.bottom,
+                                    ),
+                                  ),
                               ],
-                            ],
+                            ),
                           ),
-                          if (prevTitle != null)
-                            Positioned(
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              child: PartPeekBar(
-                                overscroll: _topOverscroll,
-                                threshold: _kThreshold,
-                                title: prevTitle,
-                                loading: _loadingPrev,
-                                direction: PeekDirection.top,
-                              ),
-                            ),
-                          if (nextTitle != null)
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: PartPeekBar(
-                                overscroll: _bottomOverscroll,
-                                threshold: _kThreshold,
-                                title: nextTitle,
-                                loading: _loadingNext,
-                                direction: PeekDirection.bottom,
-                              ),
-                            ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -365,6 +374,101 @@ class _PartViewState extends State<PartView>
             },
           );
         },
+      ),
+    );
+  }
+}
+
+class _ReadingTopBar extends StatelessWidget {
+  const _ReadingTopBar({
+    required this.title,
+    required this.votes,
+    required this.commentsCount,
+    required this.onBack,
+  });
+
+  final String title;
+  final int votes;
+  final int commentsCount;
+  final VoidCallback onBack;
+
+  static String _fmt(int n) {
+    if (n < 1000) return '$n';
+    return '${(n / 1000).toStringAsFixed(1)}k';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: context.colors.primaryExtraLight),
+        ),
+      ),
+      child: Row(
+        spacing: 10,
+        children: [
+          GestureDetector(
+            onTap: onBack,
+            child: Container(
+              width: 28,
+              height: 28,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: context.colors.surfaceAlt,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.arrow_back,
+                size: 15,
+                color: context.colors.textPrimary,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: context.colors.textPrimary,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.star, size: 12, color: context.colors.gray),
+              const SizedBox(width: 3),
+              Text(
+                _fmt(votes),
+                style: TextStyle(
+                  fontSize: 11.5,
+                  color: context.colors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Icon(
+                Icons.chat_bubble_outline,
+                size: 12,
+                color: context.colors.gray,
+              ),
+              const SizedBox(width: 3),
+              Text(
+                _fmt(commentsCount),
+                style: TextStyle(
+                  fontSize: 11.5,
+                  color: context.colors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

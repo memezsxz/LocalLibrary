@@ -100,59 +100,64 @@ class _CommentsPanelState extends State<CommentsPanel> {
         }
         return Column(
           children: [
-            const SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  if (p != null)
-                    CommentsParagraphNavArrow(
-                      dir: NavDir.prev,
-                      storyId: widget.storyId,
-                      current: p,
-                      iconAsset: "assets/icons/arrow_icon_left.svg",
-                    ),
-                  Builder(
-                    builder: (context) {
-                      if (p != null) {
-                        return Text(
-                          "Comments # ${p.commentsCount}",
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(color: context.colors.textPrimary),
-                        );
-                      }
-                      final ps = context.read<PartBloc>().state;
-                      final count = (ps is PartLoaded)
-                          ? ps.info.commentsCount
-                          : null;
-                      final label = (count == null)
-                          ? 'Comments'
-                          : 'Comments # $count';
-                      return Text(
-                        label,
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(
-                          color: context.colors.textPrimary,
+            Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: context.colors.primaryExtraLight),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    if (p != null)
+                      CommentsParagraphNavArrow(
+                        dir: NavDir.prev,
+                        storyId: widget.storyId,
+                        current: p,
+                      )
+                    else
+                      const SizedBox(width: 18),
+                    Expanded(
+                      child: Center(
+                        child: Builder(
+                          builder: (context) {
+                            final labelStyle = TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: context.colors.textPrimary,
+                            );
+                            if (p != null) {
+                              return Text(
+                                "Comments · ${p.commentsCount}",
+                                style: labelStyle,
+                              );
+                            }
+                            final ps = context
+                                .read<PartBloc>()
+                                .state;
+                            final count = (ps is PartLoaded)
+                                ? ps.info.commentsCount
+                                : null;
+                            final label = (count == null)
+                                ? 'Comments'
+                                : 'Comments · $count';
+                            return Text(label, style: labelStyle);
+                          },
                         ),
-                      );
-                    },
-                  ),
-                  if (p != null)
-                    CommentsParagraphNavArrow(
-                      dir: NavDir.next,
-                      storyId: widget.storyId,
-                      current: p,
-                      iconAsset: "assets/icons/arrow_icon_right.svg",
+                      ),
                     ),
-                ],
+                    if (p != null)
+                      CommentsParagraphNavArrow(
+                        dir: NavDir.next,
+                        storyId: widget.storyId,
+                        current: p,
+                      )
+                    else
+                      const SizedBox(width: 18),
+                  ],
+                ),
               ),
             ),
 
@@ -181,18 +186,6 @@ class _CommentsPanelState extends State<CommentsPanel> {
                   final isInitialLoading = s.roots.isEmpty && s.loadingRoot;
                   final isEmptyAndEnded = s.roots.isEmpty && s.rootEnded;
                   final isEmptyPending = s.roots.isEmpty && !s.rootEnded;
-
-                  // flatten rows (roots + expanded replies)
-                  final rows = <({Comment c, int depth})>[];
-                  for (final root in s.roots) {
-                    rows.add((c: root, depth: 0));
-                    if (_expanded.contains(root.commentId)) {
-                      for (final r
-                          in (s.replies[root.commentId] ?? const <Comment>[])) {
-                        rows.add((c: r, depth: 1));
-                      }
-                    }
-                  }
 
                   // ── deep-link: scroll to target comment ──
                   final target = widget.targetCommentId;
@@ -307,63 +300,126 @@ class _CommentsPanelState extends State<CommentsPanel> {
                           // draggable
                           child: ListView.separated(
                             controller: _scrollCtrl,
-                            padding: const EdgeInsets.all(10),
-                            itemCount: rows.length,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            itemCount: s.roots.length,
                             separatorBuilder: (_, __) =>
-                                const SizedBox(height: 5),
+                            const SizedBox(height: 8),
                             itemBuilder: (context, i) {
-                              final row = rows[i];
-                              final c = row.c;
-                              final depth = row.depth;
-                              final id = c.commentId;
-                              final isRoot = depth == 0;
+                              final root = s.roots[i];
+                              final id = root.commentId;
                               final isExpanded = _expanded.contains(id);
                               final loadingChildren = s.repliesLoading.contains(
                                 id,
                               );
-
                               final textDir =
                                   p?.direction.toTextDirection ??
                                   TextDirection.ltr;
-                              final isTarget =
-                                  target != null && c.commentId == target;
-                              Widget item = CommentListItem(
-                                comment: c,
-                                depth: depth,
-                                isRoot: isRoot,
-                                isExpanded: isExpanded,
-                                loadingChildren: loadingChildren,
-                                textDirection: textDir,
-                                isByAuthor: c.userName == authorUsername,
-                                isHighlighted: isTarget,
-                                onToggleReplies: () {
-                                  setState(() {
-                                    if (isExpanded) {
-                                      _expanded.remove(id);
-                                    } else {
-                                      _expanded.add(id);
-                                      final already =
-                                          (s.replies[id]?.isNotEmpty ?? false);
-                                      final loading = s.repliesLoading.contains(
-                                        id,
+
+                              void toggle() {
+                                setState(() {
+                                  if (isExpanded) {
+                                    _expanded.remove(id);
+                                  } else {
+                                    _expanded.add(id);
+                                    final already =
+                                    (s.replies[id]?.isNotEmpty ?? false);
+                                    final loading = s.repliesLoading.contains(
+                                      id,
+                                    );
+                                    final done = s.repliesEnded[id] ?? false;
+                                    if (!already && !loading && !done) {
+                                      context.read<CommentsBloc>().add(
+                                        LoadReplies(id),
                                       );
-                                      final done = s.repliesEnded[id] ?? false;
-                                      if (!already && !loading && !done) {
-                                        context.read<CommentsBloc>().add(
-                                          LoadReplies(id),
-                                        );
-                                      }
                                     }
-                                  });
-                                },
-                              );
-                              if (isTarget) {
-                                item = KeyedSubtree(
-                                  key: _keyForComment(c.commentId),
-                                  child: item,
-                                );
+                                  }
+                                });
                               }
-                              return item;
+
+                              Widget commentTile(Comment c) {
+                                final isTarget =
+                                    target != null && c.commentId == target;
+                                Widget item = CommentListItem(
+                                  comment: c,
+                                  isRoot: c.commentId == id,
+                                  isExpanded: isExpanded,
+                                  loadingChildren: loadingChildren,
+                                  textDirection: textDir,
+                                  isByAuthor: c.userName == authorUsername,
+                                  isHighlighted: isTarget,
+                                  onToggleReplies: toggle,
+                                );
+                                if (isTarget) {
+                                  item = KeyedSubtree(
+                                    key: _keyForComment(c.commentId),
+                                    child: item,
+                                  );
+                                }
+                                return item;
+                              }
+
+                              final replies = isExpanded
+                                  ? (s.replies[id] ?? const <Comment>[])
+                                  : const <Comment>[];
+
+                              Widget? trailing;
+                              if (root.repliesCount > 0) {
+                                if (isExpanded && loadingChildren) {
+                                  trailing = const Padding(
+                                    padding: EdgeInsets.only(left: 14, top: 6),
+                                    child: SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  );
+                                } else if (!isExpanded) {
+                                  trailing = Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 14,
+                                      top: 4,
+                                    ),
+                                    child: InkWell(
+                                      onTap: toggle,
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.expand_more,
+                                            size: 15,
+                                            color: context.colors.primary,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${root.repliesCount} repl${root
+                                                .repliesCount > 1
+                                                ? 'ies'
+                                                : 'y'}',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                              color: context.colors.primary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+
+                              return CommentThreadGroup(
+                                root: root,
+                                replies: replies,
+                                buildItem: commentTile,
+                                trailing: trailing,
+                              );
                             },
                           ),
                         ),

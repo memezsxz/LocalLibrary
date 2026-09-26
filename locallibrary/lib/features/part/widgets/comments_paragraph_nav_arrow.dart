@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../story/models/domain/part_model.dart';
@@ -15,14 +14,12 @@ class CommentsParagraphNavArrow extends StatelessWidget {
     required this.dir,
     required this.storyId,
     required this.current,
-    required this.iconAsset,
     this.disabledOpacity = 0.35,
   });
 
   final NavDir dir;
   final int storyId;
   final Paragraph current;
-  final String iconAsset;
   final double disabledOpacity;
 
   @override
@@ -79,12 +76,10 @@ class CommentsParagraphNavArrow extends StatelessWidget {
                   PartSidePanelCommentsCubit(storyId: storyId, paragraph: next),
                 );
               },
-              child: SvgPicture.asset(
-                iconAsset,
-                colorFilter: ColorFilter.mode(
-                  context.colors.textPrimary,
-                  BlendMode.srcIn,
-                ),
+              child: Icon(
+                dir == NavDir.prev ? Icons.chevron_left : Icons.chevron_right,
+                size: 18,
+                color: context.colors.primaryLight,
               ),
             ),
           ),

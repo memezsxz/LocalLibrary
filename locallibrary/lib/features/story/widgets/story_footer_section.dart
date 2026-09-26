@@ -1,173 +1,151 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:locallibrary/core/extensions/datetime.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../../dependency_injection.dart';
-import '../../library/bloc/search_bloc.dart';
-import '../../library/bloc/search_event.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
-import '../../library/cubit/search_cubit.dart';
-import '../../library/cubit/search_state.dart';
-import '../models/domain/story_model.dart';
 import '../models/dto/story_bundle.dart';
-import 'story_tags_wrap.dart';
-
-export 'story_tags_wrap.dart';
 
 class StoryDescriptionBottom extends StatelessWidget {
   const StoryDescriptionBottom({super.key, required this.storyBundle});
 
   final StoryBundle storyBundle;
 
-  void _searchByTag(BuildContext context, Tag tag) {
-    final cubit = sl<SearchCubit>();
-    cubit.setParams(AdvancedSearchParams(tagIds: {tag.tagId}));
-    sl<SearchBloc>().add(SearchRequested(cubit.state.toFilterParams()));
-    context.read<NavigationCubit>().pop();
-  }
-
   @override
   Widget build(BuildContext context) {
-    int padding = 40;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // description
-        Text(
-          storyBundle.story.description,
-          style: Theme.of(
-            context,
-          ).textTheme.labelMedium?.copyWith(fontSize: 18),
-          // textDirection: TextDirection.rtl,
-        ),
-
-        SizedBox(height: 50),
-
-        // tags
-        StoryTagsWrap(
-          tags: storyBundle.tags,
-          onTagTap: (tag) => _searchByTag(context, tag),
-        ),
-        SizedBox(height: 50),
-
-        // table of content
-        Container(
-          margin: EdgeInsets.all(0),
-          width: double.infinity,
-          padding: EdgeInsets.only(top: 30),
-          decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.all(Radius.circular(25)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.25),
-                offset: Offset(0, 0),
-                blurRadius: 20,
-                spreadRadius: 0,
-              ),
-            ],
+        _Card(
+          label: 'SYNOPSIS',
+          child: Text(
+            storyBundle.story.description,
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.55,
+              color: context.colors.textPrimary,
+            ),
           ),
+        ),
+        const SizedBox(height: 16),
+        _Card(
+          label: 'PARTS',
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 15,
             children: [
-              // title
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: padding + 0.0,
-                ),
-                child: Text(
-                  "Table Of Content",
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontSize: 20),
-                ),
-              ),
-              SizedBox(),
-              // chapters
-              ...storyBundle.parts.map((p) {
-                bool isCurrentPart = storyBundle.currentPart?.idx == p.idx;
-
-                return GestureDetector(
-                  onTap: () {
-                    context.read<NavigationCubit>().push(
-                      NavigationPartState(
-                        storyId: storyBundle.story.storyId,
-                        partId: p.partId,
+              for (var i = 0; i < storyBundle.parts.length; i++)
+                _PartRow(
+                  title: storyBundle.parts[i].title.trim(),
+                  isCurrent:
+                  storyBundle.currentPart?.partId ==
+                      storyBundle.parts[i].partId,
+                  progress:
+                  storyBundle.currentPart?.partId ==
+                      storyBundle.parts[i].partId
+                      ? storyBundle.storyProgress.progress
+                      : null,
+                  showDivider: i != storyBundle.parts.length - 1,
+                  onTap: () =>
+                      context.read<NavigationCubit>().push(
+                        NavigationPartState(
+                          storyId: storyBundle.story.storyId,
+                          partId: storyBundle.parts[i].partId,
+                        ),
                       ),
-                    );
-                  },
-                  child: Container(
-                    // padding: EdgeInsets.symmetric( vertical: 10),
-                    color: isCurrentPart
-                        ? context.colors.primaryLight.withOpacity(0.3)
-                        : Colors.transparent,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        SizedBox(width: padding + 0.0),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 5,
-                            children: [
-                              Text(
-                                p.title.trim(),
-                                style: Theme.of(context).textTheme.labelLarge
-                                    ?.copyWith(
-                                  color: context.colors.textPrimary,
-                                      fontFamily: 'Courier New',
-                                      fontSize: 18,
-                                    ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (isCurrentPart)
-                                Text(
-                                  "${(storyBundle.storyProgress.progress! * 100)
-                                      .toStringAsFixed(2)}% Complete",
-                                  style: Theme.of(context).textTheme.labelLarge
-                                      ?.copyWith(
-                                    color: context.colors.primary,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Courier New',
-                                        fontSize: 14,
-                                      ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          p.datePublished.showDateInOwnFormat(),
-                          style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(
-                            color: context.colors.textPrimary,
-                                fontFamily: 'Courier New',
-                                fontSize:
-                                    MediaQuery.of(context).size.width < 600
-                                    ? 12
-                                    : 18,
-                              ),
-                        ),
-                        if (isCurrentPart) SizedBox(width: padding / 2),
-                        if (isCurrentPart)
-                          SvgPicture.asset(
-                            'assets/icons/current_part_icon.svg',
-                          ),
-                        if (!isCurrentPart) SizedBox(width: padding + 0.0),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-              SizedBox(height: 10),
+                ),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _Card extends StatelessWidget {
+  const _Card({required this.label, required this.child});
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border.all(color: context.colors.primaryExtraLight),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+              color: context.colors.gray,
+            ),
+          ),
+          const SizedBox(height: 10),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _PartRow extends StatelessWidget {
+  const _PartRow({
+    required this.title,
+    required this.isCurrent,
+    required this.progress,
+    required this.showDivider,
+    required this.onTap,
+  });
+
+  final String title;
+  final bool isCurrent;
+  final double? progress;
+  final bool showDivider;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 11),
+        decoration: BoxDecoration(
+          color: isCurrent ? context.colors.primaryExtraLight : null,
+          border: showDivider
+              ? Border(
+            bottom: BorderSide(color: context.colors.primaryExtraLight),
+          )
+              : null,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: context.colors.textPrimary,
+                ),
+              ),
+            ),
+            if (progress != null)
+              Text(
+                '${(progress! * 100).toStringAsFixed(0)}%',
+                style: TextStyle(fontSize: 12, color: context.colors.gray),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

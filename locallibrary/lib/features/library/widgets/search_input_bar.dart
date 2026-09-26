@@ -41,21 +41,34 @@ class _SearchInputBarState extends State<SearchInputBar> {
     return SearchBar(
       controller: _controller,
       hintText: 'Search in My Library',
-      leading: const Icon(Icons.search),
+      hintStyle: WidgetStatePropertyAll(
+        TextStyle(color: context.colors.gray, fontSize: 14),
+      ),
+      textStyle: WidgetStatePropertyAll(
+        TextStyle(color: context.colors.textPrimary, fontSize: 14),
+      ),
+      leading: Icon(Icons.search, color: context.colors.gray),
+      backgroundColor: WidgetStatePropertyAll(context.colors.surfaceAlt),
+      elevation: const WidgetStatePropertyAll(0),
+      side: WidgetStatePropertyAll(
+        BorderSide(color: context.colors.primaryExtraLight),
+      ),
       shape: WidgetStatePropertyAll(
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
       ),
       trailing: [
         if (widget.showClear)
           IconButton(
-            icon: const Icon(Icons.close),
+            icon: Icon(Icons.close, color: context.colors.gray),
             tooltip: 'Clear search',
             onPressed: _handleClear,
           ),
         IconButton(
           icon: Icon(
             Icons.tune,
-            color: widget.hasActiveFilters ? context.colors.primary : null,
+            color: widget.hasActiveFilters
+                ? context.colors.primary
+                : context.colors.gray,
           ),
           tooltip: 'Advanced search',
           onPressed: widget.onAdvancedSearch,

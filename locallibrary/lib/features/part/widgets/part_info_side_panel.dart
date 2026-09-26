@@ -1,5 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -37,8 +35,6 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 1200;
-
     return BlocBuilder<StoryBloc, StoryState>(
       buildWhen: (prev, next) =>
           prev.bundleFor(widget.storyId) != next.bundleFor(widget.storyId) ||
@@ -94,34 +90,30 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              // ── Header ──────────────────────────────────────────────────
-              if (!isMobile)
-                _DesktopHeader(storyId: widget.storyId, b: b)
-              else
-                _MobileHeader(storyId: widget.storyId, b: b),
-
-              const Divider(height: 1),
-
-              // ── Parts list ──────────────────────────────────────────────
+              _StoryHeader(storyId: widget.storyId, b: b),
+              Divider(height: 1, color: context.colors.primaryExtraLight),
               Expanded(
-                child: ScrollablePositionedList.separated(
-                  itemScrollController: _itemScroll,
-                  itemPositionsListener: _positions,
-                  initialScrollIndex: targetIndex ?? 0,
-                  initialAlignment: 0.1,
-                  separatorBuilder: (_, __) => const SizedBox(height: 4),
-                  itemCount: b.parts.length,
-                  itemBuilder: (ctx, i) {
-                    final part = b.parts[i];
-                    final isCurrent =
-                        b.currentPart != null &&
-                        b.currentPart!.partId == part.partId;
-                    return _PartRow(
-                      isCurrentPart: isCurrent,
-                      storyId: widget.storyId,
-                      part: part,
-                    );
-                  },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: ScrollablePositionedList.separated(
+                    itemScrollController: _itemScroll,
+                    itemPositionsListener: _positions,
+                    initialScrollIndex: targetIndex ?? 0,
+                    initialAlignment: 0.1,
+                    separatorBuilder: (_, __) => const SizedBox(height: 6),
+                    itemCount: b.parts.length,
+                    itemBuilder: (ctx, i) {
+                      final part = b.parts[i];
+                      final isCurrent =
+                          b.currentPart != null &&
+                              b.currentPart!.partId == part.partId;
+                      return _PartRow(
+                        isCurrentPart: isCurrent,
+                        storyId: widget.storyId,
+                        part: part,
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -132,86 +124,10 @@ class _PartInfoSidePanelState extends State<PartInfoSidePanel> {
   }
 }
 
-// ── Desktop header: image + title + author side by side ───────────────────────
+// ── Header: cover + title + author, tap through to the story screen ───────────
 
-class _DesktopHeader extends StatelessWidget {
-  const _DesktopHeader({required this.storyId, required this.b});
-
-  final int storyId;
-  final StoryBundle b;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        spacing: 12,
-        children: [
-          GestureDetector(
-            onTap: () => context.read<NavigationCubit>().push(
-              NavigationStoryState(storyId: storyId),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(5),
-              child: LocalImage.relative(
-                storageRoot: AppSecrets.storageRoot,
-                storyWattId: b.story.wattId,
-                relativePath: b.image!.path!,
-                height: MediaQuery.of(context).size.height / 5,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                AutoSizeText(
-                  b.story.title.trim(),
-                  style: Theme.of(context).textTheme.titleLarge,
-                  maxLines: 4,
-                  minFontSize: 12,
-                  stepGranularity: 0.5,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                AutoSizeText.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'By ',
-                        style: TextStyle(color: context.colors.gray),
-                      ),
-                      TextSpan(
-                        text: b.author.username,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: context.colors.gray,
-                        ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () =>
-                              debugPrint('author: ${b.author.username}'),
-                      ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  minFontSize: 10,
-                  overflow: TextOverflow.ellipsis,
-                  stepGranularity: 0.5,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Mobile header: compact title row, no image ────────────────────────────────
-
-class _MobileHeader extends StatelessWidget {
-  const _MobileHeader({required this.storyId, required this.b});
+class _StoryHeader extends StatelessWidget {
+  const _StoryHeader({required this.storyId, required this.b});
 
   final int storyId;
   final StoryBundle b;
@@ -223,44 +139,56 @@ class _MobileHeader extends StatelessWidget {
         NavigationStoryState(storyId: storyId),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.all(14),
         child: Row(
-          spacing: 10,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LocalImage.relative(
-                storageRoot: AppSecrets.storageRoot,
-                storyWattId: b.story.wattId,
-                relativePath: b.image!.path!,
-                height: 56,
+              borderRadius: BorderRadius.circular(5),
+              child: SizedBox(
+                width: 42,
+                height: 63,
+                child: b.image?.path != null
+                    ? LocalImage.relative(
+                  storageRoot: AppSecrets.storageRoot,
+                  storyWattId: b.story.wattId,
+                  relativePath: b.image!.path!,
+                  fit: BoxFit.cover,
+                )
+                    : Container(color: context.colors.surfaceAlt),
               ),
             ),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     b.story.title.trim(),
-                    style: Theme.of(context).textTheme.titleMedium,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    'By ${b.author.username}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: context.colors.primaryLight,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      height: 1.25,
+                      color: context.colors.textPrimary,
                     ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'by ${b.author.username}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11, color: context.colors.gray),
                   ),
                 ],
               ),
             ),
             Icon(
               Icons.chevron_right,
-              color: context.colors.primaryLight,
               size: 18,
+              color: context.colors.primaryLight,
             ),
           ],
         ),
@@ -284,37 +212,56 @@ class _PartRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: isCurrentPart
-          ? context.colors.primary.withOpacity(0.12)
-          : Colors.transparent,
-      child: InkWell(
-        onTap: () => context.read<NavigationCubit>().push(
-          NavigationPartState(storyId: storyId, partId: part.partId),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isCurrentPart
+              ? context.colors.background
+              : context.colors.primaryExtraLight,
+          borderRadius: BorderRadius.circular(9),
+          border: isCurrentPart
+              ? Border(
+            left: BorderSide(color: context.colors.primary, width: 3),
+          )
+              : Border.all(color: context.colors.primaryExtraLight),
         ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 44),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-            child: Row(
-              spacing: 8,
-              children: [
-                Expanded(
-                  child: Text(
-                    part.title,
-                    softWrap: true,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      fontSize: 15,
-                      color: isCurrentPart
-                          ? context.colors.primary
-                          : context.colors.textPrimary,
-                      fontWeight: isCurrentPart
-                          ? FontWeight.w600
-                          : FontWeight.normal,
+        clipBehavior: Clip.hardEdge,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () =>
+                context.read<NavigationCubit>().push(
+                  NavigationPartState(storyId: storyId, partId: part.partId),
+                ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      part.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: isCurrentPart
+                            ? context.colors.primary
+                            : context.colors.textPrimary,
+                        fontWeight: isCurrentPart
+                            ? FontWeight.w700
+                            : FontWeight.normal,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  if (isCurrentPart)
+                    Icon(
+                      Icons.play_arrow_rounded,
+                      size: 16,
+                      color: context.colors.primary,
+                    ),
+                ],
+              ),
             ),
           ),
         ),

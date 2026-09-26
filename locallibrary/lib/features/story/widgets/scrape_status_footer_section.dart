@@ -21,7 +21,7 @@ import '../models/dto/part_link.dart';
 import '../models/dto/scrape_story_res.dart';
 import '../models/dto/story_bundle.dart';
 import 'scrape_logs_dialog.dart';
-import 'story_footer_section.dart';
+import 'story_tags_wrap.dart';
 
 /// Bottom section for [ScrapeStoryViewScreen].
 ///

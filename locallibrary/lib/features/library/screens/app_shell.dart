@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/theme/app_theme.dart';
 import '../../story/screens/scrape_story_screen.dart';
 import '../cubit/navigation_cubit.dart';
 import '../cubit/navigation_state.dart';
@@ -19,8 +20,8 @@ class AppShell extends StatelessWidget {
 
   static final _tabStates = [
     NavigationDashboardState(),
-    NavigationLibraryState(),
     NavigationNotificationsState(),
+    NavigationLibraryState(),
     NavigationSettingsState(),
   ];
 
@@ -48,10 +49,17 @@ class AppShell extends StatelessWidget {
         final showScrape = navState is NavigationDashboardState;
 
         final fab = showScrape
-            ? FloatingActionButton.small(
+            ? FloatingActionButton(
                 tooltip: 'Scrape',
                 onPressed: () => showScrapeSheet(context),
-                child: const Icon(Icons.add_box_sharp),
+          backgroundColor: context.colors.primary,
+          foregroundColor: context.colors.textOnLight,
+          elevation: 2,
+          highlightElevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Icon(Icons.add_rounded),
               )
             : null;
 

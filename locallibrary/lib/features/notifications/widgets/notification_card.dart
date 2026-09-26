@@ -10,6 +10,7 @@ import '../../comments/widgets/comments_paragraph_view.dart';
 import '../../library/cubit/navigation_cubit.dart';
 import '../../library/cubit/navigation_state.dart';
 import '../../part/widgets/comment_list_item.dart';
+import '../../story/models/domain/comment_model.dart';
 import '../../story/models/domain/media_model.dart';
 import '../../story/models/domain/story_enums.dart';
 import '../bloc/notifications_bloc.dart';
@@ -87,10 +88,10 @@ class _NotificationCardState extends State<NotificationCard> {
         return widget.unreadOnly;
       },
       background: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
         decoration: BoxDecoration(
           color: context.colors.success,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: 20),
@@ -115,27 +116,12 @@ class _NotificationCardState extends State<NotificationCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+        clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
-          color: isUnread
-              ? context.colors.surfaceAlt
-              : context.colors.background,
-          borderRadius: BorderRadius.circular(10),
-          border: Border(
-            left: BorderSide(
-              color: isUnread ? context.colors.primary : Colors.transparent,
-              width: 3,
-            ),
-          ),
-          boxShadow: _expanded
-              ? [
-            BoxShadow(
-              color: context.colors.primary.withOpacity(0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ]
-              : null,
+          color: isUnread ? context.colors.surfaceAlt : context.colors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: context.colors.primaryExtraLight),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +133,7 @@ class _NotificationCardState extends State<NotificationCard> {
                 padding: const EdgeInsets.all(10),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 12,
+                  spacing: 11,
                   children: [
                     _CoverThumbnail(medium: widget.row.medium),
                     Expanded(
@@ -162,7 +148,9 @@ class _NotificationCardState extends State<NotificationCard> {
                                 child: Text(
                                   n.message,
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: isUnread
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
                                     fontSize: 13,
                                     color: context.colors.textPrimary,
                                   ),
@@ -172,11 +160,11 @@ class _NotificationCardState extends State<NotificationCard> {
                               ),
                               if (isUnread)
                                 Container(
-                                  width: 8,
-                                  height: 8,
+                                  width: 7,
+                                  height: 7,
                                   margin: const EdgeInsets.only(
                                     left: 6,
-                                    top: 3,
+                                    top: 4,
                                   ),
                                   decoration: BoxDecoration(
                                     color: context.colors.primary,
@@ -186,9 +174,13 @@ class _NotificationCardState extends State<NotificationCard> {
                             ],
                           ),
                           Row(
-                            spacing: 8,
+                            spacing: 5,
                             children: [
-                              _TypeBadge(type: n.notificationType),
+                              Icon(
+                                _typeIcon(n.notificationType),
+                                size: 13,
+                                color: context.colors.gray,
+                              ),
                               Text(
                                 _formatTime(n.createdAt),
                                 style: TextStyle(
@@ -200,11 +192,10 @@ class _NotificationCardState extends State<NotificationCard> {
                           ),
                           if (preview != null && !_expanded)
                             Text(
-                              '"$preview"',
+                              preview,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: context.colors.gray,
-                                fontStyle: FontStyle.italic,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -359,6 +350,32 @@ class _NotificationCommentsViewState extends State<_NotificationCommentsView> {
         final thread = snapshot.data!;
         final comments = thread.comments;
 
+        // Group the flat list into roots + their replies, same shape
+        // CommentThreadGroup expects from the Comments panel.
+        final roots = comments
+            .where((c) => (c.depth ?? (c.parentCommentId == null ? 0 : 1)) == 0)
+            .toList();
+        final repliesByRoot = <int, List<Comment>>{};
+        for (final c in comments) {
+          final depth = c.depth ?? (c.parentCommentId == null ? 0 : 1);
+          if (depth == 0) continue;
+          final rootId = c.parentCommentId;
+          if (rootId == null) continue;
+          repliesByRoot.putIfAbsent(rootId, () => []).add(c);
+        }
+
+        Widget commentTile(Comment c) =>
+            CommentListItem(
+              comment: c,
+              isRoot: c.parentCommentId == null,
+              isExpanded: true,
+              loadingChildren: false,
+              textDirection: TextDirection.ltr,
+              isByAuthor: false,
+              isHighlighted: targetId != null && c.commentId == targetId,
+              onToggleReplies: () {},
+            );
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -373,28 +390,21 @@ class _NotificationCommentsViewState extends State<_NotificationCommentsView> {
                 ),
               )
             else
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+              Padding(
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 4),
-                itemCount: comments.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 5),
-                itemBuilder: (context, i) {
-                  final c = comments[i];
-                  final depth = c.depth ?? (c.parentCommentId == null ? 0 : 1);
-                  final isRoot = depth == 0;
-                  return CommentListItem(
-                    comment: c,
-                    depth: depth,
-                    isRoot: isRoot,
-                    isExpanded: false,
-                    loadingChildren: false,
-                    textDirection: TextDirection.ltr,
-                    isByAuthor: false,
-                    isHighlighted: targetId != null && c.commentId == targetId,
-                    onToggleReplies: () {},
-                  );
-                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final root in roots) ...[
+                      CommentThreadGroup(
+                        root: root,
+                        replies: repliesByRoot[root.commentId] ?? const [],
+                        buildItem: commentTile,
+                      ),
+                      const SizedBox(height: 5),
+                    ],
+                  ],
+                ),
               ),
           ],
         );
@@ -403,48 +413,16 @@ class _NotificationCommentsViewState extends State<_NotificationCommentsView> {
   }
 }
 
-// ─── type badge ───────────────────────────────────────────────────────────────
+// ─── type icon ────────────────────────────────────────────────────────────────
 
-class _TypeBadge extends StatelessWidget {
-  final NotificationType type;
-
-  const _TypeBadge({required this.type});
-
-  (IconData, String) get _info => switch (type) {
-    NotificationType.storyAdded => (Icons.menu_book_rounded, 'Story Added'),
-    NotificationType.storyDeleted => (Icons.menu_book_rounded, 'Story Removed'),
-    NotificationType.partAdded => (Icons.article_rounded, 'Part Added'),
-    NotificationType.partDeleted => (Icons.article_rounded, 'Part Removed'),
-    NotificationType.authorComment => (Icons.chat_bubble_rounded, 'Comment'),
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final (icon, label) = _info;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: context.colors.primaryExtraLight,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 4,
-        children: [
-          Icon(icon, size: 11, color: context.colors.primary),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: context.colors.primary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+IconData _typeIcon(NotificationType type) =>
+    switch (type) {
+      NotificationType.storyAdded => Icons.menu_book_rounded,
+      NotificationType.storyDeleted => Icons.menu_book_rounded,
+      NotificationType.partAdded => Icons.article_rounded,
+      NotificationType.partDeleted => Icons.article_rounded,
+      NotificationType.authorComment => Icons.chat_bubble_rounded,
+    };
 
 // ─── cover thumbnail ──────────────────────────────────────────────────────────
 
@@ -459,8 +437,8 @@ class _CoverThumbnail extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(6),
       child: SizedBox(
-        width: 48,
-        height: 68,
+        width: 40,
+        height: 56,
         child: url != null
             ? Image.network(
                 url,
@@ -478,7 +456,7 @@ class _CoverThumbnail extends StatelessWidget {
         child: Icon(
       Icons.menu_book_rounded,
           color: context.colors.primary,
-      size: 24,
+          size: 20,
     ),
   );
 }

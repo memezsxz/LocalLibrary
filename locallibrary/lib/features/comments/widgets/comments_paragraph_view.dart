@@ -13,27 +13,23 @@ class CommentsParagraphView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: context.colors.surfaceAlt,
-      child: Container(
+      decoration: BoxDecoration(
         color: context.colors.background,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-          child: Html(
-            data: p.contentType == ContentType.text
-                ? "<p>${p.contentText}</p>"
-                : "html image or video",
-            style: {
-              "p": Style(
-                margin: Margins.zero,
-                padding: HtmlPaddings.zero,
-                lineHeight: LineHeight.rem(1.4),
-                fontSize: FontSize.medium,
-                color: context.colors.textPrimary,
-                direction: p.direction.toTextDirection,
-              ),
-            },
-          ),
+        border: Border(
+          bottom: BorderSide(color: context.colors.primaryExtraLight),
         ),
+      ),
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
+      child: Html(
+        data: p.contentType == ContentType.text
+            ? "<p>${p.contentText}</p>"
+            : "<p>html image or video</p>",
+        style: {
+          "p": AppTheme.paragraphsStyle(context).copyWith(
+            fontSize: FontSize(13.5),
+            direction: p.direction.toTextDirection,
+          ),
+        },
       ),
     );
   }

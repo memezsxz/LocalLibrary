@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/common/widgets/page_header.dart';
 import '../../../core/secrets/app_secrets.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../dependency_injection.dart';
@@ -44,19 +45,9 @@ class Settings extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Settings',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w700,
-                      color: context.colors.textPrimary,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Customize your reading experience',
-                    style: TextStyle(fontSize: 13, color: context.colors.gray),
+                  const PageHeader(
+                    title: 'Settings',
+                    subtitle: 'Customize your reading experience',
                   ),
                   const SizedBox(height: 32),
 

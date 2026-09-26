@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_inner_shadow/flutter_inner_shadow.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../library/cubit/navigation_cubit.dart';
 import '../cubit/part_side_panel_cubit.dart';
 
+/// Left-edge sidebar for the reading screen (desktop) — a real flex
+/// sibling of the content, same as the main app's nav rail, not an overlay.
 class SidePanelDock extends StatelessWidget {
   const SidePanelDock({super.key, required this.size, required this.storyId});
 
@@ -15,7 +15,6 @@ class SidePanelDock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const gap = 8.0;
     final panelCubit = context.read<PartSidePanelCubit>();
 
     return BlocBuilder<PartSidePanelCubit, PartSidePanelState>(
@@ -26,147 +25,110 @@ class SidePanelDock extends StatelessWidget {
             selected is PartSidePanelTypographyCubit;
         final bool selectedComments = selected is PartSidePanelCommentsCubit;
 
-        return Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  _DockBtn(
-                    size: size,
-                    iconPath: 'assets/icons/parts_icon.svg',
-                    selected: selectedInfo,
-                    onTap: () => selectedInfo
-                        ? panelCubit.clear()
-                        : panelCubit.changeContent(
-                            PartSidePanelPartInfoCubit(storyId),
-                          ),
-                  ),
-                  const SizedBox(height: gap),
-                  _DockBtn(
-                    size: size,
-                    iconPath: 'assets/icons/typography_icon.svg',
-                    selected: selectedTypography,
-                    onTap: () => selectedTypography
-                        ? panelCubit.clear()
-                        : panelCubit.changeContent(
-                            PartSidePanelTypographyCubit(),
-                          ),
-                  ),
-                  const SizedBox(height: gap),
-                  _DockBtn(
-                    size: size,
-                    iconPath: 'assets/icons/comments_icon.svg',
-                    selected: selectedComments,
-                    onTap: () => selectedComments
-                        ? panelCubit.clear()
-                        : panelCubit.changeContent(
-                            PartSidePanelCommentsCubit(storyId: storyId),
-                          ),
-                  ),
-                ],
+        return Container(
+          width: size,
+          color: context.colors.surface,
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _DockItem(
+                iconPath: 'assets/icons/parts_icon.svg',
+                label: 'Story',
+                selected: selectedInfo,
+                onTap: () =>
+                selectedInfo
+                    ? panelCubit.clear()
+                    : panelCubit.changeContent(
+                  PartSidePanelPartInfoCubit(storyId),
+                ),
               ),
-            ),
-            _DockBtn(
-              size: size,
-              selected: false,
-              iconWidget: Icon(
-                Icons.arrow_back,
-                color: context.colors.primary,
-                size: size * 0.40,
+              const SizedBox(height: 6),
+              _DockItem(
+                iconPath: 'assets/icons/typography_icon.svg',
+                label: 'Settings',
+                selected: selectedTypography,
+                onTap: () =>
+                selectedTypography
+                    ? panelCubit.clear()
+                    : panelCubit.changeContent(PartSidePanelTypographyCubit()),
               ),
-              onTap: () => context.read<NavigationCubit>().pop(),
-            ),
-            const SizedBox(height: 8),
-          ],
+              const SizedBox(height: 6),
+              _DockItem(
+                iconPath: 'assets/icons/comments_icon.svg',
+                label: 'Comments',
+                selected: selectedComments,
+                onTap: () =>
+                selectedComments
+                    ? panelCubit.clear()
+                    : panelCubit.changeContent(
+                  PartSidePanelCommentsCubit(storyId: storyId),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
   }
 }
 
-class _DockBtn extends StatelessWidget {
-  const _DockBtn({
-    required this.size,
-    required this.onTap,
+class _DockItem extends StatelessWidget {
+  const _DockItem({
+    required this.iconPath,
+    required this.label,
     required this.selected,
-    this.iconPath,
-    this.iconWidget,
+    required this.onTap,
   });
 
-  final String? iconPath;
-  final Widget? iconWidget;
-  final double size;
-  final VoidCallback onTap;
+  final String iconPath;
+  final String label;
   final bool selected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final inner = size * 0.40;
-
-    const shape = RoundedRectangleBorder(
-      borderRadius: BorderRadiusDirectional.horizontal(
-        end: Radius.circular(50),
-      ),
-    );
-
-    Widget core = ClipRect(
-      clipper: ClipPad(padding: const EdgeInsets.all(30).copyWith(left: 0)),
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: Material(
-          clipBehavior: Clip.antiAlias,
-          color: context.colors.surfaceAlt,
-          shape: shape,
-          elevation: selected ? 15 : 0,
-          shadowColor: context.colors.primary.withOpacity(0.3),
-          child: InkWell(
-            customBorder: shape,
-            onTap: onTap,
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
-            child: Center(
-              child: SizedBox(
-                width: inner,
-                height: inner,
-                child:
-                    iconWidget ??
-                        SvgPicture.asset(
-                            iconPath!, color: context.colors.primary),
+    return Material(
+      color: selected ? context.colors.primaryExtraLight : Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 19,
+                height: 19,
+                child: SvgPicture.asset(
+                  iconPath,
+                  colorFilter: ColorFilter.mode(
+                    selected ? context.colors.primary : context.colors.gray,
+                    BlendMode.srcIn,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: selected
+                      ? context.colors.primary
+                      : context.colors.gray,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
       ),
     );
-
-    if (!selected) {
-      core = InnerShadow(
-        shadows: [
-          Shadow(
-            color: context.colors.primary.withOpacity(0.35),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        child: core,
-      );
-    }
-
-    return core;
   }
-}
-
-class ClipPad extends CustomClipper<Rect> {
-  const ClipPad({this.padding = EdgeInsets.zero});
-
-  final EdgeInsets padding;
-
-  @override
-  Rect getClip(Size size) => padding.inflateRect(Offset.zero & size);
-
-  @override
-  bool shouldReclip(ClipPad oldClipper) => oldClipper.padding != padding;
 }

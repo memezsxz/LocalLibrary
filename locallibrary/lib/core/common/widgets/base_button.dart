@@ -14,15 +14,16 @@ class BaseButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         alignment: Alignment.center,
         side: BorderSide(color: context.colors.primary, width: 1.5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
         overlayColor: context.colors.primary.withOpacity(0.1),
       ),
       child: Text(
         label,
         style: TextStyle(
           color: context.colors.primary,
-          fontWeight: FontWeight.normal,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

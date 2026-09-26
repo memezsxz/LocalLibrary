@@ -49,8 +49,8 @@ class StoryLayout extends StatelessWidget {
                         color: context.colors.background,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.25),
-                            blurRadius: 43,
+                            color: Colors.black.withOpacity(0.10),
+                            blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
                         ],
@@ -114,8 +114,8 @@ class StoryLayout extends StatelessWidget {
                         color: context.colors.background,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.25),
-                            blurRadius: 43,
+                            color: Colors.black.withOpacity(0.10),
+                            blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
                         ],

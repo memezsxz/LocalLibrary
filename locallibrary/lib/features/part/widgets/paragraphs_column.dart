@@ -213,6 +213,15 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Expanded(child: content),
+                // Wider on desktop — reads as a detached margin gutter
+                // rather than crowding the text, like on phone.
+                SizedBox(
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width >= 900 ? 20 : 8,
+                ),
                 CommentIcon(
                   count: p.commentsCount,
                   visible: hasComments,
@@ -223,8 +232,6 @@ class _ParagraphsColumnState extends State<ParagraphsColumn> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(child: content),
               ],
             ),
           ),
